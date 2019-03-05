@@ -6,24 +6,24 @@ public class DemoCreationRequest implements Serializable {
 
     private static final long serialVersionUID = 1418032757339869048L;
 
-    private String bulkSize;
+    private int bulkSize;
 
-    private String numOfInteractios;
+    private int numOfInteractions;
 
-    public String getBulkSize() {
+    public int getBulkSize() {
         return bulkSize;
     }
 
-    public void setBulkSize(String myVal) {
-        this.bulkSize = bulkSize;
+    public void setBulkSize(int myVal) {
+        this.bulkSize = myVal;
     }
 
-    public String getNumOfInteractios() {
-        return bulkSize;
+    public int getNumOfInteractions() {
+        return numOfInteractions;
     }
 
-    public void setNumOfInteractios(String myVal) {
-        this.numOfInteractios = bulkSize;
+    public void setNumOfInteractions(int myVal) {
+        this.numOfInteractions = myVal;
     }
 
 }

@@ -9,12 +9,10 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.json.JSONException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
+@CrossOrigin(origins = "*")
 @RequestMapping(value="/Elastic-Search-Injector")
 @Api(description = "Demos API",
         value = "/demos",
@@ -32,8 +30,10 @@ public class DemoController {
 
         DemoResponse response = null;
         try {
-            dataGenerator.createData( req.getBulkSize(), req.getNumOfInteractios() );
+            System.out.println(req);
+            dataGenerator.createData( req.getBulkSize(), req.getNumOfInteractions() );
             response = new DemoResponse();
+            System.out.println("tali2");
             response.setMyRetVal( "response to Tali :)" );
             return response;
         } catch (JSONException e) {

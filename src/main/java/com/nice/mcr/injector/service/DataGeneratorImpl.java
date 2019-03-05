@@ -15,25 +15,27 @@ import java.util.Random;
 @Service
 public class DataGeneratorImpl implements DataGenerator {
 
-    public void createData(String bulsSize, String numOfInsteractions) throws JSONException {
+    public void createData(int bulkSize, int numOfInteractions) throws JSONException {
         Random random = new Random();
         ObjectMapper mapper = new ObjectMapper();
 
         JSONArray jsonArray = new JSONArray();
 
-//        for(int i=0 ; i<numOfInsteractions;i++) {
-//            JSONObject obj = new JSONObject();
-//            obj.put( "Interaction", random.nextInt( 10000000 - 1000000 ) + 10000000 );
-//            jsonArray.put( obj );
-//            try {
-//                mapper.writeValue( new File( "c:\\injector_test\\carmit.json" ), jsonArray );
-//            } catch (JsonGenerationException e) {
-//                e.printStackTrace();
-//            } catch (JsonMappingException e) {
-//                e.printStackTrace();
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//        }
+        for(int i=0 ; i<numOfInteractions;i++) {
+            JSONObject obj = new JSONObject();
+            obj.put( "Interaction", random.nextInt( 10000000 - 1000000 ) + 10000000 );
+            System.out.println("tali");
+
+            jsonArray.put( obj );
+            try {
+                mapper.writeValue( new File( "C:\\Users\\talioh\\IdeaProjects\\tool-elastic-search-injector\\output\\carmit.json" ), jsonArray );
+            } catch (JsonGenerationException e) {
+                e.printStackTrace();
+            } catch (JsonMappingException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
