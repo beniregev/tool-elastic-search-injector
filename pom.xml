@@ -60,12 +60,6 @@
             <artifactId>springfox-swagger2</artifactId>
         </dependency>
 
-        <!-- V10 depedencies -->
-        <dependency>
-            <groupId>com.nice.mcr</groupId>
-            <artifactId>lib-logging</artifactId>
-        </dependency>
-
         <!--test depedencies -->
           <dependency>
             <groupId>org.mockito</groupId>
@@ -89,6 +83,31 @@
             <artifactId>android-json</artifactId>
             <version>0.0.20131108.vaadin1</version>
         </dependency>
+        <dependency>
+            <groupId>net.logstash.logback</groupId>
+            <artifactId>logstash-logback-encoder</artifactId>
+            <version>5.3</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+            <version>1.2.3</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.2.3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.5</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.2.3</version>
+        </dependency>
     </dependencies>
 
     <dependencyManagement>
@@ -109,11 +128,6 @@
                 <groupId>io.springfox</groupId>
                 <artifactId>springfox-swagger2</artifactId>
                 <version>${springfox.swagger2.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.nice.mcr</groupId>
-                <artifactId>lib-logging</artifactId>
-                <version>${lib-logging.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

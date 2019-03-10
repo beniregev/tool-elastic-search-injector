@@ -1,8 +1,8 @@
 spring.application.name: search-injector
 
 log.level: info
-log.max-files: 10
-log.file-size: 10MB
+log.max-files: 25
+log.file-size: 5MB
 
 server:
   port: 9005
