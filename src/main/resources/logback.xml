@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <configuration>
+
+    <property  resource="application.yml" />
+    <property name="spring.application.name" value="service" scope="context"/>
+
+    <include resource="org/springframework/boot/logging/logback/defaults.xml" />
+
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml" />
+
+    <!--<property name="spring.application.name" calue="service"/>-->
+
+    <appender name="stash" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
+        <destination>localhost:9600</destination>
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+         <!--<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>-->
+        </encoder>
+    </appender>
+
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="DEBUG">
+        <appender-ref ref="stash" />
+        <appender-ref ref="STDOUT" />
+    </root>
+</configuration>
