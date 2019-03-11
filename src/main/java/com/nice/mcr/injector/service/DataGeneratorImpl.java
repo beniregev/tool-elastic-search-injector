@@ -65,19 +65,24 @@ public class DataGeneratorImpl implements DataGenerator {
             Date stopTime = getRandomDate(stringStartDate, stringEndDate);
             jsonObj.put(Consts.INTERACTION_LOCAL_START_TIME, startTime.toString());
             jsonObj.put(Consts.INTERACTION_LOCAL_STOP_TIME, stopTime.toString());
-            jsonObj.put(Consts.INTERACTION_GMT_START_TIME, new Date(startTime.getTime() - 3600* 1000 * 2).toString());
-            jsonObj.put(Consts.INTERACTION_GMT_STOP_TIME, new Date(startTime.getTime() - 3600* 1000 * 2).toString());
+            jsonObj.put(Consts.INTERACTION_GMT_START_TIME, new Date(getGMTTime(startTime)).toString());
+            jsonObj.put(Consts.INTERACTION_GMT_STOP_TIME, new Date(getGMTTime(stopTime)).toString());
             jsonObj.put(Consts.INTERACTION_DURATION, String.valueOf(Math.abs(stopTime.getTime() - startTime.getTime())));
             OpenCallReason openCallReason = OpenCallReason.getRandomReason();
             jsonObj.put(Consts.INTERACTION_OPEN_REASON_ID, openCallReason.getOpenCallReasonID());
-
             CloseCallReason closeCallReason = CloseCallReason.getRandomReason();
             jsonObj.put(Consts.INTERACTION_CLOSE_REASON_ID, closeCallReason.getCloseCallReasonID());
             jsonObj.put( Consts.SWITCH_ID, random.nextInt( 9 ) + 1 );
             jsonObj.put( Consts.INITIATOR_USER_ID, random.nextInt( 9 ) + 1 );
             jsonObj.put( Consts.OTHER_SWITCH_ID, random.nextInt( 9 ) + 1 );
+            jsonObj.put( Consts.INTERACTION_QA_TYPE_ID, random.nextInt( 2 ));
+            jsonObj.put( Consts.INTERACTION_QA_TYPE_ID, random.nextInt( 2 ));
+            InteractionType interactionType = InteractionType.getRandomInteractionType();
+            jsonObj.put( Consts.INTERACTION_TYPE_ID, interactionType.getRandomInteractionTypeID() );
 
-            jsonObj.put( "tiInteractionTypeID", random.nextInt( 3 ) + 1 );
+
+
+
             jsonObj.put( "tiInteractionRecordedTypeID", 0 );
             jsonObj.put( "vcInteractionDesc", "CTI" );
             jsonObj.put( "iExternalCallId", -1 );
@@ -92,6 +97,10 @@ public class DataGeneratorImpl implements DataGenerator {
             jsonArray.put( jsonObj );
         }
         return jsonArray;
+    }
+
+    private long getGMTTime(Date time) {
+        return time.getTime() - 3600* 1000 * 2;
     }
 
     private ArrayList <String> generateNames(int numOfInteractions, String path) {

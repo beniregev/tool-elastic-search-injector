@@ -166,3 +166,33 @@ enum CloseCallReason{
         return values()[random.nextInt(values().length)];
     }
 }
+
+enum InteractionType{
+    Unknown(0),
+    Clip_Recording(1),
+    CTI(2),
+    TRS(3),
+    Email(4),
+    Survey(5),
+    Chat(8),
+    SMS(9),
+    Web(16),
+    Time_Interval(32),
+    Vox(64),
+    ScreenSense(128);
+
+    private final int interactionTypeID;
+    private InteractionType(int interactionTypeID){
+        this.interactionTypeID = interactionTypeID;
+    }
+
+    public int getRandomInteractionTypeID(){
+        return interactionTypeID;
+    }
+
+    public static InteractionType getRandomInteractionType() {
+        Random random = new Random();
+        return values()[random.nextInt(values().length)];
+    }
+}
+
