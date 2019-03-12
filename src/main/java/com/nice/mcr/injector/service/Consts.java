@@ -91,7 +91,6 @@ public class Consts {
     static final String ITEM_USER_ID = "iItemUserID";
     static final String ITEM_VALUE = "nvcItemValue";
     static final String ITEM_IS_DELETED = "bitIsDeleted";
-
     static final String ITEM_IS_PUBLIC = "bitIsPublic";
     static final String ITEM_OFFSET = "iOffset";
     static final String RECORDED_TYPE_ID = "tiRecordedTypeID";
@@ -136,8 +135,31 @@ public class Consts {
     static final String TASK_ID = "iTaskID";
     static final String FLAG_ID = "iFlagID";
     static final String USER_SITE_ID = "iUserSiteID";
+    static final String FIRST_NAME = "nvcFirstName";
+    static final String LAST_NAME = "nvcLastName";
+    static final String MIDDLE_NAME = "nvcMiddleName";
     static final String MODIFICATION_TIME = "dtModificationTime";
-
+    static final String AGENT_ID = "iAgentId";
+    static final String EXTENTION = "nvcSwitchAgentId";
+    static final String SWITCH_AGENT_ID = "nvcSwitchAgentId";
+    static final String LOCATION_ID = "iLocationId";
+    static final String JOB_SKILL = "nvcJobSkill";
+    static final String JOB_FUNCTION = "nvcJobFunction";
+    static final String JOB_CLASS = "nvcJobClass";
+    static final String DEPARTMENT = "nvcDepartment";
+    static final String LOCATION = "nvcLocation";
+    static final String ITEM_ID = "iItemId";
+    static final String GRAD_SCORE = "fltGradScore";
+    static final String STATUS = "iStatus";
+    static final String FORMATTER_NAME = "nvcFormattedName";
+    static final String MANAGED_ID = "ManagerId";
+    static final String GROUP_ID = "GroupId";
+    static final String USER_ID = "UserId";
+    static final String SURVEY_NAME = "nvcSurveyName";
+    static final String TOPIC_ID = "iTopicID";
+    static final String TOPIC_NAME = "nvcTopicName";
+    static final String CATEGORY_SCORE = "dCategoryScore";
+    static final String NVC_NAME = "nvcName";
 }
 
 enum OpenCallReason{
@@ -175,9 +197,7 @@ enum OpenCallReason{
         Random random = new Random();
         return values()[random.nextInt(values().length)];
     }
-
 }
-
 
 enum CloseCallReason{
     Unknown(0),
@@ -211,7 +231,6 @@ enum CloseCallReason{
     }
 }
 
-
 enum InteractionType{
     Unknown(0),
     Clip_Recording(1),
@@ -240,7 +259,6 @@ enum InteractionType{
         return values()[random.nextInt(values().length)];
     }
 }
-
 
 enum MediaTypes{
     Unknown(0),
@@ -271,7 +289,6 @@ enum MediaTypes{
         return values()[random.nextInt(values().length)];
     }
 }
-
 
 enum InitiatorType{
     No_Value(0),
@@ -304,7 +321,6 @@ enum InitiatorType{
     }
 }
 
-
 enum DirectionType{
     Unknown(0),
     Incoming(1),
@@ -329,7 +345,6 @@ enum DirectionType{
     }
 }
 
-
 enum ParticipantType{
     Unknown(0),
     Internal(1),
@@ -350,7 +365,6 @@ enum ParticipantType{
         return values()[random.nextInt(values().length)];
     }
 }
-
 
 enum DeviceType{
     Unknown(0),
@@ -392,7 +406,6 @@ enum DeviceType{
         return values()[random.nextInt(values().length)];
     }
 }
-
 
 enum RecordingSideType{
     Unknown(0),
