@@ -23,8 +23,8 @@ public class DataGeneratorImpl implements DataGenerator {
     static Logger logger = (Logger) LoggerFactory.getLogger(DataGeneratorImpl.class);
     Random random = new Random();
 
-    String startData = "01-01-2000 00:00:00.00";
-    String endData = "01-01-2020 00:00:00.00";
+    String startData = "01-01-2019 00:00:00.00";
+    String endData = "31-12-2019 00:00:00.00";
     public void createData(int bulkSize, int numOfInteractions) {
         for (int i = 0; i < bulkSize; i++) {
             BufferedWriter writer = null;
@@ -75,6 +75,7 @@ public class DataGeneratorImpl implements DataGenerator {
             CreatorType creatorType = CreatorType.getRandomCreatorType();
             ItemType randomItemType = ItemType.getRandomItemType();
             RecordingRecordedType recordedType = RecordingRecordedType.getRandomRecorderType();
+            ExceptionType randomExceptionType = ExceptionType.getRandomExcetionType();
 
             JSONObject jsonObj = new JSONObject();
             jsonObj.put( Consts.INTERACTION_ID, getRandomNumber(900000,100000) );
@@ -184,23 +185,28 @@ public class DataGeneratorImpl implements DataGenerator {
             jsonObj.put(Consts.CONTACT_DURATION, String.valueOf(Math.abs(stopTime.getTime() - startTime.getTime())));
             jsonObj.put(Consts.CONTACT_OPEN_REASON_ID, openCallReason.getOpenCallReasonID());
             jsonObj.put(Consts.CONTACT_CLOSE_REASON_ID, closeCallReason.getCloseCallReasonID());
-            jsonObj.put( Consts.TRANSFER_SITE_ID, getRandomNumber(256,0));
-            jsonObj.put( Consts.TRANSFER_CONTACT_ID, getRandomNumber(256,0));
-            jsonObj.put( Consts.TRANSFER_SITE_ID, getRandomNumber(256,0));
-            jsonObj.put( Consts.CONTACT_RECORDED_TYPE_ID, getRandomNumber(256,0));
+            jsonObj.put( Consts.TRANSFER_SITE_ID, random.nextInt(256));
+            jsonObj.put( Consts.TRANSFER_CONTACT_ID, random.nextInt(256));
+            jsonObj.put( Consts.TRANSFER_SITE_ID, random.nextInt(256));
+            jsonObj.put( Consts.CONTACT_RECORDED_TYPE_ID, random.nextInt(256));
+            jsonObj.put( Consts.CONTACT_QA_TYPE_ID, random.nextInt(256));
+            jsonObj.put( Consts.CONTACT_DIRECTION_TYPE_ID, randomDirectionType.getDirectionTypeID());
+            jsonObj.put( Consts.EXCEPTION_TYPE_ID, randomExceptionType.exceptionTypeID());
+            jsonObj.put( Consts.EXCEPTION_TYPE_DESC, randomExceptionType.exceptionDescription());
+            jsonObj.put( Consts.EXCEPTION_POSSIBLE_CAUSE, randomExceptionType.exceptionPossibleCause());
+            jsonObj.put( Consts.EXCEPTION_RECOMMENDED_ACTION, randomExceptionType.exceptionRecommendedAction());
+            jsonObj.put( Consts.EXCEPTION_NUMBER, random.nextInt());
+            jsonObj.put( Consts.EXCEPTION_TIMESTAMP, getRandomDate(startData, endData));
+            jsonObj.put( Consts.EXCEPTION_DETAIL, generateRandomString(32));
+            jsonObj.put( Consts.CREATED_BY_ID, random.nextInt(100));
+            jsonObj.put( Consts.CREATION_DATE, getRandomDate(startData, endData));
+            jsonObj.put( Consts.CREATION_DATE, getRandomDate(startData, endData));
+            jsonObj.put( Consts.CLIP_NAME, generateRandomString(50));
+            jsonObj.put( Consts.CATEGORY_ID, random.nextInt(16));
+            jsonObj.put( Consts.IS_PUBLISHED, getRandomBit());
+            jsonObj.put( Consts.IS_PUBLIC, getRandomBit());
 
 
-
-
-
-            jsonObj.put( "tiInteractionRecordedTypeID", 0 );
-            jsonObj.put( "vcInteractionDesc", "CTI" );
-            jsonObj.put( "tiCallDirectionTypeID", 1 );
-            jsonObj.put( "iCompoundID", getRandomNumber(9000,1000));
-            jsonObj.put( "iParticipantID", getRandomNumber(5,1));
-            jsonObj.put( "nvcStation", getRandomNumber(4000,1000) );
-            jsonObj.put( "first-name", firstNames.get( random.nextInt( firstNames.size() ) ) );
-            jsonObj.put( "first-name", lastNames.get( random.nextInt( firstNames.size() ) ) );
 
             jsonArray.put( jsonObj );
         }
