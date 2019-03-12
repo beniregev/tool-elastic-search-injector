@@ -120,6 +120,7 @@ public class Consts {
     static final String CONTACT_QA_TYPE_ID = "bitContactQATypeID";
     static final String CONTACT_DIRECTION_TYPE_ID = "tiContactDirectionTypeID";
     static final String EXCEPTION_TYPE_ID = "iExceptionTypeID";
+    static final String EXCEPTION_TYPE_DESC = "nvcExceptionDesc";
     static final String EXCEPTION_POSSIBLE_CAUSE = "nvcPossibleCause";
     static final String EXCEPTION_RECOMMENDED_ACTION = "nvcRecomendedAction";
     static final String EXCEPTION_NUMBER = "iExceptionNumber";
@@ -127,6 +128,7 @@ public class Consts {
     static final String EXCEPTION_DETAIL = "vcExceptionDetail";
     static final String CREATED_BY_ID = "iCreatedByID";
     static final String CLIP_NAME = "nvcClipName";
+    static final String CREATION_DATE = "iCreatedByID";
     static final String CATEGORY_ID = "iCategoryID";
     static final String IS_PUBLISHED = "bIsPublished";
     static final String IS_PUBLIC = "bIsPublic";
@@ -484,7 +486,7 @@ enum ItemType {
     Notations(2),
     Operational_Group_Id(3000),
     Emergency_Terminal_Address(3001),
-    Party_Address(3002),;
+    Party_Address(3002);
 
     private final int itemTypeID;
     private ItemType(int ItemTypeID){
@@ -496,6 +498,172 @@ enum ItemType {
     }
 
     public static ItemType getRandomItemType() {
+        Random random = new Random();
+        return values()[random.nextInt(values().length)];
+    }
+}
+
+enum ExceptionType {
+    Duplicate_call_start(1,
+            "Duplicate start of call - another call with the same call key has started while this call was open.",
+            "Problem with the driver or PABX reports.",
+            "Check the driver or PABX. Collect the driver and CLS log files."),
+    Maximum_duration_exceeded(2,
+            "Call too long - the call was open for more seconds than the value of the registry parameter MaxOpenCallDuration " +
+                    "and was therefore forcibly closed.",
+            "Either the call was longer than the parameters value, or there is a problem with the driver or PABX reports.",
+            "Check if the value of the Call Server parameter op_MaxOpenCallDuration matches the length of calls in the site."),
+    Call_flushed_while_open(3,
+            "Call flushed - a flush command was executed while the call was open.",
+            "The driver could have gone down and come up.",
+            "Check that the driver is up. Review the driver log files, look for errors. If there is no error no action is needed."),
+    Call_start_not_reported(5,
+            "End call without start (Default Start Time).",
+            "Problem with the driver or PABX reports. Could be followed by reports with exp02 because the start and end " +
+                    "call report has different information.",
+            "Check the driver or PABX. Review the driver log files, look for errors. If there are errors, collect the driver and CLS log files."),
+    No_available_recording_resource(7,
+            "No available recording resource.",
+            "There are not enough  recording channels to handle the number of recording requests in the site.",
+            "Check call rate and system load vs. the number of channels. Check network connection to logger. Check Logger" +
+                    " Availability at the time of the call. \n" +
+                    "Could be caused by unclosed recorded calls. Check for exp02 calls. If there is a substantial amount" +
+                    " of calls with this exception, check the RCM logs for Logger disconnections (Logger down) and if " +
+                    "channels were allocated after connection reestablished with the Logger. Relevant for voice and screen resources."),
+
+    Unspecified_recording_failure(9,
+            "Unspecified recording failure.",
+            "Unknown cause of failure. Received from the RCM.",
+            "Collect the Integration and CLS log files."),
+    Agent_logout_during_call(10,
+            "Agent logout during the call.",
+            "Problem with the driver or PABX call or logout reports.",
+            "Check if it is physically possible to logout during a call. Collect the Integration and CLS log files"),
+    Too_many_calls_for_agent_extension(11,
+            "MaxExtentionOpenCall - too many open calls for the same agent/extension when compared to the op_MaxCallPerExt registry parameter.",
+            "The agent had more simultaneous open segments than the parameter value. Could be a problem with the driver or PABX call reports.",
+            "Check if the parameter value meets the requirements of the site. Look for calls with exp02 to see if there " +
+                    "is a problem with the call reports."),
+    Voice_recording_failed(12,
+            "Voice recording failed.",
+            "Error code received from the telephony server or if RCM was down on start of Call. If this appears as e12 " +
+                    "check the sub-exception ID for more information.\n(Mostly caused by \"no audio\" & \"Logger down\")",
+            "Collect the Integration and CLS log files.\nSub-exception 12 310 indicates the Logger is down. \n Sub-exception" +
+                    " 12 1702 indicates no VoIP audio due to a configuration problem (Increasing CheckAudioDelay RCM parameter" +
+                    " or disable EnableAudioCheck). This is dependant on the VoIP integration. Check if this is a compound" +
+                    " scenario (transfer/conference). Check if there was hold/retrieve scenario during the call " +
+                    "(indication only on Driver logs).\nCheck the configuration, the forwarding data passed to the Capture" +
+                    " (RCM logs), the Capture logs, as well as the forwarding device configuration. For example, no audio " +
+                    "is received if no or the wrong forwarding information is passed to Capture, or if the audio is not " +
+                    "forwarded by the telephony switch/forwarding device." ),
+    Screen_Logger_not_responding(13,
+            "Not relevant after Release 3 SP3. Screen Logger not responding.",
+            "Logger is down or network issue.",
+            "Check the NiceScreen Logger and ScreenAgent. Check the RCM logs for errors when calling screen capture to start record."),
+    Screen_recording_failed(14,
+            "Screen recording failed.",
+            "An error code that might indicate RCM was down on start of Call. If this appears as e14 check the sub-exception ID for more information.",
+            "Check the NiceScreen Logger.\n" +
+                    "Check the RCM logs. Sub-exception 14 310 indicates logger is down. Sub-exception 14 1002 indicates an error was received during screen recording.\n" +
+                    "Either ScreenAgent was disconnected from the Interactions Center or ScreenAgent recording failed. " +
+                        "Partial recording may be available until the time of the error. Sub-exception 144 indicates there was an unspecified failure."),
+    Unmapped_voice_recording(15,
+            "Unmapped voice recording.",
+            "Problem in the voice channel configuration.",
+            "Switch the logs to DEBUG. \n" +
+                    "Check channels configuration. See if there is a mapping configured for this call.\n" +
+                    " Check the RCM logs. Check what the RCM received in the Start request."),
+    Unmapped_screen_recording(16,
+            "Unmapped screen recording.",
+            "The recording request was received with empty Station or IP address (depends on the screen allocation mode).\n" +
+                    "Usually occurs due to screen agent not reporting its IP to the IC. Another option is that the screen agent's " +
+                    "IP wasn't mapped properly in Channel Mapping.",
+            "If the allocation mode is by IP address then check if the agent logged in. Check ports. \n" +
+                    "Verify in RCM logs that the start request for recording the agent's screen contained the screen agent's IP."),
+    Voice_recording_retry(17,
+            "Recording voice succeeded only after retry (partial retry).",
+            "May be a temporary failure on the Logger.",
+            "Check Logger for possible reasons for temporary failures."),
+    Call_Server_service_shutdown(18,
+            "Call Server was down during the call.",
+            "Call Server was down. ",
+            "Check reason for Call Server failure. Collect CLS logs, event viewer and CPU Performance Monitor."),
+    Logger_not_responding(20,
+            "The Logger did not respond to the start record command.",
+            "Stop record command arrived before a response for the start record request arrived. This could occur for one " +
+                    "of the following reasons: \nThe call was very short 1 or 2 seconds). \n The request was for 2 medias." +
+                    " \n Success in both was required (usually QA). \n One media failed immediately. \n Stop record is " +
+                    "sent for both medias.",
+            "No action is needed if there was indeed a short call; otherwise collect CLS and driver log files. If the " +
+                    "request was for 2 medias, try to understand the recording problem with the first media. Check the " +
+                    "RCM logs. Check the Call Server logs."),
+    Error_in_stop_record_request(24,
+            "Stop record with wrong ID. No start call request with this CLS Call ID was found.",
+            "Usually happens with very short calls. The request was for 2 medias. Success in both was required (usually QA)." +
+                    " One media failed immediately. Stop record was sent for both medias. Or may be an internal problem.",
+            "Same as 23. "),
+    Too_many_requests_for_channel(25,
+            "Too many recording requests for the same Logger and channel (more than 30).",
+            "May occur due to a problem with the driver or PABX call reports - calls are not closed.",
+            "Collect CLS and driver log files. Check the Call Server logs."),
+    RCM_service_down_during_call(26,
+            "RCM was down during the call.",
+            "RCM was down. ",
+            "RCM was down. "),
+    Error_on_complete_interaction_start(27,
+            "The contact started after its segment.",
+            "Problem in the driver, PABX call, or logout reports.",
+            "Check the driver or PABX. Collect CLS and driver log files. Check the RCM logs for a long period in DEBUG mode."),
+
+    Error_on_complete_interaction_close(29,
+            "Segment was open when the contact closed.",
+            "Could be a problem with the drivers or PABX call reports.",
+            "Check the driver or PABX. Collect CLS and driver log files."),
+    Time_Interval_recording_aborted(30,
+            "Block dummy call was closed due to a Call Server restart.",
+            "Call Server restarted. ",
+            "Collect CLS log files. Check why Call Server was closed."),
+    Stop_on_demand_not_by_initiator(33,
+            "Stop on demand was performed on the interaction recording by a client who was not the recording initiator.",
+            "Stop on demand was performed on the interaction recording by a client who was not the recording initiator.",
+            "No action required."),
+    Invalid_call_time_report(34,
+            "Time field was changed by the DB Server. Interaction was inserted with time value lower than 1970. Stop time" +
+                    " was lower than start time. ",
+            "Call Server error. Illegal time parameters were reported.",
+            "Collect CLS log files. Check the Call Server logs.");
+
+    private final int exceptionTypeID;
+    private final String exceptionDescription;
+    private final String exceptionPossibleCause;
+    private final String exceptionRecommendedAction;
+
+
+
+    private ExceptionType(int exceptionTypeID, String exceptionDescription, String exceptionPossibleCause, String exceptionRecommendedAction){
+        this.exceptionTypeID = exceptionTypeID;
+        this.exceptionDescription = exceptionDescription;
+        this.exceptionPossibleCause = exceptionPossibleCause;
+        this.exceptionRecommendedAction = exceptionRecommendedAction;
+    }
+
+    public int exceptionTypeID(){
+        return exceptionTypeID;
+    }
+
+    public String exceptionDescription(){
+        return exceptionDescription;
+    }
+
+    public String exceptionPossibleCause(){
+        return exceptionPossibleCause;
+    }
+
+    public String exceptionRecommendedAction(){
+        return exceptionRecommendedAction;
+    }
+
+    public static ExceptionType getRandomExcetionType() {
         Random random = new Random();
         return values()[random.nextInt(values().length)];
     }
