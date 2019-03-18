@@ -20,7 +20,7 @@ public class Consts {
     static final String IS_EVALUATED = "bitIsEvaluated";
     static final String IS_CUSTOMER_EVALUATED = "bitIsCustomerEvaluated";
     static final String MEDIA_TYPES_ID = "iMediaTypesId";
-    static final String INTERACTION_TYPE_DESC = "vcInteractionDesc";
+    static final String INTERACTION_DESC = "vcInteractionDesc";
     static final String INITIATOR_TYPE_ID = "siInitiatorTypeID";
     static final String INITIATOR_TYPE_DESC = "vcInitiatorTypeDesc";
     static final String EMAIL_REF_ID = "vcEmailRefID";
@@ -38,19 +38,16 @@ public class Consts {
     static final String VECTOR_NUMBER = "vcVectorNumber";
     static final String PBX_UNIVARSAL_CALL_INTERACTION_ID = "vcPBXUniversalCallInteractionID";
     static final String COMPOUND_ID = "iCompoundID";
-    static final String NDC_BUSINESS_DATA = "nvcBusinessData";
+    static final String NVC_BUSINESS_DATA = "nvcBusinessData";
     static final String BIT_IS_PLAYBACK_CALL = "bitIsPlaybackCall";
     static final String PARTICIPANT_ID = "iParticipantID";
     static final String STATION = "nvcStation";
     static final String PHONE_NUMBER = "nvcPhoneNumber";
-    static final String AGENT_ID = "nvcAgentId";
-    static final String USER_ID = "iUserID";
     static final String FIRST_USER = "bitIsFirstUser";
     static final String IS_INERACTION_INITIATOR = "bitIsInteractionInitiator";
     static final String DEVICE_TYPE_ID = "tiDeviceTypeID";
     static final String DEVICE_ID = "iDeviceID";
     static final String CTI_AGENT_NAME = "nvcCTIAgentName";
-    static final String DEPARTMENT = "nvcDepartement";
     static final String TRUNK_GROUP = "vcTrunkGroup";
     static final String TRUNK_NUMBER = "vcTrunkNumber";
     static final String TRUNK_LABEL = "nvcTrunkLabel";
@@ -82,7 +79,7 @@ public class Consts {
     static final String ITEM_DATA_TYPE_ID = "tiItemDataTypeID";
     static final String ITEM_DATA_TYPE_DESC = "iItemDataTypeDesc";
     static final String CREATOR_TYPE_ID = "tiCreatorTypeID";
-    static final String CREATOR_TYPE_DESC = "vcCreatorDesc";
+    static final String CREATOR_DESC = "vcCreatorDesc";
     static final String ITEM_TYPE_ID = "iItemTypeID";
     static final String ITEM_TYPE_DESC = "nvcItemTypeDesc";
     static final String CONTACT_ID = "iContactID";
@@ -108,16 +105,16 @@ public class Consts {
     static final String SC_LOGGER_RESOURCE = "iLoggerResource";
     static final String ARCHIVE_UNIQUE_ID = "vcArchiveUniqueId";
     static final String RETENTION_DAYS = "iRetentionDays";
-    static final String CONTACT_GMT_START_TIME = "dtContactGMTStartTime";
-    static final String CONTACT_GMT_STOP_TIME = "dtContactGMTStopTime";
-    static final String CONTACT_DURATION = "biContactDuration";
-    static final String CONTACT_OPEN_REASON_ID = "iContactOpenReasonID";
-    static final String CONTACT_CLOSE_REASON_ID = "iContactCloseReasonID";
+    static final String COMPLETE_GMT_START_TIME = "dtContactGMTStartTime";
+    static final String COMPLETE_GMT_STOP_TIME = "dtContactGMTStopTime";
+    static final String COMPLETE_DURATION = "biContactDuration";
+    static final String COMPLETE_OPEN_REASON_ID = "iContactOpenReasonID";
+    static final String COMPLETE_CLOSE_REASON_ID = "iContactCloseReasonID";
     static final String TRANSFER_SITE_ID = "iTransferSiteID";
     static final String TRANSFER_CONTACT_ID = "iTransferContactID";
-    static final String CONTACT_RECORDED_TYPE_ID = "tiContactRecordedTypeID";
+    static final String COMPLETE_RECORDED_TYPE_ID = "tiContactRecordedTypeID";
     static final String CONTACT_QA_TYPE_ID = "bitContactQATypeID";
-    static final String CONTACT_DIRECTION_TYPE_ID = "tiContactDirectionTypeID";
+    static final String COMPLETE_DIRECTION_TYPE_ID = "tiContactDirectionTypeID";
     static final String EXCEPTION_TYPE_ID = "iExceptionTypeID";
     static final String EXCEPTION_TYPE_DESC = "nvcExceptionDesc";
     static final String EXCEPTION_POSSIBLE_CAUSE = "nvcPossibleCause";
@@ -140,7 +137,6 @@ public class Consts {
     static final String FIRST_NAME = "nvcFirstName";
     static final String LAST_NAME = "nvcLastName";
     static final String MIDDLE_NAME = "nvcMiddleName";
-    static final String MODIFICATION_TIME = "dtModificationTime";
     static final String AGENT_ID = "iAgentId";
     static final String EXTENTION = "nvcSwitchAgentId";
     static final String SWITCH_AGENT_ID = "nvcSwitchAgentId";
@@ -162,6 +158,10 @@ public class Consts {
     static final String TOPIC_NAME = "nvcTopicName";
     static final String CATEGORY_SCORE = "dCategoryScore";
     static final String NVC_NAME = "nvcName";
+    static final String SCORE = "iScore";
+    static final String MODIFY_DATE = "dtModifyDate";
+    static final String NOTIFICATION_DATE = "dtNotificationDate";
+    static final String LOCK_STATUS = "tiLockStatus";
 }
 
 enum OpenCallReason{
@@ -187,6 +187,7 @@ enum OpenCallReason{
     MediaInterconnect(1048576);
 
     private final int openCallReasonID;
+
     private OpenCallReason(int openCallReasonID){
         this.openCallReasonID = openCallReasonID;
     }
@@ -248,6 +249,7 @@ enum InteractionType{
     ScreenSense(128);
 
     private final int interactionTypeID;
+
     private InteractionType(int interactionTypeID){
         this.interactionTypeID = interactionTypeID;
     }
@@ -418,6 +420,7 @@ enum RecordingSideType{
     Stereo(5);
 
     private final int RecordingSideTypeID;
+
     private RecordingSideType(int RecordingSideTypeID){
         this.RecordingSideTypeID = RecordingSideTypeID;
     }
@@ -432,14 +435,14 @@ enum RecordingSideType{
     }
 }
 
-enum RecordingRecordedType {
+enum RecordedType {
     Unknown(0),
     Yes(1),
     No(2),
     Partial(3);
 
     private final int recordingRecordedTypeID;
-    private RecordingRecordedType(int recordingRecordedTypeID){
+    private RecordedType(int recordingRecordedTypeID){
         this.recordingRecordedTypeID = recordingRecordedTypeID;
     }
 
@@ -447,7 +450,7 @@ enum RecordingRecordedType {
         return recordingRecordedTypeID;
     }
 
-    public static RecordingRecordedType getRandomRecorderType() {
+    public static RecordedType getRandomRecordedType() {
         Random random = new Random();
         return values()[random.nextInt(values().length)];
     }
@@ -543,7 +546,6 @@ enum ExceptionType {
                     "Could be caused by unclosed recorded calls. Check for exp02 calls. If there is a substantial amount" +
                     " of calls with this exception, check the RCM logs for Logger disconnections (Logger down) and if " +
                     "channels were allocated after connection reestablished with the Logger. Relevant for voice and screen resources."),
-
     Unspecified_recording_failure(9,
             "Unspecified recording failure.",
             "Unknown cause of failure. Received from the RCM.",

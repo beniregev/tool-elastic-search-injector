@@ -103,11 +103,6 @@
             <artifactId>slf4j-api</artifactId>
             <version>1.7.5</version>
         </dependency>
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>1.2.3</version>
-        </dependency>
     </dependencies>
 
     <dependencyManagement>
@@ -170,16 +165,16 @@
         </plugins>
     </build>
 
-    <distributionManagement>
-        <repository>
-            <id>central</id>
-            <name>tlvmvnptu</name>
-            <url>http://tlvmvnptu:8081/artifactory/sun-ms-release-local</url>
-        </repository>
-        <snapshotRepository>
-            <id>central</id>
-            <name>tlvmvnptu</name>
-            <url>http://tlvmvnptu:8081/artifactory/sun-ms-snapshot-local</url>
-        </snapshotRepository>
-    </distributionManagement>
+    <!--<distributionManagement>-->
+        <!--<repository>-->
+            <!--<id>central</id>-->
+            <!--<name>tlvmvnptu</name>-->
+            <!--<url>http://tlvmvnptu:8081/artifactory/sun-ms-release-local</url>-->
+        <!--</repository>-->
+        <!--<snapshotRepository>-->
+            <!--<id>central</id>-->
+            <!--<name>tlvmvnptu</name>-->
+            <!--<url>http://tlvmvnptu:8081/artifactory/sun-ms-snapshot-local</url>-->
+        <!--</snapshotRepository>-->
+    <!--</distributionManagement>-->
 </project>

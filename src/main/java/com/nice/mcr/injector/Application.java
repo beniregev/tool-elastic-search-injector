@@ -11,7 +11,7 @@ public class Application {
     public static void main(String[] args) {
         ConfigurableApplicationContext ctx = SpringApplication.run(Application.class, args);
         DataGeneratorImpl dataGenerator = ctx.getBean(DataGeneratorImpl.class);
-        dataGenerator.createData( 7,10 );
+        dataGenerator.createData( 1,1);
 
     }
 }
