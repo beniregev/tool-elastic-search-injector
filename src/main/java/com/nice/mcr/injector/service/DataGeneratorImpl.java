@@ -1,14 +1,15 @@
 package com.nice.mcr.injector.service;
 
 import ch.qos.logback.classic.Logger;
-
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Marker;
+import org.slf4j.MarkerFactory;
 import org.springframework.stereotype.Service;
-import org.slf4j.*;
 
 import java.io.*;
 import java.text.ParseException;
@@ -20,9 +21,9 @@ import java.util.Random;
 @Service
 public class DataGeneratorImpl implements DataGenerator {
 
-    private static final Logger logger = (Logger) LoggerFactory.getLogger(DataGeneratorImpl.class);
+    private static final Logger logger = (Logger) LoggerFactory.getLogger( DataGeneratorImpl.class );
     private static final String markerFilter = "APPEND_ROLLINGFILE";
-    private Marker marker = MarkerFactory.getMarker(markerFilter);
+    private Marker marker = MarkerFactory.getMarker( markerFilter );
     private Random random = new Random();
 
     public void createData(int bulkSize, int numOfInteractions) {
@@ -32,7 +33,7 @@ public class DataGeneratorImpl implements DataGenerator {
                 writer = new BufferedWriter( new FileWriter( "..\\tool-elastic-search-injector\\output\\output " + (i + 1) + ".json" ) );
                 JSONArray jsonArray = generateData( numOfInteractions );
                 writer.write( jsonArray.toString() );
-                logger.info(marker, jsonArray.toString() );
+                logger.info( marker, jsonArray.toString() );
             } catch (JsonGenerationException e) {
                 e.printStackTrace();
             } catch (JsonMappingException e) {
@@ -64,19 +65,8 @@ public class DataGeneratorImpl implements DataGenerator {
         JSONArray jsonArray = new JSONArray();
 
         for (int i = 0; i < numOfInteractions; i++) {
-            SimpleDateFormat formatter = new SimpleDateFormat( "yyyy-MM-dd hh:mm:ss.SS" );
-            Date minTime = null;
-            long startDateMillis;
-            Date startTime = null;
-            Date stopTime = null;
-            try {
-                minTime = formatter.parse( "2018-01-01 00:01:00.231" );
-                startDateMillis = minTime.getTime()+getRandomWithRange( 100000,1000 );
-                startTime = new Date( startDateMillis);
-                stopTime = new Date( startTime.getTime() + getRandomWithRange( 100000,1000 ));
-            } catch (ParseException e1) {
-                e1.printStackTrace();
-            }
+            Date startDate = generateStartDate();
+            Date stopDate = generateStopDate( startDate );
             OpenCallReason openCallReason = OpenCallReason.getRandomReason();
             InteractionType interactionType = InteractionType.getRandomInteractionType();
             CloseCallReason closeCallReason = CloseCallReason.getRandomReason();
@@ -94,14 +84,14 @@ public class DataGeneratorImpl implements DataGenerator {
 
             JSONObject jsonObj = new JSONObject();
             jsonObj.put( Consts.INTERACTION_ID, getIntRandom() );
-            jsonObj.put( Consts.INTERACTION_GMT_START_TIME, formatter.format( startTime ) );
-            jsonObj.put( Consts.INTERACTION_GMT_STOP_TIME,  formatter.format( stopTime ));
-            jsonObj.put( Consts.INTERACTION_DURATION, String.valueOf(Math.abs( stopTime.getTime() - startTime.getTime()) ));
+            jsonObj.put( Consts.INTERACTION_GMT_START_TIME, formatDate( startDate ) );
+            jsonObj.put( Consts.INTERACTION_GMT_STOP_TIME, formatDate( stopDate ) );
+            jsonObj.put( Consts.INTERACTION_DURATION, String.valueOf( Math.abs( stopDate.getTime() - startDate.getTime() ) ) );
             jsonObj.put( Consts.INTERACTION_OPEN_REASON_ID, openCallReason.getOpenCallReasonID() );
             jsonObj.put( Consts.INTERACTION_CLOSE_REASON_ID, closeCallReason.getCloseCallReasonID() );
-            jsonObj.put( Consts.SWITCH_ID, getRandomWithRange(10,1) );
-            jsonObj.put( Consts.INITIATOR_USER_ID, getRandomWithRange(10,1 ) );
-            jsonObj.put( Consts.OTHER_SWITCH_ID, getRandomWithRange(5,1) );
+            jsonObj.put( Consts.SWITCH_ID, getRandomWithRange( 10, 1 ) );
+            jsonObj.put( Consts.INITIATOR_USER_ID, getRandomWithRange( 10, 1 ) );
+            jsonObj.put( Consts.OTHER_SWITCH_ID, getRandomWithRange( 5, 1 ) );
             jsonObj.put( Consts.INTERACTION_TYPE_ID, interactionType.getRandomInteractionTypeID() );
             jsonObj.put( Consts.INTERACTION_RECORDED_TYPE_ID, recordedType.RecorderTypeID() );
             jsonObj.put( Consts.MEDIA_TYPES_ID, randomMediaType.getMediaTypeID() );
@@ -113,13 +103,13 @@ public class DataGeneratorImpl implements DataGenerator {
             jsonObj.put( Consts.EXTERNAL_CALL_ID, getIntRandom() );
             jsonObj.put( Consts.CALL_DIRECTION_TYPE_ID, randomDirectionType.getDirectionTypeID() );
             jsonObj.put( Consts.PBX_UNIVARSAL_CALL_INTERACTION_ID, generateRandomString( 64 ) );
-            jsonObj.put( Consts.COMPOUND_ID, getIntRandom());
+            jsonObj.put( Consts.COMPOUND_ID, getIntRandom() );
             jsonObj.put( Consts.NVC_BUSINESS_DATA, generateRandomString( 20 ) );
             jsonObj.put( Consts.PARTICIPANT_ID, getIntRandom() );
-            jsonObj.put( Consts.STATION, generateRandomString( 20 ));
-            jsonObj.put( "nvcPhoneNumber", generateRandomString( 20 ));
-            jsonObj.put( Consts.AGENT_ID, generateRandomString( 20 ));
-            jsonObj.put( Consts.USER_ID, getIntRandom());
+            jsonObj.put( Consts.STATION, generateRandomString( 20 ) );
+            jsonObj.put( "nvcPhoneNumber", generateRandomString( 20 ) );
+            jsonObj.put( Consts.AGENT_ID, generateRandomString( 20 ) );
+            jsonObj.put( Consts.USER_ID, getIntRandom() );
             jsonObj.put( Consts.DEVICE_TYPE_ID, deviceType.DeviceTypeID() );
             jsonObj.put( Consts.DEVICE_ID, getIntRandom() );
             jsonObj.put( Consts.CTI_AGENT_NAME, firstNames.get( random.nextInt( firstNames.size() ) ) );
@@ -128,112 +118,117 @@ public class DataGeneratorImpl implements DataGenerator {
             jsonObj.put( Consts.TRUNK_NUMBER, generateRandomString( 16 ) );
             jsonObj.put( Consts.TRUNK_LABEL, generateRandomString( 32 ) );
             jsonObj.put( "nvcDialedNumber", generateRandomString( 32 ) );
-            jsonObj.put( Consts.CLIENT_ID, getIntRandom( ) );
-            jsonObj.put( Consts.VIRTUAL_DEVICE_ID, getIntRandom( ) );
+            jsonObj.put( Consts.CLIENT_ID, getIntRandom() );
+            jsonObj.put( Consts.VIRTUAL_DEVICE_ID, getIntRandom() );
             jsonObj.put( Consts.PARTICIPANT_TYPE_ID, participantType.getparticipantTypeID() );
             jsonObj.put( Consts.PARTICIPANT_TYPE_DESC, participantType );
             jsonObj.put( "iOpenReasonTypeID", openCallReason.getOpenCallReasonID() );
             jsonObj.put( Consts.OPEN_REASON_DESC, openCallReason );
             jsonObj.put( "vcCloseReasonTypeID", openCallReason.getOpenCallReasonID() );
-            jsonObj.put( Consts.CLOSE_REASON_DESC, openCallReason );
+            jsonObj.put( Consts.CLOSE_REASON_DESC, closeCallReason );
             jsonObj.put( Consts.DEVICE_TYPE_DESC, deviceType );
             jsonObj.put( Consts.RECORDING_SIDE_TYPE_ID, recordingSideType.RecordingSideTypeID() );
             jsonObj.put( Consts.RECORDING_SIDE_DESC, recordingSideType );
-            jsonObj.put( "iMediaTypeId", randomMediaType.getMediaTypeID());
+            jsonObj.put( "iMediaTypeId", randomMediaType.getMediaTypeID() );
             jsonObj.put( Consts.MEDIA_DESC, randomMediaType );
             jsonObj.put( "tiDirectionTypeID", randomDirectionType.getDirectionTypeID() );
             jsonObj.put( Consts.DIRECTION_TYPE_DESC, randomDirectionType );
-            jsonObj.put( Consts.RECORDING_ID, getIntRandom());
-            jsonObj.put( Consts.LOGGER, getIntRandom() );
-            jsonObj.put( Consts.CHANNEL, getIntRandom());
-            jsonObj.put( Consts.RECORDING_GMT_START_TIME, formatter.format( startTime ) );
-            jsonObj.put( Consts.RECORDING_GMT_STOP_TIME, formatter.format( stopTime ) );
+            jsonObj.put( Consts.RECORDING_ID, getIntRandom() );
+            jsonObj.put( Consts.LOGGER, getRandomWithRange( 10, 1 ) );
+            jsonObj.put( Consts.CHANNEL, "-1" );
+            jsonObj.put( Consts.RECORDING_GMT_START_TIME, formatDate( startDate ) );
+            jsonObj.put( Consts.RECORDING_GMT_STOP_TIME, formatDate( stopDate ) );
             jsonObj.put( Consts.RECORDING_RECORDED_TYPE_ID, RecordedType.getRandomRecordedType() );
-            jsonObj.put( Consts.PROGRAM_ID, getIntRandom( ));
-            jsonObj.put( Consts.RECORDED_PARTICIPANT_ID, getIntRandom( ) );
-            jsonObj.put( "biWrapupTime", getDoubleRandomNumber( ) );
+            jsonObj.put( Consts.PROGRAM_ID, getIntRandom() );
+            jsonObj.put( Consts.RECORDED_PARTICIPANT_ID, getIntRandom() );
+            jsonObj.put( "biWrapupTime", getDoubleRandomNumber() );
             jsonObj.put( Consts.SESSION_ID, getDoubleRandomNumber() );
             jsonObj.put( Consts.ITEM_DATA_TYPE_DESC, randomItemDataType );
             jsonObj.put( Consts.CREATOR_DESC, creatorType );
             jsonObj.put( Consts.ITEM_TYPE_DESC, randomItemType );
-            jsonObj.put( Consts.CONTACT_ID, getLongRandom( ) );
-            jsonObj.put( Consts.TIME_STAMP,stopTime.getTime()-startTime.getTime() );
-            jsonObj.put( Consts.ITEM_USER_ID, getIntRandom( ) );
-            jsonObj.put( Consts.ITEM_VALUE, generateRandomString( 256) );
-            jsonObj.put( Consts.ITEM_IS_DELETED, getRandomBit());
+            jsonObj.put( Consts.CONTACT_ID, getLongRandom() );
+            jsonObj.put( Consts.TIME_STAMP, stopDate.getTime() - startDate.getTime() );
+            jsonObj.put( Consts.ITEM_USER_ID, getIntRandom() );
+            jsonObj.put( Consts.ITEM_VALUE, generateRandomString( 256 ) );
+            jsonObj.put( Consts.ITEM_IS_DELETED, getRandomBit() );
             jsonObj.put( Consts.RECORDED_TYPE_ID, recordedType.RecorderTypeID() );
             jsonObj.put( Consts.RECORDED_TYPE_DESC, recordedType );
-            jsonObj.put( Consts.ARCHIVE_ID, getIntRandom( ));
+            jsonObj.put( Consts.ARCHIVE_ID, getIntRandom() );
             jsonObj.put( Consts.MEDIA_TYPE_ID, randomMediaType.getMediaTypeID() );
             jsonObj.put( Consts.ARCHIVE_PATH, "E:\\storage1\\CD-APPS\\84\\2019\\1\\28\\CD-AIR2\\2\\1_6651516551865369305_6651516560398680065.nmf" );
-            jsonObj.put( Consts.ARCHIVE_ID_HIGH, getIntRandom( ));
-            jsonObj.put( Consts.ARCHIVE_ID_LOW, getIntRandom());
-            jsonObj.put( Consts.ARCHIVE_CLASS, getIntRandom());
+            jsonObj.put( Consts.ARCHIVE_ID_HIGH, getIntRandom() );
+            jsonObj.put( Consts.ARCHIVE_ID_LOW, getIntRandom() );
+            jsonObj.put( Consts.ARCHIVE_CLASS, getIntRandom() );
             jsonObj.put( Consts.SC_SERVER_ID, generateRandomString( 100 ) );
-            jsonObj.put( Consts.SC_SITE_ID, getIntRandom( ) );
-            jsonObj.put( Consts.SC_RULE_ID, getIntRandom( ) );
-            jsonObj.put( Consts.SC_LOGGER_ID, getIntRandom( ) );
-            jsonObj.put( Consts.SC_LOGGER_RESOURCE, getIntRandom( ) );
+            jsonObj.put( Consts.SC_SITE_ID, getIntRandom() );
+            jsonObj.put( Consts.SC_RULE_ID, getIntRandom() );
+            jsonObj.put( Consts.SC_LOGGER_ID, getIntRandom() );
+            jsonObj.put( Consts.SC_LOGGER_RESOURCE, getIntRandom() );
             jsonObj.put( Consts.ARCHIVE_UNIQUE_ID, generateRandomString( 255 ) );
             jsonObj.put( Consts.RETENTION_DAYS, getRandomWithRange( 365 * 30, 0 ) );
-            jsonObj.put( Consts.COMPLETE_GMT_START_TIME, formatter.format( startTime ) );
-            jsonObj.put( Consts.COMPLETE_GMT_STOP_TIME, formatter.format( stopTime ) );
-            jsonObj.put( Consts.COMPLETE_DURATION, String.valueOf( Math.abs( stopTime.getTime() - startTime.getTime() ) ) );
+            jsonObj.put( Consts.COMPLETE_GMT_START_TIME, formatDate( startDate ) );
+            jsonObj.put( Consts.COMPLETE_GMT_STOP_TIME, formatDate( stopDate ) );
+            jsonObj.put( Consts.COMPLETE_DURATION, String.valueOf( Math.abs( stopDate.getTime() - startDate.getTime() ) ) );
             jsonObj.put( Consts.COMPLETE_OPEN_REASON_ID, openCallReason.getOpenCallReasonID() );
             jsonObj.put( Consts.COMPLETE_CLOSE_REASON_ID, closeCallReason.getCloseCallReasonID() );
-            jsonObj.put( Consts.TRANSFER_SITE_ID, getIntRandom());
+            jsonObj.put( Consts.TRANSFER_SITE_ID, getIntRandom() );
             jsonObj.put( Consts.TRANSFER_CONTACT_ID, getIntRandom() );
-            jsonObj.put( Consts.COMPLETE_RECORDED_TYPE_ID, getRandomBit(  ) );
-            jsonObj.put( Consts.COMPLETE_DIRECTION_TYPE_ID, randomDirectionType.getDirectionTypeID());
-            jsonObj.put( Consts.EXCEPTION_TYPE_ID, randomExceptionType.exceptionTypeID());
-            jsonObj.put( Consts.EXCEPTION_TYPE_DESC, randomExceptionType.exceptionDescription());
-            jsonObj.put( Consts.EXCEPTION_POSSIBLE_CAUSE, randomExceptionType.exceptionPossibleCause());
-            jsonObj.put( Consts.EXCEPTION_RECOMMENDED_ACTION, randomExceptionType.exceptionRecommendedAction());
-            jsonObj.put( Consts.EXCEPTION_NUMBER, random.nextInt());
-            jsonObj.put( Consts.EXCEPTION_TIMESTAMP, "8192");
-            jsonObj.put( Consts.EXCEPTION_DETAIL, generateRandomString(32));
+            jsonObj.put( Consts.COMPLETE_RECORDED_TYPE_ID, getRandomBit() );
+            jsonObj.put( Consts.COMPLETE_DIRECTION_TYPE_ID, randomDirectionType.getDirectionTypeID() );
+            jsonObj.put( Consts.EXCEPTION_TYPE_ID, randomExceptionType.exceptionTypeID() );
+            jsonObj.put( Consts.EXCEPTION_TYPE_DESC, randomExceptionType.exceptionDescription() );
+            jsonObj.put( Consts.EXCEPTION_POSSIBLE_CAUSE, randomExceptionType.exceptionPossibleCause() );
+            jsonObj.put( Consts.EXCEPTION_RECOMMENDED_ACTION, randomExceptionType.exceptionRecommendedAction() );
+            jsonObj.put( Consts.EXCEPTION_NUMBER, random.nextInt() );
+            jsonObj.put( Consts.EXCEPTION_TIMESTAMP, "8192" );
+            jsonObj.put( Consts.EXCEPTION_DETAIL, generateRandomString( 32 ) );
             jsonObj.put( Consts.TASK_ID, getIntRandom() );
             jsonObj.put( Consts.FLAG_ID, getIntRandom() );
-            jsonObj.put( Consts.USER_SITE_ID, getIntRandom());
+            jsonObj.put( Consts.USER_SITE_ID, getIntRandom() );
             jsonObj.put( Consts.SCORE, getIntRandom() );
-            jsonObj.put( Consts.MODIFY_DATE,getDoubleRandomNumber());
-            jsonObj.put( Consts.NOTIFICATION_DATE, getDoubleRandomNumber());
-            jsonObj.put( Consts.LOCK_STATUS, getRandomBit());
+            jsonObj.put( Consts.MODIFY_DATE, getDoubleRandomNumber() );
+            jsonObj.put( Consts.NOTIFICATION_DATE, getDoubleRandomNumber() );
+            jsonObj.put( Consts.LOCK_STATUS, getRandomBit() );
             jsonObj.put( "iReasonItemId", getIntRandom() );
             jsonObj.put( "biCustomerID", getLongRandom() );
-            jsonObj.put( "iSetNumber", "1");
-            jsonObj.put( "tiVoiceArchiveStatus", "0");
-            jsonObj.put( "tiVoiceFSArchiveStatus", "0");
+            jsonObj.put( "iSetNumber", "1" );
+            jsonObj.put( "tiVoiceArchiveStatus", "0" );
+            jsonObj.put( "tiVoiceFSArchiveStatus", "0" );
             jsonObj.put( "dtVoiceExpirationDate", "2018-31-12 23:59:00,123" );
-            jsonObj.put( "iVoiceRemainderDays", "0");
-            jsonObj.put( "tiScreenArchiveStatus","0");
-            jsonObj.put( "tiScreenFSArchiveStatus","0");
-            jsonObj.put( "dtScreenExpirationDate", "2018-31-12 23:59:00,123");
-            jsonObj.put( "iScreenRemainderDays","0");
-            jsonObj.put( "tiVoiceESMArchiveStatus", "0");
-            jsonObj.put( "tiScreenESMArchiveStatus", "0");
-            jsonObj.put( "tiArchiveStatus", "0");
-            jsonObj.put( "tiESmArchiveStatus", "0");
+            jsonObj.put( "iVoiceRemainderDays", "0" );
+            jsonObj.put( "tiScreenArchiveStatus", "0" );
+            jsonObj.put( "tiScreenFSArchiveStatus", "0" );
+            jsonObj.put( "dtScreenExpirationDate", "2018-31-12 23:59:00,123" );
+            jsonObj.put( "iScreenRemainderDays", "0" );
+            jsonObj.put( "tiVoiceESMArchiveStatus", "0" );
+            jsonObj.put( "tiScreenESMArchiveStatus", "0" );
+            jsonObj.put( "tiArchiveStatus", "0" );
+            jsonObj.put( "tiESmArchiveStatus", "0" );
             jsonObj.put( "tiFSArchiveStatus", "0" );
-            jsonObj.put( "dtExpirationDate","2018-31-12 23:59:00,123");
-            jsonObj.put( "dtInsertTime", getIntRandom());
+            jsonObj.put( "dtExpirationDate", "2018-31-12 23:59:00,123" );
+            jsonObj.put( "dtInsertTime", getIntRandom() );
             jsonObj.put( "iRequestId", getIntRandom() );
-            jsonObj.put( "LastExtendingUser", generateRandomString(50) );
+            jsonObj.put( "LastExtendingUser", generateRandomString( 50 ) );
             jsonObj.put( "LastInsertDate", getDoubleRandomNumber() );
             jsonObj.put( "ReasonCaption", getIntRandom() );
             jsonObj.put( Consts.FIRST_NAME, firstNames.get( random.nextInt( firstNames.size() ) ) );
             jsonObj.put( Consts.LAST_NAME, lastNames.get( random.nextInt( firstNames.size() ) ) );
             jsonObj.put( Consts.MIDDLE_NAME, middleNames.get( random.nextInt( firstNames.size() ) ) );
-            jsonObj.put( "vcEmailAddress", "bari@gmail.com");
-            jsonObj.put( "nvcLoginName", firstNames.get( random.nextInt( firstNames.size() ) ));
-            jsonObj.put( Consts.EXTENTION, "1");
-            jsonObj.put( Consts.SWITCH_AGENT_ID, getRandomWithRange( 10,1 ));
-            jsonObj.put( Consts.STATUS, "1");
-            jsonObj.put( Consts.FORMATTER_NAME, "1");
+            jsonObj.put( "vcEmailAddress", "bari@gmail.com" );
+            jsonObj.put( "nvcLoginName", firstNames.get( random.nextInt( firstNames.size() ) ) );
+            jsonObj.put( Consts.EXTENTION, "1" );
+            jsonObj.put( Consts.SWITCH_AGENT_ID, getRandomWithRange( 10, 1 ) );
+            jsonObj.put( Consts.STATUS, "1" );
+            jsonObj.put( Consts.FORMATTER_NAME, "1" );
 
             jsonArray.put( jsonObj );
         }
         return jsonArray;
+    }
+
+    private Object formatDate(Date startTime) {
+        SimpleDateFormat formatter = new SimpleDateFormat( "yyyy-MM-dd hh:mm:ss.SS" );
+        return formatter.format( startTime );
     }
 
     private int getIntRandom() {
@@ -241,7 +236,7 @@ public class DataGeneratorImpl implements DataGenerator {
     }
 
     private Long getLongRandom() {
-        return random.nextLong( );
+        return random.nextLong();
     }
 
     private int getRandomWithRange(int max, int min) {
@@ -261,7 +256,7 @@ public class DataGeneratorImpl implements DataGenerator {
     }
 
     private int getRandomBit() {
-        return random.nextInt( 1 );
+        return random.nextInt( 2 );
     }
 
     private ArrayList <String> generateNames(int numOfInteractions, String path) {
@@ -282,4 +277,21 @@ public class DataGeneratorImpl implements DataGenerator {
         }
         return firstNames;
     }
+
+    private Date generateStartDate() {
+        try {
+            SimpleDateFormat formatter = new SimpleDateFormat( "yyyy-MM-dd hh:mm:ss.SS" );
+            Date minTime = formatter.parse( "2018-01-01 00:01:00.231" );
+            long startDateMillis = minTime.getTime() + getRandomWithRange( 1000000000, 1000 );
+            return new Date( startDateMillis );
+        } catch (ParseException e1) {
+            e1.printStackTrace();
+            return null;
+        }
+    }
+
+    private Date generateStopDate(Date startTime) {
+        return new Date( startTime.getTime() + getRandomWithRange( 1000000000, 1000 ) );
+    }
+
 }

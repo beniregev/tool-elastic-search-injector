@@ -5,22 +5,21 @@
     <properties>
         <java.version>1.8</java.version>
         <spring-cloud.version>Greenwich.RELEASE</spring-cloud.version>
-        <lib-logging.version>1.0.0-SNAPSHOT</lib-logging.version>
         <swagger-annotations.version>1.5.20</swagger-annotations.version>
         <swagger-plugin.version>3.1.7</swagger-plugin.version>
         <springfox.swagger2.version>2.9.2</springfox.swagger2.version>
-        <jacoco.version>0.8.2</jacoco.version>
-        <jacoco.report.file>${project.build.directory}/jacoco-data/jacoco-unit.exec</jacoco.report.file>
-        <jacoco.report.directory>${project.build.directory}/jacoco-reports</jacoco.report.directory>
         <junit-jupiter-api.version>5.1.0</junit-jupiter-api.version>
         <mockito-core.version>2.23.4</mockito-core.version>
+        <logstash-logback-encoder.version>5.3</logstash-logback-encoder.version>
+        <logback.version>1.2.3</logback.version>
+        <android-json.version>0.0.20131108.vaadin1</android-json.version>
     </properties>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>2.1.2.RELEASE</version>
-        <relativePath/> <!-- lookup parent from repository -->
+        <relativePath/>
     </parent>
 
     <groupId>com.nice.mcr</groupId>
@@ -29,7 +28,6 @@
     <version>1.0-SNAPSHOT</version>
 
     <dependencies>
-        <!-- Spring depedencies -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
@@ -38,30 +36,12 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-
-        <!-- <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-consul-discovery</artifactId>
-        </dependency>-->
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-
-        <!--Swagger dependencies -->
         <dependency>
-            <groupId>io.swagger</groupId>
-            <artifactId>swagger-annotations</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.springfox</groupId>
-            <artifactId>springfox-swagger2</artifactId>
-        </dependency>
-
-        <!--test depedencies -->
-          <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
             <version>${mockito-core.version}</version>
@@ -76,105 +56,46 @@
         <dependency>
             <groupId>com.vaadin.external.google</groupId>
             <artifactId>android-json</artifactId>
-            <version>0.0.20131108.vaadin1</version>
-        </dependency>
-        <dependency>
-            <groupId>com.vaadin.external.google</groupId>
-            <artifactId>android-json</artifactId>
-            <version>0.0.20131108.vaadin1</version>
+            <version>${android-json.version}</version>
         </dependency>
         <dependency>
             <groupId>net.logstash.logback</groupId>
             <artifactId>logstash-logback-encoder</artifactId>
-            <version>5.3</version>
+            <version>${logstash-logback-encoder.version}</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-core</artifactId>
-            <version>1.2.3</version>
+            <version>${logback.version}</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>1.2.3</version>
+            <version>${logback.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>1.7.5</version>
+            <groupId>io.swagger</groupId>
+            <artifactId>swagger-annotations</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger2</artifactId>
         </dependency>
     </dependencies>
 
     <dependencyManagement>
         <dependencies>
-            <dependency>
-                <groupId>org.springframework.cloud</groupId>
-                <artifactId>spring-cloud-dependencies</artifactId>
-                <version>${spring-cloud.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            <dependency>
-                <groupId>io.swagger</groupId>
-                <artifactId>swagger-annotations</artifactId>
-                <version>${swagger-annotations.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.springfox</groupId>
-                <artifactId>springfox-swagger2</artifactId>
-                <version>${springfox.swagger2.version}</version>
-            </dependency>
-        </dependencies>
+        <dependency>
+            <groupId>io.swagger</groupId>
+            <artifactId>swagger-annotations</artifactId>
+            <version>${swagger-annotations.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger2</artifactId>
+            <version>${springfox.swagger2.version}</version>
+        </dependency>
+    </dependencies>
     </dependencyManagement>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>com.github.kongchen</groupId>
-                <artifactId>swagger-maven-plugin</artifactId>
-                <version>${swagger-plugin.version}</version>
-                <configuration>
-                    <apiSources>
-                        <apiSource>
-                            <springmvc>true</springmvc>
-                            <info>
-                                <title>search-injector API</title>
-                                <version>1.0.0</version>
-                            </info>
-                            <swaggerDirectory>${basedir}/target/generated-swagger-docs</swaggerDirectory>
-                            <attachSwaggerArtifact>true</attachSwaggerArtifact>
-                            <locations>
-                                <location>com.nice.mcr.injector.controller.*</location>
-                            </locations>
-                        </apiSource>
-                    </apiSources>
-                </configuration>
-                <executions>
-                    <execution>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
-
-    <!--<distributionManagement>-->
-        <!--<repository>-->
-            <!--<id>central</id>-->
-            <!--<name>tlvmvnptu</name>-->
-            <!--<url>http://tlvmvnptu:8081/artifactory/sun-ms-release-local</url>-->
-        <!--</repository>-->
-        <!--<snapshotRepository>-->
-            <!--<id>central</id>-->
-            <!--<name>tlvmvnptu</name>-->
-            <!--<url>http://tlvmvnptu:8081/artifactory/sun-ms-snapshot-local</url>-->
-        <!--</snapshotRepository>-->
-    <!--</distributionManagement>-->
 </project>
