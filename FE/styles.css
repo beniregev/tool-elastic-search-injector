@@ -1,0 +1,51 @@
+body {
+    background-color: white;
+}
+
+h1 {
+    color: darkblue;
+    text-align: center;
+    font-weight: 900;
+    font-size: 45px;
+}
+
+hr{
+    color: black;
+}
+
+.row {
+    margin: 0;
+}
+
+div {
+    font-family: verdana;
+    color: black;
+    font-size: 20px;
+}
+
+
+.css-class {
+    font-family: arial;
+    font-size: 30px;
+    color: blue;
+}
+
+
+
+.form-group-container {
+    top: 62px;
+    left: 30px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 60%;
+}
+
+.btn-container {
+    width: 100%;
+    margin-top: 30px;
+}
+
+.number-of-interactions-container {
+    margin-top: 30px;
+}
