@@ -240,7 +240,7 @@ public class DataGeneratorImpl implements DataGenerator {
     }
 
     private int getRandomWithRange(int max, int min) {
-        return random.nextInt( max - min ) - min;
+        return random.nextInt( max - min ) + min;
     }
 
     private double getDoubleRandomNumber() {
