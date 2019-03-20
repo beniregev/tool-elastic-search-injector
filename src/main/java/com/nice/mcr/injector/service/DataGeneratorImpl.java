@@ -30,7 +30,7 @@ public class DataGeneratorImpl implements DataGenerator {
         for (int i = 0; i < bulkSize; i++) {
             BufferedWriter writer = null;
             try {
-                writer = new BufferedWriter( new FileWriter( "C:\\Users\\Administrator\\Desktop\\output\\" + (i + 1) + ".json" ) );
+                writer = new BufferedWriter( new FileWriter( "..\\tool-elastic-search-injector\\output\\output " + (i + 1) + ".json" ) );
                 JSONArray jsonArray = generateData( numOfInteractions );
                 writer.write( jsonArray.toString() );
                 logger.info( marker, jsonArray.toString() );
@@ -59,9 +59,9 @@ public class DataGeneratorImpl implements DataGenerator {
 
     private JSONArray generateData(int numOfInteractions) throws JSONException {
 
-        ArrayList <String> firstNames = generateNames( numOfInteractions, "C:\\Users\\Administrator\\Desktop\\input\\first-names.txt" );
-        ArrayList <String> lastNames = generateNames( numOfInteractions, "C:\\Users\\Administrator\\Desktop\\input\\last-names.txt" );
-        ArrayList <String> middleNames = generateNames( numOfInteractions, "C:\\Users\\Administrator\\Desktop\\input\\middle-names.txt" );
+        ArrayList <String> firstNames = generateNames( numOfInteractions, "..\\tool-elastic-search-injector\\input\\first-names.txt" );
+        ArrayList <String> lastNames = generateNames( numOfInteractions, "..\\tool-elastic-search-injector\\input\\last-names.txt" );
+        ArrayList <String> middleNames = generateNames( numOfInteractions, "..\\tool-elastic-search-injector\\input\\middle-names.txt" );
         JSONArray jsonArray = new JSONArray();
 
         for (int i = 0; i < numOfInteractions; i++) {
