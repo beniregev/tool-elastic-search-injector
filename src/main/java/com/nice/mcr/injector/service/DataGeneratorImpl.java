@@ -3,7 +3,6 @@ package com.nice.mcr.injector.service;
 import ch.qos.logback.classic.Logger;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.LoggerFactory;
@@ -26,14 +25,34 @@ public class DataGeneratorImpl implements DataGenerator {
     private Marker marker = MarkerFactory.getMarker( markerFilter );
     private Random random = new Random();
 
-    public void createData(int bulkSize, int numOfInteractions) {
-        for (int i = 0; i < bulkSize; i++) {
+    public void createData(int numberOfBulks, int numOfInteractions) {
+        for (int i = 0; i < numberOfBulks; i++) {
             BufferedWriter writer = null;
             try {
-                writer = new BufferedWriter( new FileWriter( "..\\tool-elastic-search-injector\\output\\output " + (i + 1) + ".json" ) );
-                JSONArray jsonArray = generateData( numOfInteractions );
-                writer.write( jsonArray.toString() );
-                logger.info( marker, jsonArray.toString() );
+                writer = new BufferedWriter( new FileWriter( "C:\\Users\\Administrator\\Desktop\\output\\output " + (i + 1) + ".json" ) );
+                String bulkData = generateBulkData( numOfInteractions );
+                writer.write( bulkData);
+                System.out.println(bulkData);
+
+
+                //TODO : return to this somehow
+
+                logger.info( marker, bulkData);
+
+
+//               //TODO: tali start
+//
+//                String hostname = "localhost";
+//                int port = 35;
+//                Socket clientSocket = new Socket(hostname, port);
+//                DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
+//                outToServer.writeBytes(jsonArray.toString());
+//                clientSocket.close();
+//
+//
+//                //TODO: tali end
+
+
             } catch (JsonGenerationException e) {
                 e.printStackTrace();
             } catch (JsonMappingException e) {
@@ -45,8 +64,10 @@ public class DataGeneratorImpl implements DataGenerator {
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
+
                 if (writer != null) {
                     try {
+                        writer.flush();
                         writer.close();
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -57,14 +78,16 @@ public class DataGeneratorImpl implements DataGenerator {
         }
     }
 
-    private JSONArray generateData(int numOfInteractions) throws JSONException {
+    private String generateBulkData(int numOfInteractions) throws JSONException {
 
-        ArrayList <String> firstNames = generateNames( numOfInteractions, "..\\tool-elastic-search-injector\\input\\first-names.txt" );
-        ArrayList <String> lastNames = generateNames( numOfInteractions, "..\\tool-elastic-search-injector\\input\\last-names.txt" );
-        ArrayList <String> middleNames = generateNames( numOfInteractions, "..\\tool-elastic-search-injector\\input\\middle-names.txt" );
-        JSONArray jsonArray = new JSONArray();
-
+        ArrayList <String> firstNames = generateNames( numOfInteractions, "C:\\Users\\Administrator\\Desktop\\input\\first-names.txt" );
+        ArrayList <String> lastNames = generateNames( numOfInteractions, "C:\\Users\\Administrator\\Desktop\\input\\last-names.txt" );
+        ArrayList <String> middleNames = generateNames( numOfInteractions, "C:\\Users\\Administrator\\Desktop\\input\\middle-names.txt" );
+//        JSONArray jsonArray = new JSONArray();
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("POST _bulk\n");
         for (int i = 0; i < numOfInteractions; i++) {
+            stringBuilder.append("{ \"index\" : { \"_index\" : \"test\", \"_type\" : \"_doc\", \"_id\" : \"" + i +"\" } }\n");
             Date startDate = generateStartDate();
             Date stopDate = generateStopDate( startDate );
             OpenCallReason openCallReason = OpenCallReason.getRandomReason();
@@ -221,9 +244,9 @@ public class DataGeneratorImpl implements DataGenerator {
             jsonObj.put( Consts.STATUS, "1" );
             jsonObj.put( Consts.FORMATTER_NAME, "1" );
 
-            jsonArray.put( jsonObj );
+            stringBuilder.append(jsonObj.toString() + "\n");
         }
-        return jsonArray;
+        return stringBuilder.toString();
     }
 
     private Object formatDate(Date startTime) {

@@ -4,5 +4,5 @@ import org.json.JSONException;
 
 public interface DataGenerator {
 
-    void createData(int bulkSize, int numOfInsteractions) throws JSONException;
+    void createData(int numberOfBulks, int numOfInsteractions) throws JSONException;
 }

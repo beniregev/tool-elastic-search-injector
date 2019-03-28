@@ -31,7 +31,7 @@ public class DemoController {
         DemoResponse response = null;
         try {
             System.out.println(req);
-            dataGenerator.createData( req.getBulkSize(), req.getNumOfInteractions() );
+            dataGenerator.createData( req.getNumberOfBulks(), req.getNumOfInteractions() );
             response = new DemoResponse();
             System.out.println("tali2");
             response.setMyRetVal( "response to Tali :)" );
