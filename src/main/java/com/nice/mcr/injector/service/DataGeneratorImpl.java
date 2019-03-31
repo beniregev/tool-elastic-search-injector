@@ -11,6 +11,7 @@ import org.slf4j.MarkerFactory;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
+import java.net.Socket;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -33,24 +34,12 @@ public class DataGeneratorImpl implements DataGenerator {
                 String bulkData = generateBulkData( numOfInteractions );
                 writer.write( bulkData);
                 System.out.println(bulkData);
-
-
-                //TODO : return to this somehow
-
-                logger.info( marker, bulkData);
-
-
-//               //TODO: tali start
-//
-//                String hostname = "localhost";
-//                int port = 35;
-//                Socket clientSocket = new Socket(hostname, port);
-//                DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
-//                outToServer.writeBytes(jsonArray.toString());
-//                clientSocket.close();
-//
-//
-//                //TODO: tali end
+                String hostname = "localhost";
+                int port = 12345;
+                Socket clientSocket = new Socket(hostname, port);
+                DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
+                outToServer.writeBytes(bulkData);
+                clientSocket.close();
 
 
             } catch (JsonGenerationException e) {
@@ -85,9 +74,9 @@ public class DataGeneratorImpl implements DataGenerator {
         ArrayList <String> middleNames = generateNames( numOfInteractions, "C:\\Users\\Administrator\\Desktop\\input\\middle-names.txt" );
 //        JSONArray jsonArray = new JSONArray();
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("POST _bulk\n");
+//        stringBuilder.append("POST _bulk\n");
         for (int i = 0; i < numOfInteractions; i++) {
-            stringBuilder.append("{ \"index\" : { \"_index\" : \"test\", \"_type\" : \"_doc\", \"_id\" : \"" + i +"\" } }\n");
+            //stringBuilder.append("{ \"index\" : { \"_index\" : \"test\", \"_type\" : \"_doc\", \"_id\" : \"" + i +"\" } }\n");
             Date startDate = generateStartDate();
             Date stopDate = generateStopDate( startDate );
             OpenCallReason openCallReason = OpenCallReason.getRandomReason();
