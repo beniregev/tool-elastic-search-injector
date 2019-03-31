@@ -1,17 +1,14 @@
 package com.nice.mcr.injector.service;
 
-import ch.qos.logback.classic.Logger;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.slf4j.LoggerFactory;
-import org.slf4j.Marker;
-import org.slf4j.MarkerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
+import java.net.Socket;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -21,19 +18,25 @@ import java.util.Random;
 @Service
 public class DataGeneratorImpl implements DataGenerator {
 
-    private static final Logger logger = (Logger) LoggerFactory.getLogger( DataGeneratorImpl.class );
-    private static final String markerFilter = "APPEND_ROLLINGFILE";
-    private Marker marker = MarkerFactory.getMarker( markerFilter );
     private Random random = new Random();
+    @Value("${socket.hostname}")
+    private String hostname;
+    @Value("${socket.port}")
+    private int port;
+    public void createData(int numberOfBulks, int numOfInteractions) {
 
-    public void createData(int bulkSize, int numOfInteractions) {
-        for (int i = 0; i < bulkSize; i++) {
+        for (int i = 0; i < numberOfBulks; i++) {
             BufferedWriter writer = null;
+            Socket clientSocket = null;
             try {
-                writer = new BufferedWriter( new FileWriter( "..\\tool-elastic-search-injector\\output\\output " + (i + 1) + ".json" ) );
-                JSONArray jsonArray = generateData( numOfInteractions );
-                writer.write( jsonArray.toString() );
-                logger.info( marker, jsonArray.toString() );
+                writer = new BufferedWriter( new FileWriter( "..\\tool-elastic-search-injector\\output " + (i + 1) + ".json" ) );
+                String bulkData = generateBulkData( numOfInteractions );
+                writer.write( bulkData);
+                System.out.println(bulkData);
+                clientSocket = new Socket(hostname, port);
+                DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
+                outToServer.writeBytes(bulkData);
+
             } catch (JsonGenerationException e) {
                 e.printStackTrace();
             } catch (JsonMappingException e) {
@@ -45,8 +48,16 @@ public class DataGeneratorImpl implements DataGenerator {
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
+                if (clientSocket != null) {
+                    try {
+                        clientSocket.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
                 if (writer != null) {
                     try {
+                        writer.flush();
                         writer.close();
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -57,13 +68,12 @@ public class DataGeneratorImpl implements DataGenerator {
         }
     }
 
-    private JSONArray generateData(int numOfInteractions) throws JSONException {
+    private String generateBulkData(int numOfInteractions) throws JSONException {
 
-        ArrayList <String> firstNames = generateNames( numOfInteractions, "..\\tool-elastic-search-injector\\input\\first-names.txt" );
-        ArrayList <String> lastNames = generateNames( numOfInteractions, "..\\tool-elastic-search-injector\\input\\last-names.txt" );
-        ArrayList <String> middleNames = generateNames( numOfInteractions, "..\\tool-elastic-search-injector\\input\\middle-names.txt" );
-        JSONArray jsonArray = new JSONArray();
-
+        ArrayList <String> firstNames = generateNames( numOfInteractions, "C:\\Users\\Administrator\\Desktop\\input\\first-names.txt" );
+        ArrayList <String> lastNames = generateNames( numOfInteractions, "C:\\Users\\Administrator\\Desktop\\input\\last-names.txt" );
+        ArrayList <String> middleNames = generateNames( numOfInteractions, "C:\\Users\\Administrator\\Desktop\\input\\middle-names.txt" );
+        StringBuilder stringBuilder = new StringBuilder();
         for (int i = 0; i < numOfInteractions; i++) {
             Date startDate = generateStartDate();
             Date stopDate = generateStopDate( startDate );
@@ -81,7 +91,6 @@ public class DataGeneratorImpl implements DataGenerator {
             ItemType randomItemType = ItemType.getRandomItemType();
             RecordedType recordedType = RecordedType.getRandomRecordedType();
             ExceptionType randomExceptionType = ExceptionType.getRandomExcetionType();
-
             JSONObject jsonObj = new JSONObject();
             jsonObj.put( Consts.INTERACTION_ID, getIntRandom() );
             jsonObj.put( Consts.INTERACTION_GMT_START_TIME, formatDate( startDate ) );
@@ -102,13 +111,13 @@ public class DataGeneratorImpl implements DataGenerator {
             jsonObj.put( Consts.PBX_CALL_ID, getIntRandom() );
             jsonObj.put( Consts.EXTERNAL_CALL_ID, getIntRandom() );
             jsonObj.put( Consts.CALL_DIRECTION_TYPE_ID, randomDirectionType.getDirectionTypeID() );
-            jsonObj.put( Consts.PBX_UNIVARSAL_CALL_INTERACTION_ID, generateRandomString( 64 ) );
+            jsonObj.put( Consts.PBX_UNIVARSAL_CALL_INTERACTION_ID, getIntRandom() );
             jsonObj.put( Consts.COMPOUND_ID, getIntRandom() );
             jsonObj.put( Consts.NVC_BUSINESS_DATA, generateRandomString( 20 ) );
             jsonObj.put( Consts.PARTICIPANT_ID, getIntRandom() );
             jsonObj.put( Consts.STATION, generateRandomString( 20 ) );
             jsonObj.put( "nvcPhoneNumber", generateRandomString( 20 ) );
-            jsonObj.put( Consts.AGENT_ID, generateRandomString( 20 ) );
+            jsonObj.put( Consts.AGENT_ID, getIntRandom() );
             jsonObj.put( Consts.USER_ID, getIntRandom() );
             jsonObj.put( Consts.DEVICE_TYPE_ID, deviceType.DeviceTypeID() );
             jsonObj.put( Consts.DEVICE_ID, getIntRandom() );
@@ -159,12 +168,12 @@ public class DataGeneratorImpl implements DataGenerator {
             jsonObj.put( Consts.ARCHIVE_ID_HIGH, getIntRandom() );
             jsonObj.put( Consts.ARCHIVE_ID_LOW, getIntRandom() );
             jsonObj.put( Consts.ARCHIVE_CLASS, getIntRandom() );
-            jsonObj.put( Consts.SC_SERVER_ID, generateRandomString( 100 ) );
+            jsonObj.put( Consts.SC_SERVER_ID, getIntRandom() );
             jsonObj.put( Consts.SC_SITE_ID, getIntRandom() );
             jsonObj.put( Consts.SC_RULE_ID, getIntRandom() );
             jsonObj.put( Consts.SC_LOGGER_ID, getIntRandom() );
             jsonObj.put( Consts.SC_LOGGER_RESOURCE, getIntRandom() );
-            jsonObj.put( Consts.ARCHIVE_UNIQUE_ID, generateRandomString( 255 ) );
+            jsonObj.put( Consts.ARCHIVE_UNIQUE_ID, getIntRandom() );
             jsonObj.put( Consts.RETENTION_DAYS, getRandomWithRange( 365 * 30, 0 ) );
             jsonObj.put( Consts.COMPLETE_GMT_START_TIME, formatDate( startDate ) );
             jsonObj.put( Consts.COMPLETE_GMT_STOP_TIME, formatDate( stopDate ) );
@@ -221,9 +230,9 @@ public class DataGeneratorImpl implements DataGenerator {
             jsonObj.put( Consts.STATUS, "1" );
             jsonObj.put( Consts.FORMATTER_NAME, "1" );
 
-            jsonArray.put( jsonObj );
+            stringBuilder.append(jsonObj.toString() + "\n");
         }
-        return jsonArray;
+        return stringBuilder.toString();
     }
 
     private Object formatDate(Date startTime) {

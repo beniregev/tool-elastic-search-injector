@@ -6,16 +6,16 @@ public class DemoCreationRequest implements Serializable {
 
     private static final long serialVersionUID = 1418032757339869048L;
 
-    private int bulkSize;
+    private int numberOfBulks;
 
     private int numOfInteractions;
 
-    public int getBulkSize() {
-        return bulkSize;
+    public int getNumberOfBulks() {
+        return numberOfBulks;
     }
 
-    public void setBulkSize(int myVal) {
-        this.bulkSize = myVal;
+    public void setNumberOfBulks(int myVal) {
+        this.numberOfBulks = myVal;
     }
 
     public int getNumOfInteractions() {
