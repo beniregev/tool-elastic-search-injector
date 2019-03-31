@@ -6,3 +6,7 @@ log.file-size: 5MB
 
 server:
   port: 9005
+
+socket:
+  hostname: "localhost"
+  port: 12345

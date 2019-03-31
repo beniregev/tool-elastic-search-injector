@@ -1,13 +1,10 @@
 package com.nice.mcr.injector.service;
 
-import ch.qos.logback.classic.Logger;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.slf4j.LoggerFactory;
-import org.slf4j.Marker;
-import org.slf4j.MarkerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
@@ -21,26 +18,24 @@ import java.util.Random;
 @Service
 public class DataGeneratorImpl implements DataGenerator {
 
-    private static final Logger logger = (Logger) LoggerFactory.getLogger( DataGeneratorImpl.class );
-    private static final String markerFilter = "APPEND_ROLLINGFILE";
-    private Marker marker = MarkerFactory.getMarker( markerFilter );
     private Random random = new Random();
-
+    @Value("${socket.hostname}")
+    private String hostname;
+    @Value("${socket.port}")
+    private int port;
     public void createData(int numberOfBulks, int numOfInteractions) {
+
         for (int i = 0; i < numberOfBulks; i++) {
             BufferedWriter writer = null;
+            Socket clientSocket = null;
             try {
-                writer = new BufferedWriter( new FileWriter( "C:\\Users\\Administrator\\Desktop\\output\\output " + (i + 1) + ".json" ) );
+                writer = new BufferedWriter( new FileWriter( "..\\tool-elastic-search-injector\\output " + (i + 1) + ".json" ) );
                 String bulkData = generateBulkData( numOfInteractions );
                 writer.write( bulkData);
                 System.out.println(bulkData);
-                String hostname = "localhost";
-                int port = 12345;
-                Socket clientSocket = new Socket(hostname, port);
+                clientSocket = new Socket(hostname, port);
                 DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
                 outToServer.writeBytes(bulkData);
-                clientSocket.close();
-
 
             } catch (JsonGenerationException e) {
                 e.printStackTrace();
@@ -53,7 +48,13 @@ public class DataGeneratorImpl implements DataGenerator {
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
-
+                if (clientSocket != null) {
+                    try {
+                        clientSocket.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
                 if (writer != null) {
                     try {
                         writer.flush();
@@ -72,11 +73,8 @@ public class DataGeneratorImpl implements DataGenerator {
         ArrayList <String> firstNames = generateNames( numOfInteractions, "C:\\Users\\Administrator\\Desktop\\input\\first-names.txt" );
         ArrayList <String> lastNames = generateNames( numOfInteractions, "C:\\Users\\Administrator\\Desktop\\input\\last-names.txt" );
         ArrayList <String> middleNames = generateNames( numOfInteractions, "C:\\Users\\Administrator\\Desktop\\input\\middle-names.txt" );
-//        JSONArray jsonArray = new JSONArray();
         StringBuilder stringBuilder = new StringBuilder();
-//        stringBuilder.append("POST _bulk\n");
         for (int i = 0; i < numOfInteractions; i++) {
-            //stringBuilder.append("{ \"index\" : { \"_index\" : \"test\", \"_type\" : \"_doc\", \"_id\" : \"" + i +"\" } }\n");
             Date startDate = generateStartDate();
             Date stopDate = generateStopDate( startDate );
             OpenCallReason openCallReason = OpenCallReason.getRandomReason();
@@ -93,7 +91,6 @@ public class DataGeneratorImpl implements DataGenerator {
             ItemType randomItemType = ItemType.getRandomItemType();
             RecordedType recordedType = RecordedType.getRandomRecordedType();
             ExceptionType randomExceptionType = ExceptionType.getRandomExcetionType();
-
             JSONObject jsonObj = new JSONObject();
             jsonObj.put( Consts.INTERACTION_ID, getIntRandom() );
             jsonObj.put( Consts.INTERACTION_GMT_START_TIME, formatDate( startDate ) );
