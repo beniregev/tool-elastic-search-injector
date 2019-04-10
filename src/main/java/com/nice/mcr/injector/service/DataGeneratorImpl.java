@@ -23,48 +23,48 @@ public class DataGeneratorImpl implements DataGenerator {
     private String hostname;
     @Value("${socket.port}")
     private int port;
+
     public void createData(int numberOfBulks, int numOfInteractions) {
 
-        for (int i = 0; i < numberOfBulks; i++) {
-            BufferedWriter writer = null;
-            Socket clientSocket = null;
-            try {
+        BufferedWriter writer = null;
+        Socket clientSocket = null;
+        try {
+            clientSocket = new Socket( hostname, port );
+            for (int i = 0; i < numberOfBulks; i++) {
                 writer = new BufferedWriter( new FileWriter( "..\\tool-elastic-search-injector\\output\\output" + (i + 1) + ".json" ) );
                 String bulkData = generateBulkData( numOfInteractions );
-                writer.write( bulkData);
-                System.out.println(bulkData);
-                clientSocket = new Socket(hostname, port);
-                DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
-                outToServer.writeBytes(bulkData);
-
-            } catch (JsonGenerationException e) {
-                e.printStackTrace();
-            } catch (JsonMappingException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (JSONException e) {
-                e.printStackTrace();
-            } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
-                if (clientSocket != null) {
-                    try {
-                        clientSocket.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-                if (writer != null) {
-                    try {
-                        writer.flush();
-                        writer.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
+                writer.write( bulkData );
+                System.out.println( bulkData );
+                DataOutputStream outToServer = new DataOutputStream( clientSocket.getOutputStream() );
+                outToServer.writeBytes( bulkData );
             }
 
+        } catch (JsonGenerationException e) {
+            e.printStackTrace();
+        } catch (JsonMappingException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (clientSocket != null) {
+                try {
+                    clientSocket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (writer != null) {
+                try {
+                    writer.flush();
+                    writer.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
