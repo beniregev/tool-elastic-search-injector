@@ -29,7 +29,7 @@ public class DataGeneratorImpl implements DataGenerator {
             BufferedWriter writer = null;
             Socket clientSocket = null;
             try {
-                writer = new BufferedWriter( new FileWriter( "..\\tool-elastic-search-injector\\output " + (i + 1) + ".json" ) );
+                writer = new BufferedWriter( new FileWriter( "..\\tool-elastic-search-injector\\output\\output" + (i + 1) + ".json" ) );
                 String bulkData = generateBulkData( numOfInteractions );
                 writer.write( bulkData);
                 System.out.println(bulkData);
