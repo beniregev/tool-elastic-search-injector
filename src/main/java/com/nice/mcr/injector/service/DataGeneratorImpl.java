@@ -70,9 +70,9 @@ public class DataGeneratorImpl implements DataGenerator {
 
     private String generateBulkData(int numOfInteractions) throws JSONException {
 
-        ArrayList <String> firstNames = generateNames( numOfInteractions, "C:\\Users\\Administrator\\Desktop\\input\\first-names.txt" );
-        ArrayList <String> lastNames = generateNames( numOfInteractions, "C:\\Users\\Administrator\\Desktop\\input\\last-names.txt" );
-        ArrayList <String> middleNames = generateNames( numOfInteractions, "C:\\Users\\Administrator\\Desktop\\input\\middle-names.txt" );
+        ArrayList <String> firstNames = generateNames( numOfInteractions, "..\\tool-elastic-search-injector\\input\\first-names.txt" );
+        ArrayList <String> lastNames = generateNames( numOfInteractions, "..\\tool-elastic-search-injector\\input\\last-names.txt" );
+        ArrayList <String> middleNames = generateNames( numOfInteractions, "..\\tool-elastic-search-injector\\input\\middle-names.txt" );
         StringBuilder stringBuilder = new StringBuilder();
         for (int i = 0; i < numOfInteractions; i++) {
             Date startDate = generateStartDate();
