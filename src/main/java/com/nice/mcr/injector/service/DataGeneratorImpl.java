@@ -25,7 +25,6 @@ public class DataGeneratorImpl implements DataGenerator {
     private int port;
 
     public void createData(int numberOfBulks, int numOfInteractions) {
-
         BufferedWriter writer = null;
         Socket clientSocket = null;
         try {
@@ -116,7 +115,7 @@ public class DataGeneratorImpl implements DataGenerator {
             jsonObj.put( Consts.NVC_BUSINESS_DATA, generateRandomString( 20 ) );
             jsonObj.put( Consts.PARTICIPANT_ID, getIntRandom() );
             jsonObj.put( Consts.STATION, generateRandomString( 20 ) );
-            jsonObj.put( "nvcPhoneNumber", generateRandomString( 20 ) );
+            jsonObj.put( "nvcPhoneNumber", getRandomWithRange(972540000, 972500000) );
             jsonObj.put( Consts.AGENT_ID, getIntRandom() );
             jsonObj.put( Consts.USER_ID, getIntRandom() );
             jsonObj.put( Consts.DEVICE_TYPE_ID, deviceType.DeviceTypeID() );
@@ -150,8 +149,8 @@ public class DataGeneratorImpl implements DataGenerator {
             jsonObj.put( Consts.RECORDING_RECORDED_TYPE_ID, RecordedType.getRandomRecordedType() );
             jsonObj.put( Consts.PROGRAM_ID, getIntRandom() );
             jsonObj.put( Consts.RECORDED_PARTICIPANT_ID, getIntRandom() );
-            jsonObj.put( "biWrapupTime", getDoubleRandomNumber() );
-            jsonObj.put( Consts.SESSION_ID, getDoubleRandomNumber() );
+            jsonObj.put( Consts.WRAPUP_TIME, getLongRandom() );
+            jsonObj.put( Consts.SESSION_ID, getLongRandom() );
             jsonObj.put( Consts.ITEM_DATA_TYPE_DESC, randomItemDataType );
             jsonObj.put( Consts.CREATOR_DESC, creatorType );
             jsonObj.put( Consts.ITEM_TYPE_DESC, randomItemType );
@@ -245,7 +244,7 @@ public class DataGeneratorImpl implements DataGenerator {
     }
 
     private Long getLongRandom() {
-        return random.nextLong();
+        return random.nextLong()&  Long.MAX_VALUE;
     }
 
     private int getRandomWithRange(int max, int min) {
