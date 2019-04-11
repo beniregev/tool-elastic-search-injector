@@ -23,56 +23,55 @@ public class DataGeneratorImpl implements DataGenerator {
     private String hostname;
     @Value("${socket.port}")
     private int port;
+
     public void createData(int numberOfBulks, int numOfInteractions) {
-
-        for (int i = 0; i < numberOfBulks; i++) {
-            BufferedWriter writer = null;
-            Socket clientSocket = null;
-            try {
-                writer = new BufferedWriter( new FileWriter( "..\\tool-elastic-search-injector\\output " + (i + 1) + ".json" ) );
+        BufferedWriter writer = null;
+        Socket clientSocket = null;
+        try {
+            clientSocket = new Socket( hostname, port );
+            for (int i = 0; i < numberOfBulks; i++) {
+                writer = new BufferedWriter( new FileWriter( "..\\tool-elastic-search-injector\\output\\output" + (i + 1) + ".json" ) );
                 String bulkData = generateBulkData( numOfInteractions );
-                writer.write( bulkData);
-                System.out.println(bulkData);
-                clientSocket = new Socket(hostname, port);
-                DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
-                outToServer.writeBytes(bulkData);
-
-            } catch (JsonGenerationException e) {
-                e.printStackTrace();
-            } catch (JsonMappingException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (JSONException e) {
-                e.printStackTrace();
-            } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
-                if (clientSocket != null) {
-                    try {
-                        clientSocket.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-                if (writer != null) {
-                    try {
-                        writer.flush();
-                        writer.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
+                writer.write( bulkData );
+                System.out.println( bulkData );
+                DataOutputStream outToServer = new DataOutputStream( clientSocket.getOutputStream() );
+                outToServer.writeBytes( bulkData );
             }
 
+        } catch (JsonGenerationException e) {
+            e.printStackTrace();
+        } catch (JsonMappingException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (clientSocket != null) {
+                try {
+                    clientSocket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (writer != null) {
+                try {
+                    writer.flush();
+                    writer.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
     private String generateBulkData(int numOfInteractions) throws JSONException {
 
-        ArrayList <String> firstNames = generateNames( numOfInteractions, "C:\\Users\\Administrator\\Desktop\\input\\first-names.txt" );
-        ArrayList <String> lastNames = generateNames( numOfInteractions, "C:\\Users\\Administrator\\Desktop\\input\\last-names.txt" );
-        ArrayList <String> middleNames = generateNames( numOfInteractions, "C:\\Users\\Administrator\\Desktop\\input\\middle-names.txt" );
+        ArrayList <String> firstNames = generateNames( numOfInteractions, "..\\tool-elastic-search-injector\\input\\first-names.txt" );
+        ArrayList <String> lastNames = generateNames( numOfInteractions, "..\\tool-elastic-search-injector\\input\\last-names.txt" );
+        ArrayList <String> middleNames = generateNames( numOfInteractions, "..\\tool-elastic-search-injector\\input\\middle-names.txt" );
         StringBuilder stringBuilder = new StringBuilder();
         for (int i = 0; i < numOfInteractions; i++) {
             Date startDate = generateStartDate();
@@ -116,7 +115,7 @@ public class DataGeneratorImpl implements DataGenerator {
             jsonObj.put( Consts.NVC_BUSINESS_DATA, generateRandomString( 20 ) );
             jsonObj.put( Consts.PARTICIPANT_ID, getIntRandom() );
             jsonObj.put( Consts.STATION, generateRandomString( 20 ) );
-            jsonObj.put( "nvcPhoneNumber", generateRandomString( 20 ) );
+            jsonObj.put( "nvcPhoneNumber", getRandomWithRange(972540000, 972500000) );
             jsonObj.put( Consts.AGENT_ID, getIntRandom() );
             jsonObj.put( Consts.USER_ID, getIntRandom() );
             jsonObj.put( Consts.DEVICE_TYPE_ID, deviceType.DeviceTypeID() );
@@ -150,8 +149,8 @@ public class DataGeneratorImpl implements DataGenerator {
             jsonObj.put( Consts.RECORDING_RECORDED_TYPE_ID, RecordedType.getRandomRecordedType() );
             jsonObj.put( Consts.PROGRAM_ID, getIntRandom() );
             jsonObj.put( Consts.RECORDED_PARTICIPANT_ID, getIntRandom() );
-            jsonObj.put( "biWrapupTime", getDoubleRandomNumber() );
-            jsonObj.put( Consts.SESSION_ID, getDoubleRandomNumber() );
+            jsonObj.put( Consts.WRAPUP_TIME, getLongRandom() );
+            jsonObj.put( Consts.SESSION_ID, getLongRandom() );
             jsonObj.put( Consts.ITEM_DATA_TYPE_DESC, randomItemDataType );
             jsonObj.put( Consts.CREATOR_DESC, creatorType );
             jsonObj.put( Consts.ITEM_TYPE_DESC, randomItemType );
@@ -245,7 +244,7 @@ public class DataGeneratorImpl implements DataGenerator {
     }
 
     private Long getLongRandom() {
-        return random.nextLong();
+        return random.nextLong()&  Long.MAX_VALUE;
     }
 
     private int getRandomWithRange(int max, int min) {
