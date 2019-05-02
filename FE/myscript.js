@@ -1,5 +1,5 @@
 var hostname = "localhost";
-var port = "9005";
+var port = "9006";
 
 function InjectCalls(){
     numOfInteractions = Number(document.getElementById("numOfInteractions").value);
