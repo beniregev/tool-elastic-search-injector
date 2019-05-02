@@ -138,7 +138,7 @@ public class Consts {
     static final String LAST_NAME = "nvcLastName";
     static final String MIDDLE_NAME = "nvcMiddleName";
     static final String AGENT_ID = "iAgentId";
-    static final String EXTENTION = "nvcSwitchAgentId";
+    static final String EXTENSION = "nvcExtension";
     static final String SWITCH_AGENT_ID = "nvcSwitchAgentId";
     static final String LOCATION_ID = "iLocationId";
     static final String JOB_SKILL = "nvcJobSkill";
