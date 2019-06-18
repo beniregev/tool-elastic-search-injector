@@ -78,7 +78,7 @@ public class DataGeneratorImpl implements DataGenerator {
         ArrayList <String> middleNames = generateNames( numOfInteractions, "..\\tool-elastic-search-injector\\input\\middle-names.txt" );
         StringBuilder stringBuilder = new StringBuilder();
         for (int i = 0; i < numOfInteractions; i++) {
-            LocalDateTime startDate = generateStartDate( CURRENT_YEAR, getRandomWithRange( 1, 12 ) );
+            LocalDateTime startDate = generateStartDate();
             LocalDateTime stopDate = generateStopDate( startDate );
             OpenCallReason openCallReason = OpenCallReason.getRandomReason();
             InteractionType interactionType = InteractionType.getRandomInteractionType();
@@ -98,7 +98,7 @@ public class DataGeneratorImpl implements DataGenerator {
             jsonObj.put( Consts.INTERACTION_ID, getRandomInt() );
             jsonObj.put( Consts.INTERACTION_GMT_START_TIME, startDate.format( DATE_FORMAT ) );
             jsonObj.put( Consts.INTERACTION_GMT_STOP_TIME, stopDate.format( DATE_FORMAT ) );
-            jsonObj.put( Consts.INTERACTION_DURATION, Duration.between( startDate, stopDate ) );
+            jsonObj.put( Consts.INTERACTION_DURATION, Duration.between( startDate, stopDate ).toMillis() );
             jsonObj.put( Consts.INTERACTION_OPEN_REASON_ID, openCallReason.getOpenCallReasonID() );
             jsonObj.put( Consts.INTERACTION_CLOSE_REASON_ID, closeCallReason.getCloseCallReasonID() );
             jsonObj.put( Consts.SWITCH_ID, getRandomWithRange( 1, 10 ) );
@@ -180,7 +180,7 @@ public class DataGeneratorImpl implements DataGenerator {
             jsonObj.put( Consts.RETENTION_DAYS, getRandomWithRange( 0, 365 * 30 ) );
             jsonObj.put( Consts.COMPLETE_GMT_START_TIME, startDate.format( DATE_FORMAT ) );
             jsonObj.put( Consts.COMPLETE_GMT_STOP_TIME, stopDate.format( DATE_FORMAT ) );
-            jsonObj.put( Consts.COMPLETE_DURATION, Duration.between( startDate, stopDate ) );
+            jsonObj.put( Consts.COMPLETE_DURATION, Duration.between( startDate, stopDate ).toMillis() );
             jsonObj.put( Consts.COMPLETE_OPEN_REASON_ID, openCallReason.getOpenCallReasonID() );
             jsonObj.put( Consts.COMPLETE_CLOSE_REASON_ID, closeCallReason.getCloseCallReasonID() );
             jsonObj.put( Consts.TRANSFER_SITE_ID, getRandomInt() );
@@ -251,7 +251,7 @@ public class DataGeneratorImpl implements DataGenerator {
     }
 
     private int getRandomWithRange(int min, int max) {
-        return random.nextInt( max - min ) + min;
+        return random.nextInt( max - min + 1 ) + min;
     }
 
     private String generateRandomString(int length) {
@@ -285,8 +285,16 @@ public class DataGeneratorImpl implements DataGenerator {
         return firstNames;
     }
 
-    private LocalDateTime generateStartDate(int year, int month) {
-        return LocalDateTime.of( year, month, getRandomWithRange( 1, 28 ), getRandomWithRange( 0, 23 ), getRandomWithRange( 1, 59 ), 0, 0 );
+    private LocalDateTime generateStartDate() {
+        int currentYear, currentMonth, randomYear, randomMonth;
+        do {
+            currentYear = LocalDate.now().getYear();
+            currentMonth = LocalDate.now().getMonth().getValue();
+            randomYear = getRandomWithRange( currentYear - 1, currentYear );
+            randomMonth = getRandomWithRange( 1, 12 );
+        } while ((randomYear == currentYear) && (randomMonth > currentMonth));
+
+        return LocalDateTime.of( randomYear, randomMonth, getRandomWithRange( 1, 28 ), getRandomWithRange( 0, 23 ), getRandomWithRange( 1, 59 ), 0, 0 );
     }
 
     private LocalDateTime generateStopDate(LocalDateTime startTime) {
