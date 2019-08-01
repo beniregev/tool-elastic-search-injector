@@ -1,0 +1,11 @@
+.settings/
+target/
+.project
+.classpath
+velocity.log
+.idea/
+*.iml
+*.zip
+application.properties
+/.project
+LOGS/
