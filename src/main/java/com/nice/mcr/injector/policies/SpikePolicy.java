@@ -1,21 +1,19 @@
 package com.nice.mcr.injector.policies;
 
-import javafx.print.Collation;
-
 import java.util.*;
 
-public class SpikePolicy implements Policies {
+public class SpikePolicy implements Policy {
 
-    private UpdateListeners updateListeners;
+    private UpdateHandlers updateHandlers;
     private int timeToRun;
     private int numOfSegmentsPerSec;
     private int maxSegments;
     private int steadyTime;
     private int maxNumberOfPeaks;
 
-    public SpikePolicy(UpdateListeners updateListeners, int timeToRun, int numOfSegmentsPerSec, int steadyTime,
+    public SpikePolicy(UpdateHandlers updateHandlers, int timeToRun, int numOfSegmentsPerSec, int steadyTime,
                        int maxSegments, int maxNumberOfPicks) {
-        this.updateListeners = updateListeners;
+        this.updateHandlers = updateHandlers;
         this.timeToRun = timeToRun;
         this.numOfSegmentsPerSec = numOfSegmentsPerSec;
         this.maxSegments = maxSegments;
@@ -40,21 +38,23 @@ public class SpikePolicy implements Policies {
                 if (tempSteadyTime > endTime) {
                     // changing the steady policy timing to the end of the run
                     tempSteadyTime = tempSteadyTime - endTime;
-                    new SteadyPolicy(new UpdateListeners(this.updateListeners.getDataListeners()),
-                            (int) (tempSteadyTime / 1000), this.numOfSegmentsPerSec, false).run();
+                    new SteadyPolicy(new UpdateHandlers(this.updateHandlers.getOutputHandler(),
+                            this.updateHandlers.getNumOfBulks()),(int) (tempSteadyTime / 1000),
+                            this.numOfSegmentsPerSec, false).run();
                     break;
                 }
                 // creates SteadyPolicy instance as the timing defined and runs it
-                steadyPolicy = new SteadyPolicy(new UpdateListeners(this.updateListeners.getDataListeners()),
-                        this.steadyTime, this.numOfSegmentsPerSec, false);
+                steadyPolicy = new SteadyPolicy(new UpdateHandlers(this.updateHandlers.getOutputHandler(),
+                        this.updateHandlers.getNumOfBulks()), this.steadyTime, this.numOfSegmentsPerSec,
+                        false);
                 steadyPolicy.run();
                 numOfPressurePeaks = r.nextInt(maxNumberOfPeaks) + 1;
                 // runs a random number of backlogs.
                 // each backlogs randoms the number of jsons created
                 for (int i = 0; i < numOfPressurePeaks; i++) {
                     // creates BacklogPolicy instance and runs it
-                    backlogPolicy = new BacklogPolicy(new UpdateListeners(this.updateListeners.getDataListeners()),
-                            r.nextInt(this.maxSegments), false);
+                    backlogPolicy = new BacklogPolicy(new UpdateHandlers(this.updateHandlers.getOutputHandler(),
+                            this.updateHandlers.getNumOfBulks()), r.nextInt(this.maxSegments), false);
                     backlogPolicy.run();
                     if (System.currentTimeMillis() > endTime) {
                         stop = true;

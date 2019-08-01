@@ -28,7 +28,7 @@ public class SocketOutput implements OutputHandler {
 
         DataOutputStream outToServer = null;
         try {
-            outToServer = new DataOutputStream( clientSocket.getOutputStream());
+            outToServer = new DataOutputStream(clientSocket.getOutputStream());
             outToServer.writeBytes( data );
         } catch (IOException e) {
             e.printStackTrace();

@@ -1,6 +1,6 @@
 package com.nice.mcr.injector.policies;
 
-public interface Policies {
+public interface Policy {
 
     public void run();
 }

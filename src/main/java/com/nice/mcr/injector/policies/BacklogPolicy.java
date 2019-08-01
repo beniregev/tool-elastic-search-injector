@@ -1,19 +1,19 @@
 package com.nice.mcr.injector.policies;
 
-public class BacklogPolicy implements Policies {
+public class BacklogPolicy implements Policy {
 
-    private UpdateListeners updateListeners;
+    private UpdateHandlers updateHandlers;
     private int numOfSegments;
     private boolean isInOtherThread;
     private Runnable r;
 
-    public BacklogPolicy(UpdateListeners updateListeners, int numOfSegments, boolean isInOtherThread) {
-        this.updateListeners = updateListeners;
+    public BacklogPolicy(UpdateHandlers updateHandlers, int numOfSegments, boolean isInOtherThread) {
+        this.updateHandlers = updateHandlers;
         this.numOfSegments = numOfSegments;
         this.isInOtherThread = isInOtherThread;
         this.r = () -> {
             for (int i = 0; i < this.numOfSegments; i++) {
-                updateListeners.run();
+                this.updateHandlers.run();
             }
         };
     }

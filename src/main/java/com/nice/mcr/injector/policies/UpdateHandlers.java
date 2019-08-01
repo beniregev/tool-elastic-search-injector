@@ -1,6 +1,7 @@
 package com.nice.mcr.injector.policies;
 
 import com.nice.mcr.injector.linkedout.DataListener;
+import com.nice.mcr.injector.output.OutputHandler;
 import com.nice.mcr.injector.service.DataGeneratorImpl;
 import org.json.JSONException;
 
@@ -11,32 +12,31 @@ import java.util.TimerTask;
 /**
  * An implementation for TimerTask to run inside the Timer defined.
  */
-public class UpdateListeners extends TimerTask {
+public class UpdateHandlers extends TimerTask {
 
     private static int counter = 0;
-    private List<DataListener> dataListeners;
+    private List<OutputHandler> outputHandlers;
     private DataGeneratorImpl dataGenerator;
+    private int numOfBulks;
 
-    public UpdateListeners() {
+    public UpdateHandlers(int numOfBulks) {
         this.dataGenerator = new DataGeneratorImpl();
-        this.dataListeners = new ArrayList<>();
+        this.outputHandlers = new ArrayList<>();
+        this.numOfBulks = numOfBulks;
     }
 
-    public UpdateListeners(List<DataListener> dataListeners) {
+    public UpdateHandlers(List<OutputHandler> outputHandlers, int numOfBulks) {
         this.dataGenerator = new DataGeneratorImpl();
-        this.dataListeners = dataListeners;
+        this.outputHandlers = outputHandlers;
+        this.numOfBulks = numOfBulks;
     }
 
-    public void addDataListener(DataListener dataListener) {
-        this.dataListeners.add(dataListener);
+    public int getNumOfBulks() {
+        return numOfBulks;
     }
 
-    public List<DataListener> getDataListeners() {
-        return dataListeners;
-    }
-
-    public void removeDataListener(DataListener dataListener){
-        this.dataListeners.remove(dataListener);
+    public List<OutputHandler> getOutputHandler() {
+        return outputHandlers;
     }
 
     /**
@@ -46,8 +46,8 @@ public class UpdateListeners extends TimerTask {
         try {
             String json = this.dataGenerator.generateBulkData(1);
             this.counter++;
-            for (DataListener dl : this.dataListeners) {
-                dl.update(json);
+            for (OutputHandler oh : this.outputHandlers) {
+                oh.output(json);
             }
         } catch (JSONException e) {
             e.printStackTrace();

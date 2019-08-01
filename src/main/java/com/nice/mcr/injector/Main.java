@@ -7,10 +7,6 @@ import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.util.ObjectUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-
 
 @SpringBootApplication(scanBasePackages = {"com.nice.mcr"})
 public class Main {
@@ -25,14 +21,13 @@ public class Main {
         application.run(args);
 
 
-
-        PoliciesController pc = new PoliciesController();
-        UpdateListeners ul = new UpdateListeners();
-        ul.addDataListener(new FileCommunication());
-
+//
+//        PoliciesController pc = new PoliciesController();
+//        UpdateHandlers ul = new UpdateHandlers();
+//        ul.addDataListener(new FileCommunication());
 //        long startTime = System.currentTimeMillis();
 //        pc.policyTest(new SpikePolicy(ul, 10, 10, 1000, 2, 3));
-        new SpikePolicy(ul, 100, 20, 3, 100, 4 ).run();
+//        new SpikePolicy(ul, 100, 20, 3, 100, 4 ).run();
 //        new (ul, 2, 2).run();
 //        new BacklogPolicy(ul, 100).run();
 //        long endTime = System.currentTimeMillis();
