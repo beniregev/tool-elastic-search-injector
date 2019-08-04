@@ -10,3 +10,7 @@ server:
 socket:
   hostname: "localhost"
   port: 9600
+
+rabbitmq.host: localhost
+rabbitmq.username: test
+rabbitmq.password: test

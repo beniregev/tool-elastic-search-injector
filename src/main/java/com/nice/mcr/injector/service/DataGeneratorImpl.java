@@ -43,7 +43,41 @@ public class DataGeneratorImpl implements DataGenerator {
         return bulksList;
     }
 
-    public String generateBulkData(int numOfInteractions) throws JSONException {
+    public String generateSegmentData(int numOfInteractions) throws JSONException {
+
+        ArrayList<String> firstNames = generateNames(numOfInteractions, "..\\tool-elastic-search-injector\\input\\first-names.txt");
+        ArrayList<String> lastNames = generateNames(numOfInteractions, "..\\tool-elastic-search-injector\\input\\last-names.txt");
+        ArrayList<String> middleNames = generateNames(numOfInteractions, "..\\tool-elastic-search-injector\\input\\middle-names.txt");
+        StringBuilder stringBuilder = new StringBuilder();
+
+        LocalDateTime startDate = generateStartDate();
+        LocalDateTime stopDate = generateStopDate(startDate);
+
+
+        JSONObject jsonObj = new JSONObject();
+        jsonObj.put(Consts.VERSION, getRandomInt());
+        jsonObj.put(Consts.TENANT_ID, getRandomInt());
+        jsonObj.put(Consts.SWITCH_ID, getRandomInt());
+        jsonObj.put(Consts.CONTACT_ID, getRandomInt());
+        jsonObj.put(Consts.CONTACT_START_TIME, startDate.format(DATE_FORMAT));
+        jsonObj.put(Consts.CONTACT_END_TIME, startDate.format(DATE_FORMAT));
+        jsonObj.put(Consts.SEGMENT_ID, startDate.format(DATE_FORMAT));
+        jsonObj.put(Consts.SEGMENT_START_TIME, startDate.format(DATE_FORMAT));
+        jsonObj.put(Consts.SEGMENT_END_TIME, startDate.format(DATE_FORMAT));
+        jsonObj.put(Consts.CALL_DIRECTION, startDate.format(DATE_FORMAT));
+        jsonObj.put(Consts.BUSINESS_DATA, startDate.format(DATE_FORMAT));
+        jsonObj.put(Consts.DNIS, startDate.format(DATE_FORMAT));
+        jsonObj.put(Consts.PBX_CALL_ID, getRandomInt());
+        jsonObj.put(Consts.PBX_UNIQUE_CALL_ID, getRandomInt());
+        jsonObj.put(Consts.PARTICIPANTS, getRandomInt());
+        jsonObj.put(Consts.RECORDINGS, getRandomInt());
+        jsonObj.put(Consts.EXCEPTIONS, startDate.format(DATE_FORMAT));
+        jsonObj.put(Consts.RECORDING_STATUS, getRandomInt());
+        stringBuilder.append(jsonObj.toString() + "\n");
+        return stringBuilder.toString();
+    }
+
+        public String generateBulkData(int numOfInteractions) throws JSONException {
 
         ArrayList<String> firstNames = generateNames(numOfInteractions, "..\\tool-elastic-search-injector\\input\\first-names.txt");
         ArrayList<String> lastNames = generateNames(numOfInteractions, "..\\tool-elastic-search-injector\\input\\last-names.txt");

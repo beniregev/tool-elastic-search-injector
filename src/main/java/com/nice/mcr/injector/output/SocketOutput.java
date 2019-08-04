@@ -7,6 +7,9 @@ import java.io.IOException;
 import java.net.Socket;
 
 public class SocketOutput implements OutputHandler {
+
+    public static final String CLI_OPTION = "socket";
+
     @Value("${socket.hostname}")
     private String hostname;
     @Value("${socket.port}")

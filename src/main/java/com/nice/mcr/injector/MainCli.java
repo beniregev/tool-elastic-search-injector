@@ -2,6 +2,7 @@ package com.nice.mcr.injector;
 
 import com.nice.mcr.injector.output.FileOutput;
 import com.nice.mcr.injector.output.OutputHandler;
+import com.nice.mcr.injector.output.RabbitMQOutput;
 import com.nice.mcr.injector.output.SocketOutput;
 import com.nice.mcr.injector.policies.*;
 import com.nice.mcr.injector.service.DataGenerator;
@@ -32,8 +33,8 @@ public class MainCli implements ApplicationRunner {
      * file = FileOutput
      * socket = socketOutput
      *
-     * runtime = policy run time
-     * sgm = segments per second (steady policy)
+     * runtime = policy run time (seconds)
+     * cps = segments per second (steady policy)
      * bulk = number of segments in bulk (backlog policy)
      * st = time of steady policy (spike policy)
      * ms = max segments in bulk (spike policy)
@@ -53,15 +54,19 @@ public class MainCli implements ApplicationRunner {
         List<OutputHandler> outputHandlersList = new ArrayList<>();
         for (String s : outputHandlersFromInput) {
             switch (s) {
-                case "rmq":
+                case RabbitMQOutput.CLI_OPTION:
+                    outputHandlersList.add(new RabbitMQOutput());
                     break; // creates RMQ and add to OutputHandlersList
-                case "socket":
+                case SocketOutput.CLI_OPTION:
                     outputHandlersList.add(new SocketOutput());
                     break;
-                case "file":
+                case FileOutput.CLI_OPTION:
                     outputHandlersList.add(new FileOutput());
                     break;
             }
+        }
+        for (OutputHandler outputHandler : outputHandlersList) {
+            outputHandler.open();
         }
         UpdateHandlers updateHandlers;
         List<String> numOfBulks = args.getOptionValues("nb");
@@ -76,7 +81,7 @@ public class MainCli implements ApplicationRunner {
             switch (s) {
                 case "steady": {
                     List<String> runTime = args.getOptionValues("runtime");
-                    List<String> numOfSegmentsPerSec = args.getOptionValues("sgm");
+                    List<String> numOfSegmentsPerSec = args.getOptionValues("cps");
                     if ((runTime != null) && (numOfSegmentsPerSec != null)) {
                         policyList.add(new SteadyPolicy(updateHandlers, Integer.valueOf(runTime.get(0)),
                                 Integer.valueOf(numOfSegmentsPerSec.get(0)), false));
@@ -92,7 +97,7 @@ public class MainCli implements ApplicationRunner {
                 break;
                 case "spike": {
                     List<String> runTime = args.getOptionValues("runtime");
-                    List<String> numOfSegmentsPerSec = args.getOptionValues("sgm");
+                    List<String> numOfSegmentsPerSec = args.getOptionValues("cps");
                     List<String> steadyTime = args.getOptionValues("st");
                     List<String> maxSegments = args.getOptionValues("ms");
                     List<String> maxNumberOfPicks = args.getOptionValues("mnop");

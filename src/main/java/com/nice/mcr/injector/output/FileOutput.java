@@ -6,6 +6,8 @@ import java.io.IOException;
 
 public class FileOutput implements OutputHandler {
 
+    public static final String CLI_OPTION = "file";
+
     public static String fileName = "0";
 
     @Override

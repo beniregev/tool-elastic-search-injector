@@ -3,6 +3,27 @@ package com.nice.mcr.injector.service;
 import java.util.Random;
 
 public class Consts {
+
+    static final String VERSION = "version";
+    static final String TENANT_ID = "tenantId";
+    static final String SWITCH_ID= "switchId";
+    static final String CONTACT_ID= "contactId";
+    static final String CONTACT_START_TIME= "contactStartTime";
+    static final String CONTACT_END_TIME= "contactEndTime";
+    static final String SEGMENT_ID= "segmentId";
+    static final String SEGMENT_START_TIME= "segmentStartTime";
+    static final String SEGMENT_END_TIME= "segmentEndTime";
+    static final String CALL_DIRECTION= "callDirection";
+    static final String BUSINESS_DATA= "businessData";
+    static final String DNIS= "DNIS";
+    static final String PBX_CALL_ID= "pbxCallId";
+    static final String PBX_UNIQUE_CALL_ID= "pbxCallId";
+    static final String PARTICIPANTS= "participants";
+    static final String RECORDINGS= "recordings";
+    static final String EXCEPTIONS= "exceptions";
+    static final String RECORDING_STATUS = "recordingStatus";
+
+
     static final String INTERACTION_ID = "iInteractionID";
     static final String INTERACTION_LOCAL_START_TIME = "dtInteractionLocalStartTime";
     static final String INTERACTION_LOCAL_STOP_TIME = "dtInteractionLocalStopTime";
@@ -11,7 +32,7 @@ public class Consts {
     static final String INTERACTION_DURATION = "biInteractionDuration";
     static final String INTERACTION_OPEN_REASON_ID = "iInteractionOpenReasonID";
     static final String INTERACTION_CLOSE_REASON_ID = "iInteractionCloseReasonID";
-    static final String SWITCH_ID = "iSwitchID";
+//    static final String SWITCH_ID = "iSwitchID";
     static final String INITIATOR_USER_ID = "iInitiatorUserID";
     static final String OTHER_SWITCH_ID = "iOtherSwitchID";
     static final String INTERACTION_QA_TYPE_ID = "bitInteractionQATypeID";
@@ -32,7 +53,7 @@ public class Consts {
     static final String NVC_CC = "nvcCC";
     static final String NVC_BCC = "nvcBcc";
     static final String CLIENT_DTMF = "vcClientDTMF";
-    static final String PBX_CALL_ID = "iPBXCallID";
+//    static final String PBX_CALL_ID = "iPBXCallID";
     static final String EXTERNAL_CALL_ID = "iExternalCallId";
     static final String CALL_DIRECTION_TYPE_ID = "tiCallDirectionTypeID";
     static final String VECTOR_NUMBER = "vcVectorNumber";
@@ -82,7 +103,7 @@ public class Consts {
     static final String CREATOR_DESC = "vcCreatorDesc";
     static final String ITEM_TYPE_ID = "iItemTypeID";
     static final String ITEM_TYPE_DESC = "nvcItemTypeDesc";
-    static final String CONTACT_ID = "iContactID";
+//    static final String CONTACT_ID = "iContactID";
     static final String ITEM_SEQUENCE_NUMBER = "iItemSequenceNumber";
     static final String TIME_STAMP = "dtTimeStamp";
     static final String ITEM_USER_ID = "iItemUserID";
