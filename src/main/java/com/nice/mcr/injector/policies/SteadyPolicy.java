@@ -1,33 +1,107 @@
 package com.nice.mcr.injector.policies;
 
+import com.nice.mcr.injector.MainCli;
+
 import java.util.Timer;
 
 public class SteadyPolicy implements Policy {
 
+    public static boolean isRun = true;
     private UpdateHandlers updateHandlers;
     private int timeToRun;
-    private int numOfSegmentsPerSec;
+    private int callsPerSec;
+    private int overallSegments;
     private boolean isInOtherThread;
-    private Runnable r;
+    private Runnable r = () -> {
+        CreateData createData = new CreateData(this.overallSegments, Thread.currentThread());
+        if (this.isInOtherThread) {
+            createData.create(true);
+        }
+        else {
+            createData.create(false);
+        }
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+        }
+        double startTime = System.currentTimeMillis();
+        this.updateHandlers.setCreateData(createData);
+        this.updateHandlers.setCallsPerSec(this.callsPerSec);
+        this.updateHandlers.setOverallSegments(this.overallSegments);
+        Timer timer = new Timer();
+        // Define interval time
+        // Set timer schedule
+        timer.scheduleAtFixedRate(this.updateHandlers, 0, 1000);
+        try {
+            Thread.sleep(this.timeToRun * 1000);
+            isRun = false;
+            timer.cancel();
+            System.out.println("Total run time of this steady: " + (System.currentTimeMillis() - startTime));
+            System.out.println("number of segments should be created: " + MainCli.shouldCreated);
+            System.out.println("number of segments been created: " + MainCli.beenCreated);
+        } catch (InterruptedException e) { e.printStackTrace(); }
+    };
 
-    public SteadyPolicy(UpdateHandlers updateHandlers, int timeToRun, int numOfSegmentsPerSec, boolean isInOtherThread) {
+    public SteadyPolicy(UpdateHandlers updateHandlers, int timeToRun, int callsPerSec, boolean isInOtherThread) {
         this.updateHandlers = updateHandlers;
         this.timeToRun = timeToRun;
-        this.numOfSegmentsPerSec = numOfSegmentsPerSec;
+        this.callsPerSec = callsPerSec;
         this.isInOtherThread = isInOtherThread;
-        this.r = () -> {
-            Timer timer = new Timer();
-            // Define interval time
-            // Set timer schedule
-            timer.schedule(this.updateHandlers, 0, 1000 / this.numOfSegmentsPerSec);
-            // Loop that delays the thread from stopping before it's time.
-            try {
-                Thread.sleep(this.timeToRun * 1000);
-                timer.cancel();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        };
+        this.overallSegments = timeToRun * callsPerSec;
+        MainCli.shouldCreated += timeToRun * callsPerSec;
+//        this.r = () -> {
+//            try {
+////                CreateData createData = new CreateData(36);
+//                CreateData createData = new CreateData(this.timeToRun * this.callsPerSec);
+//                createData.create();
+//                Thread.sleep(5000);
+//                this.updateHandlers.setCreateData(createData);
+//                this.updateHandlers.setCallsPerSec(this.callsPerSec);
+//                Timer timer = new Timer();
+//                // Define interval time
+//                // Set timer schedule
+//                double startTime = System.currentTimeMillis();
+//                timer.scheduleAtFixedRate(this.updateHandlers, 0, 1000);
+//                // Loop that delays the thread from stopping before it's time.
+//                try {
+//                    Thread.sleep(this.timeToRun * 1000);
+//                    isRun = false;
+//                    timer.cancel();
+//                    System.out.println("Total run time: " + (System.currentTimeMillis() - startTime));
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
+//                System.out.println("number of segments should be created: " + MainCli.shouldCreated);
+//                System.out.println("number of segments been created: " + MainCli.beenCreated);
+//            }
+//            catch (InterruptedException e) { e.printStackTrace(); }
+
+
+//            Timer timer = new Timer();
+//            // Define interval time
+//            // Set timer schedule
+//            double startTime = System.currentTimeMillis();
+//            timer.scheduleAtFixedRate(this.updateHandlers, 0, 1000 / this.callsPerSec);
+//            // Loop that delays the thread from stopping before it's time.
+//            try {
+//                Thread.sleep(this.timeToRun * 1000);
+//                isRun = false;
+//                timer.cancel();
+//                System.out.println("Total run time: " + (System.currentTimeMillis() - startTime));
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//            System.out.println("number of segments should be created: " + MainCli.shouldCreated);
+//            System.out.println("number of segments been created: " + MainCli.beenCreated);
+    }
+
+    public SteadyPolicy(boolean isInOtherThread, UpdateHandlers updateHandlers, int callsPerSec, int overallSegments) {
+        this.updateHandlers = updateHandlers;
+        this.overallSegments = overallSegments;
+        this.callsPerSec = callsPerSec;
+        this.isInOtherThread = isInOtherThread;
+        this.timeToRun = (int) (Math.ceil((double) this.overallSegments / (double) this.callsPerSec));
+        MainCli.shouldCreated += this.overallSegments;
     }
 
     public UpdateHandlers getUpdateHandlers() {
@@ -37,8 +111,7 @@ public class SteadyPolicy implements Policy {
     public void run() {
         if (this.isInOtherThread) {
             new Thread(this.r).start();
-        }
-        else {
+        } else {
             this.r.run();
         }
     }

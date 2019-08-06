@@ -31,7 +31,7 @@ public class DemoController {
         DemoResponse response = null;
         try {
             System.out.println(req);
-            dataGenerator.createData( req.getNumberOfBulks(), req.getNumOfInteractions() );
+            dataGenerator.createData(req.getNumOfInteractions() );
             response = new DemoResponse();
             return response;
         } catch (JSONException e) {

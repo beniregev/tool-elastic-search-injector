@@ -1,6 +1,5 @@
 package com.nice.mcr.injector;
 
-import com.nice.mcr.injector.linkedout.FileCommunication;
 import com.nice.mcr.injector.policies.*;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.WebApplicationType;

@@ -29,18 +29,16 @@ public class DataGeneratorImpl implements DataGenerator {
     private static DateTimeFormatter DATE_FORMAT = new DateTimeFormatterBuilder().appendPattern("yyyy-MM-dd").optionalStart().appendPattern(" HH:mm:ss.SSS").optionalEnd().parseDefaulting(ChronoField.HOUR_OF_DAY, 0).parseDefaulting(ChronoField.MINUTE_OF_HOUR, 0).parseDefaulting(ChronoField.SECOND_OF_MINUTE, 0).parseDefaulting(ChronoField.MILLI_OF_SECOND, 0).toFormatter();
 
 
-    public List<String> createData(int numberOfBulks, int numOfInteractions) {
-        List<String> bulksList = new ArrayList<>();
+    public String createData(int numOfInteractions) {
+        String tempBulk = "";
         try {
-            for (int i = 0; i < numberOfBulks; i++) {
-                bulksList.add(generateBulkData(numOfInteractions));
-            }
+            tempBulk = generateBulkData(numOfInteractions);
         } catch (JSONException e) {
             e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return bulksList;
+        return tempBulk;
     }
 
     public String generateSegmentData(int numOfInteractions) throws JSONException {

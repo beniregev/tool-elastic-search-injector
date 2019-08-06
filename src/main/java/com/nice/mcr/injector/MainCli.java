@@ -19,7 +19,8 @@ import java.util.List;
 
 @SpringBootApplication(scanBasePackages = {"com.nice.mcr"})
 public class MainCli implements ApplicationRunner {
-
+    public static int shouldCreated = 0;
+    public static int beenCreated = 0;
     /*
      * Key-Value arguments:
      *
@@ -27,6 +28,7 @@ public class MainCli implements ApplicationRunner {
      * steady = SteadyPolicy
      * backlog = BacklogPolicy
      * spike = SpikePolicy
+     * elastic = ElasticPolicy
      *
      * o = output handler
      * rmq = RabbitMQ
@@ -35,13 +37,12 @@ public class MainCli implements ApplicationRunner {
      *
      * runtime = policy run time (seconds)
      * cps = segments per second (steady policy)
-     * bulk = number of segments in bulk (backlog policy)
+     * os = overall segments to send (steady policy)
+     * nos = number of segments to create (backlog policy)
      * st = time of steady policy (spike policy)
-     * ms = max segments in bulk (spike policy)
-     * mnop = max number of peaks in bulk (spike policy)
-     *
-     * Update Handlers arguments:
-     * nb = number of bulks to create
+     * ms = max segments in backlog (spike policy)
+     * nb = number of bulks to create (elastic policy)
+     * sib = number of segments in a single bulk (elastic policy)
      *
      */
     public void run(ApplicationArguments args) {
@@ -68,30 +69,29 @@ public class MainCli implements ApplicationRunner {
         for (OutputHandler outputHandler : outputHandlersList) {
             outputHandler.open();
         }
-        UpdateHandlers updateHandlers;
-        List<String> numOfBulks = args.getOptionValues("nb");
-        if (numOfBulks != null) {
-            updateHandlers = new UpdateHandlers(outputHandlersList, Integer.valueOf(numOfBulks.get(0)));
-
-        }
-        else {
-            updateHandlers = new UpdateHandlers(outputHandlersList, 1);
-        }
-        for (String s : policiesFromInput) {
-            switch (s) {
+        UpdateHandlers updateHandlers = new UpdateHandlers(outputHandlersList);
+        for (int i = 0 ; i < policiesFromInput.size() ; i++) {
+            switch (policiesFromInput.get(i)) {
                 case "steady": {
                     List<String> runTime = args.getOptionValues("runtime");
                     List<String> numOfSegmentsPerSec = args.getOptionValues("cps");
-                    if ((runTime != null) && (numOfSegmentsPerSec != null)) {
-                        policyList.add(new SteadyPolicy(updateHandlers, Integer.valueOf(runTime.get(0)),
-                                Integer.valueOf(numOfSegmentsPerSec.get(0)), false));
+                    List<String> overallSegments = args.getOptionValues("os");
+                    if (numOfSegmentsPerSec != null) {
+                        if (runTime != null) {
+                            policyList.add(new SteadyPolicy(updateHandlers, Integer.valueOf(runTime.get(i)),
+                                    Integer.valueOf(numOfSegmentsPerSec.get(i)), true));
+                        }
+                        else if (overallSegments != null) {
+                            policyList.add(new SteadyPolicy(true, updateHandlers,
+                                    Integer.valueOf(numOfSegmentsPerSec.get(i)), Integer.valueOf(overallSegments.get(i))));
+                        }
                     }
                 }
                 break;
                 case "backlog": {
-                    List<String> numOfSegments = args.getOptionValues("bulk");
+                    List<String> numOfSegments = args.getOptionValues("nos");
                     if (numOfSegments != null) {
-                        policyList.add(new BacklogPolicy(updateHandlers, Integer.valueOf(numOfSegments.get(0)), false));
+                        policyList.add(new BacklogPolicy(updateHandlers, Integer.valueOf(numOfSegments.get(i)), true));
                     }
                 }
                 break;
@@ -100,15 +100,22 @@ public class MainCli implements ApplicationRunner {
                     List<String> numOfSegmentsPerSec = args.getOptionValues("cps");
                     List<String> steadyTime = args.getOptionValues("st");
                     List<String> maxSegments = args.getOptionValues("ms");
-                    List<String> maxNumberOfPicks = args.getOptionValues("mnop");
                     if ((runTime != null) && (numOfSegmentsPerSec != null) && (steadyTime != null)
-                            && (maxSegments != null) && (maxNumberOfPicks != null)) {
-                        policyList.add(new SpikePolicy(updateHandlers, Integer.valueOf(runTime.get(0)),
-                                Integer.valueOf(numOfSegmentsPerSec.get(0)), Integer.valueOf(steadyTime.get(0)),
-                                Integer.valueOf(maxSegments.get(0)), Integer.valueOf(maxNumberOfPicks.get(0))));
+                            && (maxSegments != null)) {
+                        policyList.add(new SpikePolicy(updateHandlers, Integer.valueOf(runTime.get(i)),
+                                Integer.valueOf(numOfSegmentsPerSec.get(i)), Integer.valueOf(steadyTime.get(i)),
+                                Integer.valueOf(maxSegments.get(i))));
                     }
                 }
                 break;
+                case "elastic": {
+                    List<String> numOfBulks = args.getOptionValues("nb");
+                    List<String> numOfSegmentsPerSec = args.getOptionValues("sib");
+                    if ((numOfBulks != null) && (numOfSegmentsPerSec != null)) {
+                        policyList.add(new ElasticPolicy(updateHandlers, Integer.valueOf(numOfBulks.get(i)),
+                                Integer.valueOf(numOfSegmentsPerSec.get(i))));
+                    }
+                }
             }
         }
         for (Policy p : policyList) {

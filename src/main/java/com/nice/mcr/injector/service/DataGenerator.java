@@ -6,5 +6,5 @@ import java.util.List;
 
 public interface DataGenerator {
 
-    List<String> createData(int numberOfBulks, int numOfInsteractions) throws JSONException;
+    String createData(int numOfInsteractions) throws JSONException;
 }

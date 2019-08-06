@@ -1,5 +1,7 @@
 package com.nice.mcr.injector.policies;
 
+import com.nice.mcr.injector.MainCli;
+
 import java.util.*;
 
 public class SpikePolicy implements Policy {
@@ -9,21 +11,19 @@ public class SpikePolicy implements Policy {
     private int numOfSegmentsPerSec;
     private int maxSegments;
     private int steadyTime;
-    private int maxNumberOfPeaks;
 
     public SpikePolicy(UpdateHandlers updateHandlers, int timeToRun, int numOfSegmentsPerSec, int steadyTime,
-                       int maxSegments, int maxNumberOfPicks) {
+                       int maxSegments) {
         this.updateHandlers = updateHandlers;
         this.timeToRun = timeToRun;
         this.numOfSegmentsPerSec = numOfSegmentsPerSec;
         this.maxSegments = maxSegments;
         this.steadyTime = steadyTime;
-        this.maxNumberOfPeaks = maxNumberOfPicks;
     }
 
     @Override
     public void run() {
-        new Thread(()-> {
+        new Thread(() -> {
             Random r = new Random();
             double startTime = System.currentTimeMillis();
             double endTime = timeToRun * 1000 + startTime;
@@ -38,23 +38,24 @@ public class SpikePolicy implements Policy {
                 if (tempSteadyTime > endTime) {
                     // changing the steady policy timing to the end of the run
                     tempSteadyTime = tempSteadyTime - endTime;
-                    new SteadyPolicy(new UpdateHandlers(this.updateHandlers.getOutputHandler(),
-                            this.updateHandlers.getNumOfBulks()),(int) (tempSteadyTime / 1000),
-                            this.numOfSegmentsPerSec, false).run();
+                    new SteadyPolicy(new UpdateHandlers(this.updateHandlers.getOutputHandler()),
+                            (int) (tempSteadyTime / 1000), this.numOfSegmentsPerSec, false).run();
+                    System.out.println("entering steady policy, number of segments to create: " + ((this.steadyTime/1000)*this.numOfSegmentsPerSec));
                     break;
                 }
+                System.out.println("entering steady policy, number of segments to create: " + (this.steadyTime*this.numOfSegmentsPerSec));
                 // creates SteadyPolicy instance as the timing defined and runs it
-                steadyPolicy = new SteadyPolicy(new UpdateHandlers(this.updateHandlers.getOutputHandler(),
-                        this.updateHandlers.getNumOfBulks()), this.steadyTime, this.numOfSegmentsPerSec,
-                        false);
+                steadyPolicy = new SteadyPolicy(new UpdateHandlers(this.updateHandlers.getOutputHandler()),
+                        this.steadyTime, this.numOfSegmentsPerSec,false);
                 steadyPolicy.run();
-                numOfPressurePeaks = r.nextInt(maxNumberOfPeaks) + 1;
+                SteadyPolicy.isRun = true;
+                numOfPressurePeaks = r.nextInt(10) + 1;
                 // runs a random number of backlogs.
                 // each backlogs randoms the number of jsons created
                 for (int i = 0; i < numOfPressurePeaks; i++) {
                     // creates BacklogPolicy instance and runs it
-                    backlogPolicy = new BacklogPolicy(new UpdateHandlers(this.updateHandlers.getOutputHandler(),
-                            this.updateHandlers.getNumOfBulks()), r.nextInt(this.maxSegments), false);
+                    backlogPolicy = new BacklogPolicy(new UpdateHandlers(this.updateHandlers.getOutputHandler()),
+                            r.nextInt(this.maxSegments), false);
                     backlogPolicy.run();
                     if (System.currentTimeMillis() > endTime) {
                         stop = true;
@@ -62,6 +63,9 @@ public class SpikePolicy implements Policy {
                     }
                 }
             }
+            System.out.println("Total run time: " + (System.currentTimeMillis() - startTime));
+            System.out.println("number of segments should be created: " + MainCli.shouldCreated);
+            System.out.println("number of segments been created: " + MainCli.beenCreated);
         }).start();
     }
 
