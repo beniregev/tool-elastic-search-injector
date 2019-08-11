@@ -68,18 +68,4 @@ public class SpikePolicy implements Policy {
             System.out.println("number of segments been created: " + MainCli.beenCreated);
         }).start();
     }
-
-//    private List<Integer> generatePeaksTime(int pressureTime) {
-//        Random r = new Random();
-//        int timeLeft = pressureTime;
-//        int peakTime;
-//        List<Integer> timeOfPeaks = new ArrayList<>();
-//        while (timeLeft > 0) {
-//            peakTime = r.nextInt(timeLeft) + 1;
-//            timeOfPeaks.add(peakTime);
-//            timeLeft -= peakTime;
-//        }
-//        Collections.shuffle(timeOfPeaks);
-//        return timeOfPeaks;
-//    }
 }

@@ -49,50 +49,6 @@ public class SteadyPolicy implements Policy {
         this.isInOtherThread = isInOtherThread;
         this.overallSegments = timeToRun * callsPerSec;
         MainCli.shouldCreated += timeToRun * callsPerSec;
-//        this.r = () -> {
-//            try {
-////                CreateData createData = new CreateData(36);
-//                CreateData createData = new CreateData(this.timeToRun * this.callsPerSec);
-//                createData.create();
-//                Thread.sleep(5000);
-//                this.updateHandlers.setCreateData(createData);
-//                this.updateHandlers.setCallsPerSec(this.callsPerSec);
-//                Timer timer = new Timer();
-//                // Define interval time
-//                // Set timer schedule
-//                double startTime = System.currentTimeMillis();
-//                timer.scheduleAtFixedRate(this.updateHandlers, 0, 1000);
-//                // Loop that delays the thread from stopping before it's time.
-//                try {
-//                    Thread.sleep(this.timeToRun * 1000);
-//                    isRun = false;
-//                    timer.cancel();
-//                    System.out.println("Total run time: " + (System.currentTimeMillis() - startTime));
-//                } catch (InterruptedException e) {
-//                    e.printStackTrace();
-//                }
-//                System.out.println("number of segments should be created: " + MainCli.shouldCreated);
-//                System.out.println("number of segments been created: " + MainCli.beenCreated);
-//            }
-//            catch (InterruptedException e) { e.printStackTrace(); }
-
-
-//            Timer timer = new Timer();
-//            // Define interval time
-//            // Set timer schedule
-//            double startTime = System.currentTimeMillis();
-//            timer.scheduleAtFixedRate(this.updateHandlers, 0, 1000 / this.callsPerSec);
-//            // Loop that delays the thread from stopping before it's time.
-//            try {
-//                Thread.sleep(this.timeToRun * 1000);
-//                isRun = false;
-//                timer.cancel();
-//                System.out.println("Total run time: " + (System.currentTimeMillis() - startTime));
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
-//            System.out.println("number of segments should be created: " + MainCli.shouldCreated);
-//            System.out.println("number of segments been created: " + MainCli.beenCreated);
     }
 
     public SteadyPolicy(boolean isInOtherThread, UpdateHandlers updateHandlers, int callsPerSec, int overallSegments) {

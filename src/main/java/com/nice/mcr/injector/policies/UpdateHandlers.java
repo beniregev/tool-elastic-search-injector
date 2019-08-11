@@ -63,29 +63,6 @@ public class UpdateHandlers extends TimerTask {
         this.counter += this.callsPerSec;
     }
 
-//        double startTime = System.currentTimeMillis();
-//        String json = this.dataGenerator.createData(this.numOfSegments);
-//        this.counter++;
-//        MainCli.beenCreated++;
-//        if (this.counter == this.overallSegments) {
-//            this.cancel();
-//            synchronized (this.t) {
-//                try {
-//                    t.notify();
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        }
-//        for (OutputHandler oh : this.outputHandlers) {
-//            if (SteadyPolicy.isRun) {
-//                oh.output(json);
-//            } else {
-//                this.cancel();
-//            }
-//        }
-//        System.out.println("Time to generate segment and write to file: " + (System.currentTimeMillis() - startTime));
-
     public int getCounter() {
         return counter;
     }
