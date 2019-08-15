@@ -27,22 +27,19 @@ public class RabbitMQOutput implements OutputHandler {
     public boolean open() {
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost("localhost");
-//        factory.setUsername(rmqUser);
-//        factory.setPassword(rmqPassword);
+        factory.setUsername(rmqUser);
+        factory.setPassword(rmqPassword);
 
         try {
             Connection connection = factory.newConnection();
             channel = connection.createChannel();
             channel.exchangeDeclare(EXCHANGE_NAME, "topic", true);
-
-            String message = "info: Hello World!";
-
+            return true;
         } catch (IOException e) {
             e.printStackTrace();
         } catch (TimeoutException e) {
             e.printStackTrace();
         }
-
         return false;
     }
 

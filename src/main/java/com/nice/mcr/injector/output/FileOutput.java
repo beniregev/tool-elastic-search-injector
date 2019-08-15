@@ -8,22 +8,23 @@ public class FileOutput implements OutputHandler {
 
     public static final String CLI_OPTION = "file";
 
-    public static String fileName = "0";
+    public static int fileIndex = 0;
 
     @Override
     public boolean open() {
-        return false;
+
+        return true;
     }
 
     @Override
     public void output(String data) {
         BufferedWriter writer = null;
         try {
-            writer = new BufferedWriter(new FileWriter("..\\tool-elastic-search-injector\\input\\" + fileName + ".txt"));
+            writer = new BufferedWriter(new FileWriter("..\\tool-elastic-search-injector\\output\\" + fileIndex + ".json"));
             writer.write(data);
             writer.flush();
             writer.close();
-            fileName = String.valueOf(Integer.parseInt(fileName) + 1);
+            fileIndex++;
         } catch (IOException e) {
             e.printStackTrace();
         }
