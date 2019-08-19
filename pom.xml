@@ -13,6 +13,7 @@
         <logstash-logback-encoder.version>5.3</logstash-logback-encoder.version>
         <logback.version>1.2.3</logback.version>
         <android-json.version>0.0.20131108.vaadin1</android-json.version>
+        <lib-logging.version>1.0.0-SNAPSHOT</lib-logging.version>
     </properties>
 
     <parent>
@@ -28,6 +29,12 @@
     <version>1.0.0-SNAPSHOT</version>
 
     <dependencies>
+        <!-- V10 depedencies -->
+        <dependency>
+            <groupId>com.nice.mcr</groupId>
+            <artifactId>lib-logging</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
@@ -109,6 +116,11 @@
             <groupId>io.springfox</groupId>
             <artifactId>springfox-swagger2</artifactId>
             <version>${springfox.swagger2.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.nice.mcr</groupId>
+            <artifactId>lib-logging</artifactId>
+            <version>${lib-logging.version}</version>
         </dependency>
     </dependencies>
     </dependencyManagement>

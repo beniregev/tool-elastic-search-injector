@@ -2,8 +2,11 @@ package com.nice.mcr.injector.service;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.nice.mcr.injector.output.RabbitMQOutput;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +22,8 @@ import java.util.Random;
 
 @Service
 public class DataGeneratorImpl implements DataGenerator {
+
+    private static final Logger log = LoggerFactory.getLogger(DataGeneratorImpl.class);
 
     private Random random = new Random();
     @Value("${socket.hostname}")
@@ -36,10 +41,10 @@ public class DataGeneratorImpl implements DataGenerator {
         String tempBulk = "";
         try {
             tempBulk = generateBulkData(numOfInteractions);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (JSONException je) {
+            log.error("", je);
+        } catch (Exception ex) {
+            log.error("", ex);
         }
         return tempBulk;
     }
@@ -277,16 +282,16 @@ public class DataGeneratorImpl implements DataGenerator {
                 names.add(line);
             }
 
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (FileNotFoundException fnfe) {
+            log.error("", fnfe);
+        } catch (IOException ioe) {
+            log.error("Error while reading name file", ioe);
         } finally {
             if (bufferReader != null) {
                 try {
                     bufferReader.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
+                } catch (IOException ioe) {
+                    log.error("Error while trying to close reader", ioe);
                 }
             }
         }

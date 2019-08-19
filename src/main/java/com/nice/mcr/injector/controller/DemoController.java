@@ -2,12 +2,15 @@ package com.nice.mcr.injector.controller;
 
 import com.nice.mcr.injector.controller.request.DemoCreationRequest;
 import com.nice.mcr.injector.controller.response.DemoResponse;
+import com.nice.mcr.injector.output.RabbitMQOutput;
 import com.nice.mcr.injector.service.DataGenerator;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.json.JSONException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,6 +22,9 @@ import org.springframework.web.bind.annotation.*;
         tags = "demos"
 )
 public class DemoController {
+
+    private static final Logger log = LoggerFactory.getLogger(DemoController.class);
+
 
     @Autowired
     private DataGenerator dataGenerator;
@@ -34,8 +40,8 @@ public class DemoController {
             dataGenerator.createData(req.getNumOfInteractions() );
             response = new DemoResponse();
             return response;
-        } catch (JSONException e) {
-            e.printStackTrace();
+        } catch (JSONException ex) {
+            log.error("", ex);
         }
         return response;
 
