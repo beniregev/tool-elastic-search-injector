@@ -1,5 +1,7 @@
 package com.nice.mcr.injector.output;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.io.DataOutputStream;
@@ -7,6 +9,8 @@ import java.io.IOException;
 import java.net.Socket;
 
 public class SocketOutput implements OutputHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(SocketOutput.class);
 
     public static final String CLI_OPTION = "socket";
 
@@ -19,8 +23,8 @@ public class SocketOutput implements OutputHandler {
     public boolean open() {
         try {
             clientSocket = new Socket(hostname, port);
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException ioe) {
+            log.error("", ioe);
             return false;
         }
         return true;
@@ -33,8 +37,8 @@ public class SocketOutput implements OutputHandler {
         try {
             outToServer = new DataOutputStream(clientSocket.getOutputStream());
             outToServer.writeBytes( data );
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException ioe) {
+            log.error("", ioe);
         }
     }
 

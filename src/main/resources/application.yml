@@ -1,8 +1,9 @@
 spring.application.name: search-injector
 
-log.level: info
-log.max-files: 25
-log.file-size: 5MB
+log.level: debug
+log.max-files: 21
+log.file-size: 20MB
+log.path: Logs/${spring.application.name}
 
 server:
   port: 9006
@@ -12,5 +13,6 @@ socket:
   port: 9600
 
 rabbitmq.host: localhost
+rabbitmq.exchange: test1
 rabbitmq.username: test
 rabbitmq.password: test

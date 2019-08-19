@@ -1,10 +1,15 @@
 package com.nice.mcr.injector.policies;
 
 import com.nice.mcr.injector.MainCli;
+import com.nice.mcr.injector.output.RabbitMQOutput;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Timer;
 
 public class SteadyPolicy implements Policy {
+
+    private static final Logger log = LoggerFactory.getLogger(SteadyPolicy.class);
 
     public static boolean isRun = true;
     private UpdateHandlers updateHandlers;
@@ -22,7 +27,8 @@ public class SteadyPolicy implements Policy {
         }
         try {
             Thread.sleep(5000);
-        } catch (InterruptedException e) {
+        } catch (InterruptedException ie) {
+            log.debug("", ie);
         }
         double startTime = System.currentTimeMillis();
         this.updateHandlers.setCreateData(createData);
@@ -39,7 +45,9 @@ public class SteadyPolicy implements Policy {
             System.out.println("Total run time of this steady: " + (System.currentTimeMillis() - startTime));
             System.out.println("number of segments should be created: " + MainCli.shouldCreated);
             System.out.println("number of segments been created: " + MainCli.beenCreated);
-        } catch (InterruptedException e) { e.printStackTrace(); }
+        } catch (InterruptedException ie) {
+            log.debug("", ie);
+        }
     };
 
     public SteadyPolicy(UpdateHandlers updateHandlers, int timeToRun, int callsPerSec, boolean isInOtherThread) {

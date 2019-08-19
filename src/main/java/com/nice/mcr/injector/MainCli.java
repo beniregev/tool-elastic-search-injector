@@ -11,14 +11,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ApplicationContext;
 import org.springframework.util.ObjectUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
-
-@SpringBootApplication(scanBasePackages = {"com.nice.mcr"})
+@SpringBootApplication
 public class MainCli implements ApplicationRunner {
+
+    @Autowired
+    private ApplicationContext applicationContext;
+
     public static int shouldCreated = 0;
     public static int beenCreated = 0;
     /*
@@ -56,13 +60,13 @@ public class MainCli implements ApplicationRunner {
         for (String s : outputHandlersFromInput) {
             switch (s) {
                 case RabbitMQOutput.CLI_OPTION:
-                    outputHandlersList.add(new RabbitMQOutput());
-                    break; // creates RMQ and add to OutputHandlersList
+                    outputHandlersList.add(applicationContext.getBean(RabbitMQOutput.class));
+                    break;
                 case SocketOutput.CLI_OPTION:
-                    outputHandlersList.add(new SocketOutput());
+                    outputHandlersList.add(applicationContext.getBean(SocketOutput.class));
                     break;
                 case FileOutput.CLI_OPTION:
-                    outputHandlersList.add(new FileOutput());
+                    outputHandlersList.add(applicationContext.getBean(FileOutput.class));
                     break;
             }
         }

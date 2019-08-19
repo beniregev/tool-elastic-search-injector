@@ -2,8 +2,11 @@ package com.nice.mcr.injector.service;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.nice.mcr.injector.output.RabbitMQOutput;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -20,32 +23,34 @@ import java.util.Random;
 @Service
 public class DataGeneratorImpl implements DataGenerator {
 
+    private static final Logger log = LoggerFactory.getLogger(DataGeneratorImpl.class);
+
     private Random random = new Random();
     @Value("${socket.hostname}")
     private String hostname;
     @Value("${socket.port}")
     private int port;
-    private int CURRENT_YEAR = 2019;
+    private int CURRENT_YEAR = Year.now().getValue();
     private static DateTimeFormatter DATE_FORMAT = new DateTimeFormatterBuilder().appendPattern("yyyy-MM-dd").optionalStart().appendPattern(" HH:mm:ss.SSS").optionalEnd().parseDefaulting(ChronoField.HOUR_OF_DAY, 0).parseDefaulting(ChronoField.MINUTE_OF_HOUR, 0).parseDefaulting(ChronoField.SECOND_OF_MINUTE, 0).parseDefaulting(ChronoField.MILLI_OF_SECOND, 0).toFormatter();
+    ArrayList<String> firstNames = generateNames("..\\tool-elastic-search-injector\\input\\first-names.txt");
+    ArrayList<String> lastNames = generateNames("..\\tool-elastic-search-injector\\input\\last-names.txt");
+    ArrayList<String> middleNames = generateNames("..\\tool-elastic-search-injector\\input\\middle-names.txt");
 
 
     public String createData(int numOfInteractions) {
         String tempBulk = "";
         try {
             tempBulk = generateBulkData(numOfInteractions);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (JSONException je) {
+            log.error("", je);
+        } catch (Exception ex) {
+            log.error("", ex);
         }
         return tempBulk;
     }
 
     public String generateSegmentData(int numOfInteractions) throws JSONException {
 
-        ArrayList<String> firstNames = generateNames(numOfInteractions, "..\\tool-elastic-search-injector\\input\\first-names.txt");
-        ArrayList<String> lastNames = generateNames(numOfInteractions, "..\\tool-elastic-search-injector\\input\\last-names.txt");
-        ArrayList<String> middleNames = generateNames(numOfInteractions, "..\\tool-elastic-search-injector\\input\\middle-names.txt");
         StringBuilder stringBuilder = new StringBuilder();
 
         LocalDateTime startDate = generateStartDate();
@@ -77,9 +82,6 @@ public class DataGeneratorImpl implements DataGenerator {
 
         public String generateBulkData(int numOfInteractions) throws JSONException {
 
-        ArrayList<String> firstNames = generateNames(numOfInteractions, "..\\tool-elastic-search-injector\\input\\first-names.txt");
-        ArrayList<String> lastNames = generateNames(numOfInteractions, "..\\tool-elastic-search-injector\\input\\last-names.txt");
-        ArrayList<String> middleNames = generateNames(numOfInteractions, "..\\tool-elastic-search-injector\\input\\middle-names.txt");
         StringBuilder stringBuilder = new StringBuilder();
         for (int i = 0; i < numOfInteractions; i++) {
             LocalDateTime startDate = generateStartDate();
@@ -196,7 +198,7 @@ public class DataGeneratorImpl implements DataGenerator {
             jsonObj.put(Consts.EXCEPTION_POSSIBLE_CAUSE, randomExceptionType.exceptionPossibleCause());
             jsonObj.put(Consts.EXCEPTION_RECOMMENDED_ACTION, randomExceptionType.exceptionRecommendedAction());
             jsonObj.put(Consts.EXCEPTION_NUMBER, random.nextInt());
-            jsonObj.put(Consts.EXCEPTION_TIMESTAMP, "8192");
+            jsonObj.put(Consts.EXCEPTION_TIMESTAMP, startDate.format(DATE_FORMAT));
             jsonObj.put(Consts.EXCEPTION_DETAIL, generateRandomString(32));
             jsonObj.put(Consts.TASK_ID, getRandomInt());
             jsonObj.put(Consts.FLAG_ID, getRandomInt());
@@ -228,8 +230,8 @@ public class DataGeneratorImpl implements DataGenerator {
             jsonObj.put("LastInsertDate", getRandomDouble());
             jsonObj.put("ReasonCaption", getRandomInt());
             jsonObj.put(Consts.FIRST_NAME, firstNames.get(random.nextInt(firstNames.size())));
-            jsonObj.put(Consts.LAST_NAME, lastNames.get(random.nextInt(firstNames.size())));
-            jsonObj.put(Consts.MIDDLE_NAME, middleNames.get(random.nextInt(firstNames.size())));
+            jsonObj.put(Consts.LAST_NAME, lastNames.get(random.nextInt(lastNames.size())));
+            jsonObj.put(Consts.MIDDLE_NAME, middleNames.get(random.nextInt(middleNames.size())));
             jsonObj.put("vcEmailAddress", "bari@gmail.com");
             jsonObj.put("nvcLoginName", firstNames.get(random.nextInt(firstNames.size())));
             jsonObj.put(Consts.EXTENSION, "1");
@@ -270,23 +272,30 @@ public class DataGeneratorImpl implements DataGenerator {
         return random.nextInt(2);
     }
 
-    private ArrayList<String> generateNames(int numOfInteractions, String path) {
-        ArrayList<String> firstNames = new ArrayList<>();
-        BufferedReader bufferReader;
+    private ArrayList<String> generateNames(String path) {
+        ArrayList<String> names = new ArrayList<>();
+        BufferedReader bufferReader = null;
         try {
             bufferReader = new BufferedReader(new FileReader(path));
-            int i = 0;
-            while (i < numOfInteractions) {
-                firstNames.add(bufferReader.readLine());
-                i++;
+            String line = null;
+            while ((line = bufferReader.readLine()) != null) {
+                names.add(line);
             }
-            bufferReader.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+
+        } catch (FileNotFoundException fnfe) {
+            log.error("", fnfe);
+        } catch (IOException ioe) {
+            log.error("Error while reading name file", ioe);
+        } finally {
+            if (bufferReader != null) {
+                try {
+                    bufferReader.close();
+                } catch (IOException ioe) {
+                    log.error("Error while trying to close reader", ioe);
+                }
+            }
         }
-        return firstNames;
+        return names;
     }
 
     private LocalDateTime generateStartDate() {
