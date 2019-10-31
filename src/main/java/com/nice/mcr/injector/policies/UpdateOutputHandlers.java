@@ -1,30 +1,30 @@
 package com.nice.mcr.injector.policies;
 
-import com.nice.mcr.injector.MainCli;
 import com.nice.mcr.injector.output.OutputHandler;
-import com.nice.mcr.injector.service.DataGeneratorImpl;
-import org.json.JSONException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.TimerTask;
 
 /**
  * An implementation for TimerTask to run inside the Timer defined.
  */
-public class UpdateHandlers extends TimerTask {
+public class UpdateOutputHandlers extends TimerTask {
+
+    private static final Logger log = LoggerFactory.getLogger(UpdateOutputHandlers.class);
 
     private int counter = 0;
     private List<OutputHandler> outputHandlers;
-    private int callsPerSec = 0;
-    private int overallSegments = 0;
-    private CreateData createData;
+    private long callsPerSec = 0;
+    private long overallSegments = 0;
+    private DataCreator dataCreator;
 
-    public UpdateHandlers(List<OutputHandler> outputHandlers) {
+    public UpdateOutputHandlers(List<OutputHandler> outputHandlers) {
         this.outputHandlers = outputHandlers;
     }
 
-    public List<OutputHandler> getOutputHandler() {
+    public List<OutputHandler> getOutputHandlers() {
         return outputHandlers;
     }
 
@@ -32,9 +32,9 @@ public class UpdateHandlers extends TimerTask {
         this.overallSegments = overallSegments;
     }
 
-    public void setCreateData(CreateData createData) {
-        this.createData = createData;
-        this.overallSegments = this.createData.getOverallBulks();
+    public void setDataCreator(DataCreator dataCreator) {
+        this.dataCreator = dataCreator;
+        this.overallSegments = this.dataCreator.getOverallBulks();
     }
 
     public void setCallsPerSec(int callsPerSec) {
@@ -45,16 +45,22 @@ public class UpdateHandlers extends TimerTask {
      * The function creates a new json using the DataGenerator class and updates it's listeners.
      */
     public void run() {
-        List<String> readySegmentsList = this.createData.getSegmentsList();
+//        List<String> readySegmentsList = this.dataCreator.getSegmentsList();
         // when it should be the last iteration of the task
+        // TODO: This condition should be reviewed if still necessary
         if ((this.counter + this.callsPerSec) >= this.overallSegments) {
             this.callsPerSec = this.overallSegments - this.counter;
         }
         for (int i = 0; i < this.callsPerSec; i++) {
+            String segment = dataCreator.getSegment();
             for (OutputHandler oh : this.outputHandlers) {
                 if (SteadyPolicy.isRun) {
-                    MainCli.beenCreated++;
-                    oh.output(readySegmentsList.get(counter + i));
+                    if (segment != null) {
+                        oh.output(segment);
+                        log.debug("Segment = " + segment);
+                    } else {
+                        log.error("**** Segment data is null !! ****");
+                    }
                 } else {
                     this.cancel();
                 }

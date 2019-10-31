@@ -25,6 +25,8 @@ public class RabbitMQOutput implements OutputHandler {
     private String rmqPassword;
     @Value("${rabbitmq.exchange}")
     private String rmqExchange;
+    @Value("${rabbitmq.routing.key}")
+    private String rmqRoutingKey;
 
 
     @Override
@@ -50,7 +52,7 @@ public class RabbitMQOutput implements OutputHandler {
     @Override
     public void output(String data) {
         try {
-            channel.basicPublish(rmqExchange, "", null, data.getBytes("UTF-8"));
+            channel.basicPublish(rmqExchange, rmqRoutingKey, null, data.getBytes("UTF-8"));
         } catch (IOException ioe) {
             log.error("Exception occurred while publishing to Rabbit MQ", ioe);
         }

@@ -24,7 +24,7 @@ public class Consts {
     static final String RECORDING_STATUS = "recordingStatus";
 
 
-    static final String INTERACTION_ID = "iInteractionID";
+    static final String INTERACTION_ID = "segmentId";
     static final String INTERACTION_LOCAL_START_TIME = "dtInteractionLocalStartTime";
     static final String INTERACTION_LOCAL_STOP_TIME = "dtInteractionLocalStopTime";
     static final String INTERACTION_GMT_START_TIME = "dtInteractionGMTStartTime";

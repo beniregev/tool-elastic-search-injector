@@ -6,15 +6,15 @@ import java.util.*;
 
 public class SpikePolicy implements Policy {
 
-    private UpdateHandlers updateHandlers;
+    private UpdateOutputHandlers updateOutputHandlers;
     private int timeToRun;
     private int numOfSegmentsPerSec;
     private int maxSegments;
     private int steadyTime;
 
-    public SpikePolicy(UpdateHandlers updateHandlers, int timeToRun, int numOfSegmentsPerSec, int steadyTime,
+    public SpikePolicy(UpdateOutputHandlers updateOutputHandlers, int timeToRun, int numOfSegmentsPerSec, int steadyTime,
                        int maxSegments) {
-        this.updateHandlers = updateHandlers;
+        this.updateOutputHandlers = updateOutputHandlers;
         this.timeToRun = timeToRun;
         this.numOfSegmentsPerSec = numOfSegmentsPerSec;
         this.maxSegments = maxSegments;
@@ -38,14 +38,14 @@ public class SpikePolicy implements Policy {
                 if (tempSteadyTime > endTime) {
                     // changing the steady policy timing to the end of the run
                     tempSteadyTime = tempSteadyTime - endTime;
-                    new SteadyPolicy(new UpdateHandlers(this.updateHandlers.getOutputHandler()),
+                    new SteadyPolicy(new UpdateOutputHandlers(this.updateOutputHandlers.getOutputHandlers()),
                             (int) (tempSteadyTime / 1000), this.numOfSegmentsPerSec, false).run();
                     System.out.println("entering steady policy, number of segments to create: " + ((this.steadyTime/1000)*this.numOfSegmentsPerSec));
                     break;
                 }
                 System.out.println("entering steady policy, number of segments to create: " + (this.steadyTime*this.numOfSegmentsPerSec));
                 // creates SteadyPolicy instance as the timing defined and runs it
-                steadyPolicy = new SteadyPolicy(new UpdateHandlers(this.updateHandlers.getOutputHandler()),
+                steadyPolicy = new SteadyPolicy(new UpdateOutputHandlers(this.updateOutputHandlers.getOutputHandlers()),
                         this.steadyTime, this.numOfSegmentsPerSec,false);
                 steadyPolicy.run();
                 SteadyPolicy.isRun = true;
@@ -54,7 +54,7 @@ public class SpikePolicy implements Policy {
                 // each backlogs randoms the number of jsons created
                 for (int i = 0; i < numOfPressurePeaks; i++) {
                     // creates BacklogPolicy instance and runs it
-                    backlogPolicy = new BacklogPolicy(new UpdateHandlers(this.updateHandlers.getOutputHandler()),
+                    backlogPolicy = new BacklogPolicy(new UpdateOutputHandlers(this.updateOutputHandlers.getOutputHandlers()),
                             r.nextInt(this.maxSegments), false);
                     backlogPolicy.run();
                     if (System.currentTimeMillis() > endTime) {

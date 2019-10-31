@@ -5,8 +5,6 @@ import com.nice.mcr.injector.output.OutputHandler;
 import com.nice.mcr.injector.output.RabbitMQOutput;
 import com.nice.mcr.injector.output.SocketOutput;
 import com.nice.mcr.injector.policies.*;
-import com.nice.mcr.injector.service.DataGenerator;
-import org.json.JSONException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -54,9 +52,9 @@ public class MainCli implements ApplicationRunner {
             return; // Regular web application
         }
         List<String> policiesFromInput = args.getOptionValues("p");
-        List<Policy> policyList = new ArrayList<>();
+        List<Policy> policyList = new ArrayList<Policy>();
         List<String> outputHandlersFromInput = args.getOptionValues("o");
-        List<OutputHandler> outputHandlersList = new ArrayList<>();
+        List<OutputHandler> outputHandlersList = new ArrayList<OutputHandler>();
         for (String s : outputHandlersFromInput) {
             switch (s) {
                 case RabbitMQOutput.CLI_OPTION:
@@ -73,7 +71,7 @@ public class MainCli implements ApplicationRunner {
         for (OutputHandler outputHandler : outputHandlersList) {
             outputHandler.open();
         }
-        UpdateHandlers updateHandlers = new UpdateHandlers(outputHandlersList);
+        UpdateOutputHandlers updateOutputHandlers = new UpdateOutputHandlers(outputHandlersList);
         for (int i = 0 ; i < policiesFromInput.size() ; i++) {
             switch (policiesFromInput.get(i)) {
                 case "steady": {
@@ -82,12 +80,12 @@ public class MainCli implements ApplicationRunner {
                     List<String> overallSegments = args.getOptionValues("os");
                     if (numOfSegmentsPerSec != null) {
                         if (runTime != null) {
-                            policyList.add(new SteadyPolicy(updateHandlers, Integer.valueOf(runTime.get(i)),
-                                    Integer.valueOf(numOfSegmentsPerSec.get(i)), true));
+                            policyList.add(new SteadyPolicy(updateOutputHandlers, Integer.valueOf(runTime.get(0)),
+                                    Integer.valueOf(numOfSegmentsPerSec.get(0)), true));
                         }
                         else if (overallSegments != null) {
-                            policyList.add(new SteadyPolicy(true, updateHandlers,
-                                    Integer.valueOf(numOfSegmentsPerSec.get(i)), Integer.valueOf(overallSegments.get(i))));
+                            policyList.add(new SteadyPolicy(true, updateOutputHandlers,
+                                    Integer.valueOf(numOfSegmentsPerSec.get(0)), Integer.valueOf(overallSegments.get(0))));
                         }
                     }
                 }
@@ -95,7 +93,7 @@ public class MainCli implements ApplicationRunner {
                 case "backlog": {
                     List<String> numOfSegments = args.getOptionValues("nos");
                     if (numOfSegments != null) {
-                        policyList.add(new BacklogPolicy(updateHandlers, Integer.valueOf(numOfSegments.get(i)), true));
+                        policyList.add(new BacklogPolicy(updateOutputHandlers, Integer.valueOf(numOfSegments.get(i)), true));
                     }
                 }
                 break;
@@ -106,7 +104,7 @@ public class MainCli implements ApplicationRunner {
                     List<String> maxSegments = args.getOptionValues("ms");
                     if ((runTime != null) && (numOfSegmentsPerSec != null) && (steadyTime != null)
                             && (maxSegments != null)) {
-                        policyList.add(new SpikePolicy(updateHandlers, Integer.valueOf(runTime.get(i)),
+                        policyList.add(new SpikePolicy(updateOutputHandlers, Integer.valueOf(runTime.get(i)),
                                 Integer.valueOf(numOfSegmentsPerSec.get(i)), Integer.valueOf(steadyTime.get(i)),
                                 Integer.valueOf(maxSegments.get(i))));
                     }
@@ -116,7 +114,7 @@ public class MainCli implements ApplicationRunner {
                     List<String> numOfBulks = args.getOptionValues("nb");
                     List<String> numOfSegmentsPerSec = args.getOptionValues("sib");
                     if ((numOfBulks != null) && (numOfSegmentsPerSec != null)) {
-                        policyList.add(new ElasticPolicy(updateHandlers, Integer.valueOf(numOfBulks.get(i)),
+                        policyList.add(new ElasticPolicy(updateOutputHandlers, Integer.valueOf(numOfBulks.get(i)),
                                 Integer.valueOf(numOfSegmentsPerSec.get(i))));
                     }
                 }

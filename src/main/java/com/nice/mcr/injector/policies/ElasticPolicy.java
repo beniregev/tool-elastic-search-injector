@@ -5,21 +5,21 @@ import com.nice.mcr.injector.MainCli;
 public class ElasticPolicy implements Policy {
     private int numOfBulks;
     private int segmentsInBulk;
-    private UpdateHandlers updateHandlers;
+    private UpdateOutputHandlers updateOutputHandlers;
     private Runnable r;
 
-    public ElasticPolicy(UpdateHandlers updateHandlers, int numOfBulks, int segmentsInBulk) {
-        this.updateHandlers = updateHandlers;
+    public ElasticPolicy(UpdateOutputHandlers updateOutputHandlers, int numOfBulks, int segmentsInBulk) {
+        this.updateOutputHandlers = updateOutputHandlers;
         this.numOfBulks = numOfBulks;
         this.segmentsInBulk = segmentsInBulk;
         this.r = () -> {
             double startTime = System.currentTimeMillis();
-            CreateData createData = new CreateData(this.numOfBulks, Thread.currentThread(), this.segmentsInBulk);
-            createData.create(false);
-            this.updateHandlers.setCreateData(createData);
-            this.updateHandlers.setCallsPerSec(this.numOfBulks);
-            this.updateHandlers.setOverallSegments(this.numOfBulks);
-            this.updateHandlers.run();
+            DataCreator dataCreator = new DataCreator(this.numOfBulks, Thread.currentThread(), this.segmentsInBulk);
+            dataCreator.create(false);
+            this.updateOutputHandlers.setDataCreator(dataCreator);
+            this.updateOutputHandlers.setCallsPerSec(this.numOfBulks);
+            this.updateOutputHandlers.setOverallSegments(this.numOfBulks);
+            this.updateOutputHandlers.run();
             System.out.println("Total run time of this backlog: " + (System.currentTimeMillis() - startTime));
             System.out.println("number of segments should be created: " + MainCli.shouldCreated);
             System.out.println("number of segments been created: " + MainCli.beenCreated);

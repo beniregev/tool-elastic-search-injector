@@ -35,7 +35,7 @@ public class DataGeneratorImpl implements DataGenerator {
     ArrayList<String> firstNames = generateNames("..\\tool-elastic-search-injector\\input\\first-names.txt");
     ArrayList<String> lastNames = generateNames("..\\tool-elastic-search-injector\\input\\last-names.txt");
     ArrayList<String> middleNames = generateNames("..\\tool-elastic-search-injector\\input\\middle-names.txt");
-
+    JSONObject jsonObj = new JSONObject();
 
     public String createData(int numOfInteractions) {
         String tempBulk = "";
@@ -80,9 +80,9 @@ public class DataGeneratorImpl implements DataGenerator {
         return stringBuilder.toString();
     }
 
-        public String generateBulkData(int numOfInteractions) throws JSONException {
+    public String generateBulkData(int numOfInteractions) throws JSONException {
 
-        StringBuilder stringBuilder = new StringBuilder();
+        StringBuilder stringBuilder = new StringBuilder(5500 * numOfInteractions);
         for (int i = 0; i < numOfInteractions; i++) {
             LocalDateTime startDate = generateStartDate();
             LocalDateTime stopDate = generateStopDate(startDate);
@@ -100,8 +100,8 @@ public class DataGeneratorImpl implements DataGenerator {
             ItemType randomItemType = ItemType.getRandomItemType();
             RecordedType recordedType = RecordedType.getRandomRecordedType();
             ExceptionType randomExceptionType = ExceptionType.getRandomExcetionType();
-            JSONObject jsonObj = new JSONObject();
-            jsonObj.put(Consts.INTERACTION_ID, getRandomInt());
+//            JSONObject jsonObj = new JSONObject();
+            jsonObj.put(Consts.INTERACTION_ID, getRandomLong());
             jsonObj.put(Consts.INTERACTION_GMT_START_TIME, startDate.format(DATE_FORMAT));
             jsonObj.put(Consts.INTERACTION_GMT_STOP_TIME, stopDate.format(DATE_FORMAT));
             jsonObj.put(Consts.INTERACTION_DURATION, Duration.between(startDate, stopDate).toMillis());
@@ -245,7 +245,7 @@ public class DataGeneratorImpl implements DataGenerator {
     }
 
     private int getRandomInt() {
-        return random.nextInt(2147483647);
+        return random.nextInt(Integer.MAX_VALUE);
     }
 
     private Long getRandomLong() {

@@ -1,7 +1,6 @@
 package com.nice.mcr.injector.policies;
 
 import com.nice.mcr.injector.MainCli;
-import com.nice.mcr.injector.output.RabbitMQOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,18 +11,18 @@ public class SteadyPolicy implements Policy {
     private static final Logger log = LoggerFactory.getLogger(SteadyPolicy.class);
 
     public static boolean isRun = true;
-    private UpdateHandlers updateHandlers;
+    private UpdateOutputHandlers updateOutputHandlers;
     private int timeToRun;
     private int callsPerSec;
     private int overallSegments;
-    private boolean isInOtherThread;
+    private boolean runInSeparateThread;
     private Runnable r = () -> {
-        CreateData createData = new CreateData(this.overallSegments, Thread.currentThread());
-        if (this.isInOtherThread) {
-            createData.create(true);
+        DataCreator dataCreator = new DataCreator(this.overallSegments, Thread.currentThread(), callsPerSec);
+        if (this.runInSeparateThread) {
+            dataCreator.create(true);
         }
         else {
-            createData.create(false);
+            dataCreator.create(false);
         }
         try {
             Thread.sleep(5000);
@@ -31,13 +30,13 @@ public class SteadyPolicy implements Policy {
             log.debug("", ie);
         }
         double startTime = System.currentTimeMillis();
-        this.updateHandlers.setCreateData(createData);
-        this.updateHandlers.setCallsPerSec(this.callsPerSec);
-        this.updateHandlers.setOverallSegments(this.overallSegments);
+        this.updateOutputHandlers.setDataCreator(dataCreator);
+        this.updateOutputHandlers.setCallsPerSec(callsPerSec);
+        this.updateOutputHandlers.setOverallSegments(overallSegments);
         Timer timer = new Timer();
         // Define interval time
         // Set timer schedule
-        timer.scheduleAtFixedRate(this.updateHandlers, 0, 1000);
+        timer.scheduleAtFixedRate(this.updateOutputHandlers, 0, 1000);
         try {
             Thread.sleep(this.timeToRun * 1000);
             isRun = false;
@@ -50,31 +49,31 @@ public class SteadyPolicy implements Policy {
         }
     };
 
-    public SteadyPolicy(UpdateHandlers updateHandlers, int timeToRun, int callsPerSec, boolean isInOtherThread) {
-        this.updateHandlers = updateHandlers;
+    public SteadyPolicy(UpdateOutputHandlers updateOutputHandlers, int timeToRun, int callsPerSec, boolean runInSeparateThread) {
+        this.updateOutputHandlers = updateOutputHandlers;
         this.timeToRun = timeToRun;
         this.callsPerSec = callsPerSec;
-        this.isInOtherThread = isInOtherThread;
+        this.runInSeparateThread = runInSeparateThread;
         this.overallSegments = timeToRun * callsPerSec;
         MainCli.shouldCreated += timeToRun * callsPerSec;
     }
 
-    public SteadyPolicy(boolean isInOtherThread, UpdateHandlers updateHandlers, int callsPerSec, int overallSegments) {
-        this.updateHandlers = updateHandlers;
+    public SteadyPolicy(boolean runInSeparateThread, UpdateOutputHandlers updateOutputHandlers, int callsPerSec, int overallSegments) {
+        this.updateOutputHandlers = updateOutputHandlers;
         this.overallSegments = overallSegments;
         this.callsPerSec = callsPerSec;
-        this.isInOtherThread = isInOtherThread;
+        this.runInSeparateThread = runInSeparateThread;
         this.timeToRun = (int) (Math.ceil((double) this.overallSegments / (double) this.callsPerSec));
         MainCli.shouldCreated += this.overallSegments;
     }
 
-    public UpdateHandlers getUpdateHandlers() {
-        return updateHandlers;
+    public UpdateOutputHandlers getUpdateOutputHandlers() {
+        return updateOutputHandlers;
     }
 
     public void run() {
-        if (this.isInOtherThread) {
-            new Thread(this.r).start();
+        if (this.runInSeparateThread) {
+            new Thread(this.r, "SteadyPolicyThread").start();
         } else {
             this.r.run();
         }
