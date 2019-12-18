@@ -32,9 +32,9 @@ public class DataGeneratorImpl implements DataGenerator {
     private int port;
     private int CURRENT_YEAR = Year.now().getValue();
     private static DateTimeFormatter DATE_FORMAT = new DateTimeFormatterBuilder().appendPattern("yyyy-MM-dd").optionalStart().appendPattern(" HH:mm:ss.SSS").optionalEnd().parseDefaulting(ChronoField.HOUR_OF_DAY, 0).parseDefaulting(ChronoField.MINUTE_OF_HOUR, 0).parseDefaulting(ChronoField.SECOND_OF_MINUTE, 0).parseDefaulting(ChronoField.MILLI_OF_SECOND, 0).toFormatter();
-    ArrayList<String> firstNames = generateNames("..\\tool-elastic-search-injector\\input\\first-names.txt");
-    ArrayList<String> lastNames = generateNames("..\\tool-elastic-search-injector\\input\\last-names.txt");
-    ArrayList<String> middleNames = generateNames("..\\tool-elastic-search-injector\\input\\middle-names.txt");
+    List<String> firstNames = generateNames("..\\tool-elastic-search-injector\\input\\first-names.txt");
+    List<String> lastNames = generateNames("..\\tool-elastic-search-injector\\input\\last-names.txt");
+    List<String> middleNames = generateNames("..\\tool-elastic-search-injector\\input\\middle-names.txt");
     JSONObject jsonObj = new JSONObject();
 
     public String createData(int numOfInteractions) {
@@ -50,7 +50,6 @@ public class DataGeneratorImpl implements DataGenerator {
     }
 
     public String generateSegmentData(int numOfInteractions) throws JSONException {
-
         StringBuilder stringBuilder = new StringBuilder();
 
         LocalDateTime startDate = generateStartDate();
@@ -81,6 +80,9 @@ public class DataGeneratorImpl implements DataGenerator {
     }
 
     public String generateBulkData(int numOfInteractions) throws JSONException {
+
+        StringBuffer strEndOfYear = new StringBuffer("-12-31 23:59:00.123")
+                .insert(0, LocalDate.now().getYear());
 
         StringBuilder stringBuilder = new StringBuilder(5500 * numOfInteractions);
         for (int i = 0; i < numOfInteractions; i++) {
@@ -212,18 +214,18 @@ public class DataGeneratorImpl implements DataGenerator {
             jsonObj.put("iSetNumber", "1");
             jsonObj.put("tiVoiceArchiveStatus", "0");
             jsonObj.put("tiVoiceFSArchiveStatus", "0");
-            jsonObj.put("dtVoiceExpirationDate", "2018-31-12 23:59:00.123");
+            jsonObj.put("dtVoiceExpirationDate", strEndOfYear.toString());
             jsonObj.put("iVoiceRemainderDays", "0");
             jsonObj.put("tiScreenArchiveStatus", "0");
             jsonObj.put("tiScreenFSArchiveStatus", "0");
-            jsonObj.put("dtScreenExpirationDate", "2018-31-12 23:59:00.123");
+            jsonObj.put("dtScreenExpirationDate", strEndOfYear.toString());
             jsonObj.put("iScreenRemainderDays", "0");
             jsonObj.put("tiVoiceESMArchiveStatus", "0");
             jsonObj.put("tiScreenESMArchiveStatus", "0");
             jsonObj.put("tiArchiveStatus", "0");
             jsonObj.put("tiESmArchiveStatus", "0");
             jsonObj.put("tiFSArchiveStatus", "0");
-            jsonObj.put("dtExpirationDate", "2018-31-12 23:59:00.123");
+            jsonObj.put("dtExpirationDate", strEndOfYear.toString());
             jsonObj.put("dtInsertTime", getRandomInt());
             jsonObj.put("iRequestId", getRandomInt());
             jsonObj.put("LastExtendingUser", generateRandomString(50));
@@ -272,8 +274,8 @@ public class DataGeneratorImpl implements DataGenerator {
         return random.nextInt(2);
     }
 
-    private ArrayList<String> generateNames(String path) {
-        ArrayList<String> names = new ArrayList<>();
+    private List<String> generateNames(String path) {
+        List<String> names = new ArrayList<>();
         BufferedReader bufferReader = null;
         try {
             bufferReader = new BufferedReader(new FileReader(path));
