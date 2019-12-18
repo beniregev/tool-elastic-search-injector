@@ -58,6 +58,7 @@ public class UpdateOutputHandlers extends TimerTask {
                 if (SteadyPolicy.isRun) {
                     if (segment != null) {
                         oh.output(segment);
+                        MainCli.beenCreated ++;
                         log.debug("Segment = " + segment);
                     } else {
                         log.error("**** Segment data is null !! ****");
@@ -66,7 +67,6 @@ public class UpdateOutputHandlers extends TimerTask {
                     this.cancel();
                 }
             }
-            MainCli.beenCreated ++;
         }
         this.counter += this.callsPerSec;
     }
