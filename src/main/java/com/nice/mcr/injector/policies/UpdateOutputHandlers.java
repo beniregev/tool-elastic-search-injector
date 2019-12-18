@@ -1,5 +1,6 @@
 package com.nice.mcr.injector.policies;
 
+import com.nice.mcr.injector.MainCli;
 import com.nice.mcr.injector.output.OutputHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,6 +66,7 @@ public class UpdateOutputHandlers extends TimerTask {
                     this.cancel();
                 }
             }
+            MainCli.beenCreated ++;
         }
         this.counter += this.callsPerSec;
     }
