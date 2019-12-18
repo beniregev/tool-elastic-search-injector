@@ -1,7 +1,6 @@
 package com.nice.mcr.injector;
 
 import com.nice.mcr.injector.config.InjectorConfig;
-import com.nice.mcr.injector.policies.*;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

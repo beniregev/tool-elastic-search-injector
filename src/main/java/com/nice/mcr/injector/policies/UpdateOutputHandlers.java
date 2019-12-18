@@ -1,5 +1,6 @@
 package com.nice.mcr.injector.policies;
 
+import com.nice.mcr.injector.MainCli;
 import com.nice.mcr.injector.output.OutputHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +20,8 @@ public class UpdateOutputHandlers extends TimerTask {
     private long callsPerSec = 0;
     private long overallSegments = 0;
     private DataCreator dataCreator;
+    //  TODO Binyamin Regev -- Remove after refactoring, when this class complies with SOLID Single Responsibility Principle
+    private DataCreatorAgentCallsDays dataCreatorAgentCallsDays;
 
     public UpdateOutputHandlers(List<OutputHandler> outputHandlers) {
         this.outputHandlers = outputHandlers;
@@ -37,6 +40,11 @@ public class UpdateOutputHandlers extends TimerTask {
         this.overallSegments = this.dataCreator.getOverallBulks();
     }
 
+    //  TODO Binyamin Regev -- Remove after refactoring, when this class complies with SOLID Single Responsibility Principle
+    public void setDataCreatorAgentCallsDays(DataCreatorAgentCallsDays dataCreatorAgentCallsDays) {
+        this.dataCreatorAgentCallsDays = dataCreatorAgentCallsDays;
+    }
+
     public void setCallsPerSec(int callsPerSec) {
         this.callsPerSec = callsPerSec;
     }
@@ -45,14 +53,24 @@ public class UpdateOutputHandlers extends TimerTask {
      * The function creates a new json using the DataGenerator class and updates it's listeners.
      */
     public void run() {
-//        List<String> readySegmentsList = this.dataCreator.getSegmentsList();
         // when it should be the last iteration of the task
         // TODO: This condition should be reviewed if still necessary
         if ((this.counter + this.callsPerSec) >= this.overallSegments) {
             this.callsPerSec = this.overallSegments - this.counter;
         }
         for (int i = 0; i < this.callsPerSec; i++) {
-            String segment = dataCreator.getSegment();
+            String segment;
+            String resultMessage = this.dataCreator != null ?
+                    "dataCreator is NOT null" :
+                    (this.dataCreatorAgentCallsDays != null ?
+                            "dataCreatorAgentCallsDays is NOT null" :
+                            "dataCreator AND dataCreatorAgentCallsDays are NULL" );
+            System.out.println(">>>>> UpdateOutputHandlers.run() " + resultMessage);
+            if (this.dataCreator != null) {
+                segment = dataCreator.getSegment();
+            } else {
+                segment = dataCreatorAgentCallsDays.getSegment();
+            }
             for (OutputHandler oh : this.outputHandlers) {
                 if (SteadyPolicy.isRun) {
                     if (segment != null) {
@@ -65,6 +83,7 @@ public class UpdateOutputHandlers extends TimerTask {
                     this.cancel();
                 }
             }
+            MainCli.beenCreated ++;
         }
         this.counter += this.callsPerSec;
     }

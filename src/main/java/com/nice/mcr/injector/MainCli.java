@@ -12,8 +12,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.util.ObjectUtils;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @SpringBootApplication
 public class MainCli implements ApplicationRunner {
@@ -21,9 +20,11 @@ public class MainCli implements ApplicationRunner {
     @Autowired
     private ApplicationContext applicationContext;
 
+    private ApplicationArguments applicationArguments;
     public static int shouldCreated = 0;
     public static int beenCreated = 0;
-    /*
+
+    /**
      * Key-Value arguments:
      *
      * p = policy
@@ -41,21 +42,33 @@ public class MainCli implements ApplicationRunner {
      * cps = segments per second (steady policy)
      * os = overall segments to send (steady policy)
      * nos = number of segments to create (backlog policy)
+     *      <b>IMPORTANT:</b> <i>nos</i> cannot be defined with <i>cpd</i> + <i>nod</i> or with <i>cpd</i> + <i>date-from</i> + <i>date-to</i> cannot
      * st = time of steady policy (spike policy)
      * ms = max segments in backlog (spike policy)
      * nb = number of bulks to create (elastic policy)
      * sib = number of segments in a single bulk (elastic policy)
-     *
+     * ------------------------------------------------------------------------------------
+     * noa = Number Of Agents (BacklogPolicy, Agents -> Calls-Per-Day -> Number-of-Days)
+     * unp = Unique Name Percentage (BacklogPolicy, Agents -> Calls-Per-Day -> Number-of-Days), e.g. value of 100 means that all agents names in the list are unique - there are no duplicates, value of 70 means that 7-of-10 names in the list are unique
+     * cpd = Calls Per Day (BacklogPolicy, Agents -> Calls-Per-Day -> Number-of-Days)
+     * doc = Duration of call in minutes (BacklogPolicy, Agents -> Calls-Per-Day -> Number-of-Days)
+     * nod = Number Of Days (BacklogPolicy, Agents -> Calls-Per-Day -> Number-of-Days)
+     * df = Date-From (BacklogPolicy, Agents -> Calls-Per-Day -> Number-of-Days)
+     * dt = Date-To (BacklogPolicy, Agents -> Calls-Per-Day -> Number-of-Days)
+     * IMPORTANT: nos cannot be defined with "cpd"+"nod" or with "cpd"+"date-from"+"date-to".
+     * ------------------------------------------------------------------------------------
      */
-    public void run(ApplicationArguments args) {
+    public void run(ApplicationArguments args) throws IllegalArgumentException {
         if (ObjectUtils.isEmpty(args.getSourceArgs())) {
             return; // Regular web application
         }
+        this.applicationArguments = args;
         List<String> policiesFromInput = args.getOptionValues("p");
         List<Policy> policyList = new ArrayList<Policy>();
         List<String> outputHandlersFromInput = args.getOptionValues("o");
         List<OutputHandler> outputHandlersList = new ArrayList<OutputHandler>();
         for (String s : outputHandlersFromInput) {
+            //  TODO Binyamin Regev -- replace SWITCH with Spring @Component with id/code
             switch (s) {
                 case RabbitMQOutput.CLI_OPTION:
                     outputHandlersList.add(applicationContext.getBean(RabbitMQOutput.class));
@@ -73,6 +86,7 @@ public class MainCli implements ApplicationRunner {
         }
         UpdateOutputHandlers updateOutputHandlers = new UpdateOutputHandlers(outputHandlersList);
         for (int i = 0 ; i < policiesFromInput.size() ; i++) {
+            //  TODO Binyamin Regev -- replace SWITCH with Spring @Component with id/code
             switch (policiesFromInput.get(i)) {
                 case "steady": {
                     List<String> runTime = args.getOptionValues("runtime");
@@ -92,8 +106,18 @@ public class MainCli implements ApplicationRunner {
                 break;
                 case "backlog": {
                     List<String> numOfSegments = args.getOptionValues("nos");
+                    boolean isAgentsCallsAndDays = isNumberOfAgentsCallsPerDayAndNumberOfDays(args);
+                    if (numOfSegments != null && isAgentsCallsAndDays) {
+                        throw new IllegalArgumentException("Arguments provided resulted with a conflict, define either number-of-segments or calls-per-day with number-of-days or with date-from and date-to.");
+                    }
+
                     if (numOfSegments != null) {
                         policyList.add(new BacklogPolicy(updateOutputHandlers, Integer.valueOf(numOfSegments.get(i)), true));
+                    } else {
+                        if (isAgentsCallsAndDays) {
+                            //Constructor: BacklogPolicy(UpdateOutputHandlers, Map<String, List<String>>, boolean)
+                            policyList.add(new BacklogPolicy(updateOutputHandlers, applicationArguments, true));
+                        }
                     }
                 }
                 break;
@@ -123,5 +147,18 @@ public class MainCli implements ApplicationRunner {
         for (Policy p : policyList) {
             p.run();
         }
+    }
+
+    private boolean isNumberOfAgentsCallsPerDayAndNumberOfDays(ApplicationArguments args) {
+        List<String> numOfAgents = args.getOptionValues("noa");
+        List<String> callsPerDay = args.getOptionValues("cpd");
+        List<String> numOfDays = args.getOptionValues("nod");
+        List<String> dateFrom = args.getOptionValues("df");
+        List<String> dateTo = args.getOptionValues("dt");
+        boolean hasNumOfAgentsAndCallsPerDayArgs = numOfAgents != null && callsPerDay != null;
+        boolean hasNumberOfDaysArg = numOfDays != null;
+        boolean hasDateFromDateToArgs = dateFrom != null && dateTo != null;
+
+        return hasNumOfAgentsAndCallsPerDayArgs && (hasNumberOfDaysArg || hasDateFromDateToArgs);
     }
 }

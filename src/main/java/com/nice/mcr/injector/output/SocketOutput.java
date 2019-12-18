@@ -13,6 +13,7 @@ public class SocketOutput implements OutputHandler {
     private static final Logger log = LoggerFactory.getLogger(SocketOutput.class);
 
     public static final String CLI_OPTION = "socket";
+    private int outputIndex = 0;
 
     @Value("${socket.hostname}")
     private String hostname;
@@ -32,14 +33,16 @@ public class SocketOutput implements OutputHandler {
 
     @Override
     public void output(String data) {
-
         DataOutputStream outToServer = null;
         try {
             outToServer = new DataOutputStream(clientSocket.getOutputStream());
             outToServer.writeBytes( data );
+            outputIndex++;
         } catch (IOException ioe) {
             log.error("", ioe);
         }
+        System.out.println("Wrote segment " + outputIndex + " to socket");
+
     }
 
 }

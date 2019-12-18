@@ -22,16 +22,16 @@ public class FileOutput implements OutputHandler {
 
     @Override
     public void output(String data) {
-//        BufferedWriter writer = null;
-//        try {
-//            writer = new BufferedWriter(new FileWriter("..\\tool-elastic-search-injector\\output\\" + fileIndex + ".json"));
-//            writer.write(data);
-//            writer.flush();
-//            writer.close();
-//            fileIndex++;
-//        } catch (IOException ioe) {
-//            log.error("", ioe);
-//        }
-        System.out.println("Wrote file " + fileIndex++);
+        BufferedWriter writer = null;
+        try {
+            writer = new BufferedWriter(new FileWriter("..\\tool-elastic-search-injector\\output\\" + fileIndex + ".json"));
+            writer.write(data);
+            writer.flush();
+            writer.close();
+            fileIndex++;
+        } catch (IOException ioe) {
+            log.error("", ioe);
+        }
+        System.out.println("Wrote file " + fileIndex);
     }
 }

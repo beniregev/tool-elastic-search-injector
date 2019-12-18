@@ -7,6 +7,10 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @author Ariel Levi
+ */
+//  TODO Binyamin Regev -- re-engineering required. Separate to an abstract class or interface {@code DataCreator} and this class extends it
 public class DataCreator implements Runnable {
     private long overallBulks;
     private List<String> segmentsList;
@@ -22,16 +26,16 @@ public class DataCreator implements Runnable {
     public synchronized void run() {
         DataGeneratorImpl dataGenerator = new DataGeneratorImpl();
         while (numGeneratedSegments < overallBulks * numOfSegmentsInBulk) {
-                while (segmentsList.size() > (cps * 60)) {
-                    try {
-                        wait();
-                    }
-                    catch (InterruptedException e) {
-                    }
-                    log.info("Segments generated so far = " + numGeneratedSegments);
+            while (segmentsList.size() > (cps * 60)) {
+                try {
+                    wait();
                 }
-                segmentsList.add(dataGenerator.createData(numOfSegmentsInBulk));
-                numGeneratedSegments += numOfSegmentsInBulk;
+                catch (InterruptedException e) {
+                }
+                log.info("Segments generated so far = " + numGeneratedSegments);
+            }
+            segmentsList.add(dataGenerator.createData(numOfSegmentsInBulk));
+            numGeneratedSegments += numOfSegmentsInBulk;
         }
         log.info("Completed creating segments - " + numGeneratedSegments);
     };
