@@ -56,6 +56,7 @@ public class MainCli implements ApplicationRunner {
         List<String> outputHandlersFromInput = args.getOptionValues("o");
         List<OutputHandler> outputHandlersList = new ArrayList<OutputHandler>();
         for (String s : outputHandlersFromInput) {
+            //  TODO Binyamin Regev -- replace SWITCH with Spring @Component with id/code
             switch (s) {
                 case RabbitMQOutput.CLI_OPTION:
                     outputHandlersList.add(applicationContext.getBean(RabbitMQOutput.class));
@@ -73,6 +74,7 @@ public class MainCli implements ApplicationRunner {
         }
         UpdateOutputHandlers updateOutputHandlers = new UpdateOutputHandlers(outputHandlersList);
         for (int i = 0 ; i < policiesFromInput.size() ; i++) {
+            //  TODO Binyamin Regev -- replace SWITCH with Spring @Component with id/code
             switch (policiesFromInput.get(i)) {
                 case "steady": {
                     List<String> runTime = args.getOptionValues("runtime");
@@ -121,6 +123,7 @@ public class MainCli implements ApplicationRunner {
             }
         }
         for (Policy p : policyList) {
+            p.setApplicationArguments(args);
             p.run();
         }
     }
