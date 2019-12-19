@@ -1,6 +1,11 @@
 package com.nice.mcr.injector.policies;
 
 import com.nice.mcr.injector.MainCli;
+import org.springframework.boot.ApplicationArguments;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Timer;
 
 public class BacklogPolicy implements Policy {
@@ -10,6 +15,8 @@ public class BacklogPolicy implements Policy {
     private int overallSegments;
     private boolean runInSeparateThread;
     private Runnable r;
+
+    Map<String, String> appArguments = new HashMap<>();
 
     public BacklogPolicy(UpdateOutputHandlers updateOutputHandlers, int overallSegments, boolean runInSeparateThread) {
         this.updateOutputHandlers = updateOutputHandlers;
@@ -48,5 +55,16 @@ public class BacklogPolicy implements Policy {
         } else {
             this.r.run();
         }
+    }
+
+    @Override
+    public void setApplicationArguments(ApplicationArguments args) {
+        Arrays.asList(args.getSourceArgs()).forEach(x -> {
+                    System.out.println(x.substring(2));
+                    String[] item = x.substring(2).split("=");
+                    this.appArguments.put(item[0], item[1]);
+                }
+            );
+        this.appArguments.forEach((k,v) -> System.out.println("key=" + k + ", value=" + v));
     }
 }
