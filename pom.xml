@@ -103,6 +103,12 @@
             <artifactId>amqp-client</artifactId>
             <version>5.7.1</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.mapdb/mapdb -->
+        <dependency>
+            <groupId>org.mapdb</groupId>
+            <artifactId>mapdb</artifactId>
+            <version>3.0.7</version>
+        </dependency>
     </dependencies>
 
     <dependencyManagement>
