@@ -183,6 +183,8 @@ public class Consts {
     static final String MODIFY_DATE = "dtModifyDate";
     static final String NOTIFICATION_DATE = "dtNotificationDate";
     static final String LOCK_STATUS = "tiLockStatus";
+
+    public static final int MINUTES_PER_DAY = 1_440;
 }
 
 enum OpenCallReason{
