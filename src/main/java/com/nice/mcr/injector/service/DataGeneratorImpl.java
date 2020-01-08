@@ -355,7 +355,7 @@ public class DataGeneratorImpl implements DataGenerator {
             jsonObj.put(Consts.SEGMENT_END_TIME, startDate.format(DATE_FORMAT));
             jsonObj.put(Consts.CALL_DIRECTION, randomDirectionType);
             jsonObj.put(Consts.BUSINESS_DATA, generateRandomString(20));    //  T.B.D.
-            jsonObj.put(Consts.DNIS, String.valueOf(getRandomWithRange(972500000, 972540000));
+            jsonObj.put(Consts.DNIS, String.valueOf(getRandomWithRange(972500000, 972540000)));
             jsonObj.put(Consts.PBX_CALL_ID, getRandomInt());
             jsonObj.put(Consts.PBX_UNIQUE_CALL_ID, generateRandomString(25));
             jsonObj.put(Consts.PARTICIPANTS, participants);
