@@ -12,8 +12,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.util.ObjectUtils;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @SpringBootApplication
 public class MainCli implements ApplicationRunner {
@@ -21,6 +20,7 @@ public class MainCli implements ApplicationRunner {
     @Autowired
     private ApplicationContext applicationContext;
 
+//    private ApplicationArguments applicationArguments;
     public static int shouldCreated = 0;
     public static int beenCreated = 0;
     /*
@@ -41,16 +41,26 @@ public class MainCli implements ApplicationRunner {
      * cps = segments per second (steady policy)
      * os = overall segments to send (steady policy)
      * nos = number of segments to create (backlog policy)
+     *      <b>IMPORTANT:</b> <i>nos</i> cannot be defined with <i>cpd</i> + <i>nod</i> or with <i>cpd</i> + <i>date-from</i> + <i>date-to</i> cannot
      * st = time of steady policy (spike policy)
      * ms = max segments in backlog (spike policy)
      * nb = number of bulks to create (elastic policy)
      * sib = number of segments in a single bulk (elastic policy)
-     *
+     * ------------------------------------------------------------------------------------
+     * V10-5885 -- Additions
+     * ------------------------------------------------------------------------------------
+     * noa = Number Of Agents (backlogWithArgs policy)
+     * cpd = Calls Per Day (backlogWithArgs policy)
+     * nod = Number Of Days (backlogWithArgs policy)
+     * df = Date-From (backlogWithArgs policy)
+     * dt = Date-To (backlogWithArgs policy)
+     * <b>IMPORTANT:</b> <i>nos</i> cannot be defined with <i>cpd</i> + <i>nod</i> or with <i>cpd</i> + <i>date-from</i> + <i>date-to</i> cannot
      */
     public void run(ApplicationArguments args) {
         if (ObjectUtils.isEmpty(args.getSourceArgs())) {
             return; // Regular web application
         }
+//        this.applicationArguments = args;
         List<String> policiesFromInput = args.getOptionValues("p");
         List<Policy> policyList = new ArrayList<Policy>();
         List<String> outputHandlersFromInput = args.getOptionValues("o");
@@ -94,9 +104,37 @@ public class MainCli implements ApplicationRunner {
                 break;
                 case "backlog": {
                     List<String> numOfSegments = args.getOptionValues("nos");
+
+//                    List<String> numOfAgents = args.getOptionValues("noa");
+//                    List<String> callsPerDay = args.getOptionValues("cpd");
+//                    List<String> numOfDays = args.getOptionValues("nod");
+//                    List<String> dateFrom = args.getOptionValues("df");
+//                    List<String> dateTo = args.getOptionValues("dt");
+//                    boolean hasNumOfAgentsAndCallsPerDayArgs = numOfAgents != null && callsPerDay != null;
+//                    boolean hasNumberOfDaysArg = numOfDays != null;
+//                    boolean hasDateFromDateToArgs = dateFrom != null && dateTo != null;
+//                    if (numOfSegments != null && (hasNumOfAgentsAndCallsPerDayArgs && (hasNumberOfDaysArg || hasDateFromDateToArgs))) {
+//                        throw new IllegalArgumentException("Arguments provided resulted with a conflict, define either number-of-segments or calls-per-day with number-of-days or with date-from and date-to.");
+//                    }
+
                     if (numOfSegments != null) {
                         policyList.add(new BacklogPolicy(updateOutputHandlers, Integer.valueOf(numOfSegments.get(i)), true));
                     }
+//                    else {
+//                        Map<String, List<String>> mapArgs = new HashMap<>();
+//                        mapArgs.put("numberOfAgents", numOfAgents);
+//                        mapArgs.put("callsPerDay", callsPerDay);
+//                        mapArgs.put("numberOfDays", numOfDays);
+//                        mapArgs.put("stringDateFrom", dateFrom);
+//                        mapArgs.put("stringDateTo", dateTo);
+//                        mapArgs.put("hasNumOfAgentsAndCallsPerDayArgs", Arrays.asList(String.valueOf(hasNumOfAgentsAndCallsPerDayArgs)));
+//                        mapArgs.put("hasNumberOfDaysArg", Arrays.asList(String.valueOf(hasNumberOfDaysArg)));
+//                        mapArgs.put("hasDateFromDateToArgs", Arrays.asList(String.valueOf(hasDateFromDateToArgs)));
+//                        if (hasNumOfAgentsAndCallsPerDayArgs && (hasNumberOfDaysArg || hasDateFromDateToArgs)) {
+//                            //Constructor: BacklogPolicy(UpdateOutputHandlers, Map<String, List<String>>, boolean)
+//                            policyList.add(new BacklogPolicy(updateOutputHandlers, mapArgs, true));
+//                        }
+//                    }
                 }
                 break;
                 case "spike": {

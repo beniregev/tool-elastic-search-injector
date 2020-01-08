@@ -5,7 +5,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class DataCreator implements Runnable {
     private long overallBulks;
@@ -17,21 +19,29 @@ public class DataCreator implements Runnable {
     private long numGeneratedSegments = 0;
     private Object segmentLock = new Object();
 
+    private Map<String, String> appArgs = new HashMap<>();
+    private String agentName;
+    private List listOfCalls;
+
     private static final Logger log = LoggerFactory.getLogger(DataCreator.class);
 
     public synchronized void run() {
         DataGeneratorImpl dataGenerator = new DataGeneratorImpl();
-        while (numGeneratedSegments < overallBulks * numOfSegmentsInBulk) {
-                while (segmentsList.size() > (cps * 60)) {
-                    try {
-                        wait();
+        if (this.agentName != null && this.listOfCalls != null && this.listOfCalls.size() > 0) {
+
+        } else {
+            while (numGeneratedSegments < overallBulks * numOfSegmentsInBulk) {
+                    while (segmentsList.size() > (cps * 60)) {
+                        try {
+                            wait();
+                        }
+                        catch (InterruptedException e) {
+                        }
+                        log.info("Segments generated so far = " + numGeneratedSegments);
                     }
-                    catch (InterruptedException e) {
-                    }
-                    log.info("Segments generated so far = " + numGeneratedSegments);
-                }
-                segmentsList.add(dataGenerator.createData(numOfSegmentsInBulk));
-                numGeneratedSegments += numOfSegmentsInBulk;
+                    segmentsList.add(dataGenerator.createData(numOfSegmentsInBulk));
+                    numGeneratedSegments += numOfSegmentsInBulk;
+            }
         }
         log.info("Completed creating segments - " + numGeneratedSegments);
     };
@@ -81,4 +91,15 @@ public class DataCreator implements Runnable {
         }
     }
 
+    public void setAppArgs(Map<String, String> appArgs) {
+        this.appArgs = appArgs;
+    }
+
+    public void setAgentName(String agentName) {
+        this.agentName = agentName;
+    }
+
+    public void setListOfCalls(List listOfCalls) {
+        this.listOfCalls = listOfCalls;
+    }
 }

@@ -21,6 +21,12 @@ public class UpdateOutputHandlers extends TimerTask {
     private long overallSegments = 0;
     private DataCreator dataCreator;
 
+    private int callsPerDay;
+    private int numberOfAgents;
+    private int numberOfDays;
+    private String stringDateFrom;
+    private String stringDateTo;
+
     public UpdateOutputHandlers(List<OutputHandler> outputHandlers) {
         this.outputHandlers = outputHandlers;
     }
@@ -40,6 +46,26 @@ public class UpdateOutputHandlers extends TimerTask {
 
     public void setCallsPerSec(int callsPerSec) {
         this.callsPerSec = callsPerSec;
+    }
+
+    public void setCallsPerDay(int callsPerDay) {
+        this.callsPerDay = callsPerDay;
+    }
+
+    public void setNumberOfAgents(int numberOfAgents) {
+        this.numberOfAgents = numberOfAgents;
+    }
+
+    public void setNumberOfDays(int numberOfDays) {
+        this.numberOfDays = numberOfDays;
+    }
+
+    public void setStringDateFrom(String stringDateFrom) {
+        this.stringDateFrom = stringDateFrom;
+    }
+
+    public void setStringDateTo(String stringDateTo) {
+        this.stringDateTo = stringDateTo;
     }
 
     /**
