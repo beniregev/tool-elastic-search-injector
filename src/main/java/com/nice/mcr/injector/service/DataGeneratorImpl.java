@@ -22,7 +22,6 @@ import java.util.Random;
 public class DataGeneratorImpl implements DataGenerator {
     private static final Logger log = LoggerFactory.getLogger(DataGeneratorImpl.class);
 
-    private final long sessionId = getRandomLong();
     private final String MEDIA_TYPE_VOICE = "Voice";
     private final String DIRECTION_RX = "Rx";
     private final String DIRECTION_TX = "Tx";
@@ -243,6 +242,8 @@ public class DataGeneratorImpl implements DataGenerator {
             RecordedType recordedType = RecordedType.getRandomRecordedType();
             ExceptionType randomExceptionType = ExceptionType.getRandomExcetionType();
 
+            final long sessionId = getRandomLong();
+
             JSONArray participants = new JSONArray();
             JSONArray recordings = new JSONArray();
             JSONArray recordingStatus = new JSONArray();
@@ -293,7 +294,7 @@ public class DataGeneratorImpl implements DataGenerator {
             jo.put("sessionId", sessionId);
             jo.put("recorderId", 63);
             jo.put("startTime", startDate.format(DATE_FORMAT));
-            jo.put("endTime", startDate.format(DATE_FORMAT));
+            jo.put("endTime", startDate.plusMinutes(5).format(DATE_FORMAT));
             jo.put("recordingStatus", "Successful");
             jo.put("recordingPolicyId", 0);
             recordings.put(jo);
@@ -305,7 +306,7 @@ public class DataGeneratorImpl implements DataGenerator {
             jo.put("sessionId", sessionId);
             jo.put("recorderId", 63);
             jo.put("startTime", startDate.format(DATE_FORMAT));
-            jo.put("endTime", startDate.format(DATE_FORMAT));
+            jo.put("endTime", startDate.plusMinutes(5).format(DATE_FORMAT));
             jo.put("recordingStatus", "Successful");
             jo.put("recordingPolicyId", 0);
             recordings.put(jo);
@@ -317,7 +318,7 @@ public class DataGeneratorImpl implements DataGenerator {
             jo.put("sessionId", sessionId);
             jo.put("recorderId", 63);
             jo.put("startTime", startDate.format(DATE_FORMAT));
-            jo.put("endTime", startDate.format(DATE_FORMAT));
+            jo.put("endTime", startDate.plusMinutes(5).format(DATE_FORMAT));
             jo.put("recordingStatus", "Successful");
             jo.put("recordingPolicyId", 0);
             recordings.put(jo);
@@ -329,7 +330,7 @@ public class DataGeneratorImpl implements DataGenerator {
             jo.put("sessionId", sessionId);
             jo.put("recorderId", 63);
             jo.put("startTime", startDate.format(DATE_FORMAT));
-            jo.put("endTime", startDate.format(DATE_FORMAT));
+            jo.put("endTime", startDate.plusMinutes(5).format(DATE_FORMAT));
             jo.put("recordingStatus", "Successful");
             jo.put("recordingPolicyId", 0);
             recordings.put(jo);
@@ -344,15 +345,15 @@ public class DataGeneratorImpl implements DataGenerator {
 
             //JSONObject jsonObj = new JSONObject();
             jsonObj = new JSONObject();
-            jsonObj.put(Consts.VERSION, getRandomDouble());
+            jsonObj.put(Consts.VERSION, getRandomLong());
             jsonObj.put(Consts.TENANT_ID, getRandomInt());
             jsonObj.put(Consts.SWITCH_ID, getRandomInt());
             jsonObj.put(Consts.CONTACT_ID, getRandomInt());
             jsonObj.put(Consts.CONTACT_START_TIME, startDate.format(DATE_FORMAT));
-            jsonObj.put(Consts.CONTACT_END_TIME, startDate.format(DATE_FORMAT));
+            jsonObj.put(Consts.CONTACT_END_TIME, startDate.plusSeconds(150).format(DATE_FORMAT));
             jsonObj.put(Consts.SEGMENT_ID, getRandomLong());
             jsonObj.put(Consts.SEGMENT_START_TIME, startDate.format(DATE_FORMAT));
-            jsonObj.put(Consts.SEGMENT_END_TIME, startDate.format(DATE_FORMAT));
+            jsonObj.put(Consts.SEGMENT_END_TIME, startDate.plusMinutes(5).format(DATE_FORMAT));
             jsonObj.put(Consts.CALL_DIRECTION, randomDirectionType);
             jsonObj.put(Consts.BUSINESS_DATA, generateRandomString(20));    //  T.B.D.
             jsonObj.put(Consts.DNIS, String.valueOf(getRandomWithRange(972500000, 972540000)));

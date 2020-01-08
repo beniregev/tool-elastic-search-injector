@@ -17,7 +17,7 @@ public class Consts {
     static final String BUSINESS_DATA= "businessData";
     static final String DNIS= "DNIS";
     static final String PBX_CALL_ID= "pbxCallId";
-    static final String PBX_UNIQUE_CALL_ID= "pbxCallId";
+    static final String PBX_UNIQUE_CALL_ID= "pbxUniqueCallId";
     static final String PARTICIPANTS= "participants";
     static final String RECORDINGS= "recordings";
     static final String EXCEPTIONS= "exceptions";
