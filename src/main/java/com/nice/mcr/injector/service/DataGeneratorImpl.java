@@ -101,7 +101,7 @@ public class DataGeneratorImpl implements DataGenerator {
             jsonObj.put(Consts.STATION, generateRandomString(20));
             jsonObj.put("nvcPhoneNumber", getRandomWithRange(972500000, 972540000));
             jsonObj.put(Consts.AGENT_ID, getRandomInt());
-            jsonObj.put(Consts.USER_ID, getRandomInt());
+            jsonObj.put(Consts.USER_ID, getRandomWithRange(0, Integer.MAX_VALUE));
             jsonObj.put(Consts.DEVICE_TYPE_ID, deviceType.DeviceTypeID());
             jsonObj.put(Consts.DEVICE_ID, getRandomInt());
             jsonObj.put(Consts.CTI_AGENT_NAME, firstNames.get(random.nextInt(firstNames.size())));
@@ -250,7 +250,7 @@ public class DataGeneratorImpl implements DataGenerator {
 
             //  region populate Participants
             JSONObject jo = new JSONObject();
-            jo.put("userId", 0);
+            jo.put("userId", getRandomWithRange(0, Integer.MAX_VALUE));
             jo.put("ctiUserIdentifier", null);
             jo.put("agentId", null);
             jo.put("phoneNumber", String.valueOf(getRandomWithRange(972500000, 972540000)));
@@ -262,7 +262,7 @@ public class DataGeneratorImpl implements DataGenerator {
             participants.put(jo);
 
             jo = new JSONObject();
-            jo.put("userId", -1);
+            jo.put("userId", getRandomWithRange(0, Integer.MAX_VALUE));
             jo.put("ctiUserIdentifier", null);
             jo.put("agentId", null);
             jo.put("phoneNumber", String.valueOf(getRandomWithRange(972500000, 972540000)));
@@ -274,7 +274,7 @@ public class DataGeneratorImpl implements DataGenerator {
             participants.put(jo);
 
             jo = new JSONObject();
-            jo.put("userId", 1);
+            jo.put("userId", getRandomWithRange(0, Integer.MAX_VALUE));
             jo.put("ctiUserIdentifier", null);
             jo.put("agentId", null);
             jo.put("phoneNumber", String.valueOf(getRandomWithRange(972500000, 972540000)));
