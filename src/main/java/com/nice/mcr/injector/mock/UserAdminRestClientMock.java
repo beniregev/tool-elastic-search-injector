@@ -92,7 +92,10 @@ public class UserAdminRestClientMock {
         //List<String> middleNames = generateNames("..\\tool-elastic-search-injector\\input\\middle-names.txt");
 
         //  numberOfFirstNames and numberOfLastNames is the same, since using Square Root to find them
-        int numberOfFirstNames = (int)Math.sqrt((double)numberOfAgents) + 1;
+        double sqrt = Math.sqrt(numberOfAgents);
+        if (Math.floor(Math.sqrt(numberOfAgents)) != sqrt) sqrt++;
+        int numberOfFirstNames = (int)sqrt;
+        System.out.println("Number of First Names = " + numberOfFirstNames);
         log.trace("Number of First Names = " + numberOfFirstNames);
 
         HTreeMap mapAgentsNames = db.hashMap("mapAgentsNames").createOrOpen();
@@ -146,15 +149,15 @@ public class UserAdminRestClientMock {
         return listNames;
     }
 
-    @PreDestroy
-    public void customDestroy() {
-        System.out.println("Method customDestroy() invoked...");
-        dbAgentsNames.close();
-        try {
-            Files.delete(Paths.get("MockAgentsNames.db"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+//    @PreDestroy
+//    public void customDestroy() {
+//        System.out.println("Method customDestroy() invoked...");
+//        dbAgentsNames.close();
+//        try {
+//            Files.delete(Paths.get("MockAgentsNames.db"));
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
 }
