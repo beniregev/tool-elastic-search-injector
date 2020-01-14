@@ -20,10 +20,11 @@ public class MainCli implements ApplicationRunner {
     @Autowired
     private ApplicationContext applicationContext;
 
-//    private ApplicationArguments applicationArguments;
+    private ApplicationArguments applicationArguments;
     public static int shouldCreated = 0;
     public static int beenCreated = 0;
-    /*
+
+    /**
      * Key-Value arguments:
      *
      * p = policy
@@ -46,21 +47,25 @@ public class MainCli implements ApplicationRunner {
      * ms = max segments in backlog (spike policy)
      * nb = number of bulks to create (elastic policy)
      * sib = number of segments in a single bulk (elastic policy)
-     * ------------------------------------------------------------------------------------
-     * V10-5885 -- Additions
-     * ------------------------------------------------------------------------------------
-     * noa = Number Of Agents (backlogWithArgs policy)
-     * cpd = Calls Per Day (backlogWithArgs policy)
-     * nod = Number Of Days (backlogWithArgs policy)
-     * df = Date-From (backlogWithArgs policy)
-     * dt = Date-To (backlogWithArgs policy)
-     * <b>IMPORTANT:</b> <i>nos</i> cannot be defined with <i>cpd</i> + <i>nod</i> or with <i>cpd</i> + <i>date-from</i> + <i>date-to</i> cannot
+     * <p>
+     * <div>------------------------------------------------------------------------------------</div>
+     * <div>V10-5885 -- Additions</div>
+     * <div>------------------------------------------------------------------------------------</div>
+     * <div></div><b><i>noa =</i></b> Number Of Agents (backlogWithArgs policy)</div>
+     * <div><b><i>unp =</i></b> Unique Name Percentage, e.g. value of 100 means that all agents names in the list are unique - there are no duplicates, value of 70 means that 7-of-10 names in the list are unique.</div>
+     * <div><b><i>cpd =</i></b> Calls Per Day (backlogWithArgs policy)</div>
+     * <div><b><i>doc =</i></b> Duration of call in minutes (backlogWithArgs policy)</div>
+     * <div><b><i>nod =</i></b> Number Of Days (backlogWithArgs policy)</div>
+     * <div><b><i>df =</i></b> Date-From (backlogWithArgs policy)</div>
+     * <div><b><i>dt =</i></b> Date-To (backlogWithArgs policy)</div>
+     * <div><b>IMPORTANT:</b> <i>nos</i> cannot be defined with <i>cpd</i> + <i>nod</i> or with <i>cpd</i> + <i>date-from</i> + <i>date-to</i> cannot.</div>
+     * </p>
      */
-    public void run(ApplicationArguments args) {
+    public void run(ApplicationArguments args) throws IllegalArgumentException {
         if (ObjectUtils.isEmpty(args.getSourceArgs())) {
             return; // Regular web application
         }
-//        this.applicationArguments = args;
+        this.applicationArguments = args;
         List<String> policiesFromInput = args.getOptionValues("p");
         List<Policy> policyList = new ArrayList<Policy>();
         List<String> outputHandlersFromInput = args.getOptionValues("o");
@@ -105,36 +110,26 @@ public class MainCli implements ApplicationRunner {
                 case "backlog": {
                     List<String> numOfSegments = args.getOptionValues("nos");
 
-//                    List<String> numOfAgents = args.getOptionValues("noa");
-//                    List<String> callsPerDay = args.getOptionValues("cpd");
-//                    List<String> numOfDays = args.getOptionValues("nod");
-//                    List<String> dateFrom = args.getOptionValues("df");
-//                    List<String> dateTo = args.getOptionValues("dt");
-//                    boolean hasNumOfAgentsAndCallsPerDayArgs = numOfAgents != null && callsPerDay != null;
-//                    boolean hasNumberOfDaysArg = numOfDays != null;
-//                    boolean hasDateFromDateToArgs = dateFrom != null && dateTo != null;
-//                    if (numOfSegments != null && (hasNumOfAgentsAndCallsPerDayArgs && (hasNumberOfDaysArg || hasDateFromDateToArgs))) {
-//                        throw new IllegalArgumentException("Arguments provided resulted with a conflict, define either number-of-segments or calls-per-day with number-of-days or with date-from and date-to.");
-//                    }
+                    List<String> numOfAgents = args.getOptionValues("noa");
+                    List<String> callsPerDay = args.getOptionValues("cpd");
+                    List<String> numOfDays = args.getOptionValues("nod");
+                    List<String> dateFrom = args.getOptionValues("df");
+                    List<String> dateTo = args.getOptionValues("dt");
+                    boolean hasNumOfAgentsAndCallsPerDayArgs = numOfAgents != null && callsPerDay != null;
+                    boolean hasNumberOfDaysArg = numOfDays != null;
+                    boolean hasDateFromDateToArgs = dateFrom != null && dateTo != null;
+                    if (numOfSegments != null && (hasNumOfAgentsAndCallsPerDayArgs && (hasNumberOfDaysArg || hasDateFromDateToArgs))) {
+                        throw new IllegalArgumentException("Arguments provided resulted with a conflict, define either number-of-segments or calls-per-day with number-of-days or with date-from and date-to.");
+                    }
 
                     if (numOfSegments != null) {
                         policyList.add(new BacklogPolicy(updateOutputHandlers, Integer.valueOf(numOfSegments.get(i)), true));
+                    } else {
+                        if (hasNumOfAgentsAndCallsPerDayArgs && (hasNumberOfDaysArg || hasDateFromDateToArgs)) {
+                            //Constructor: BacklogPolicy(UpdateOutputHandlers, Map<String, List<String>>, boolean)
+                            policyList.add(new BacklogPolicy(updateOutputHandlers, applicationArguments, true));
+                        }
                     }
-//                    else {
-//                        Map<String, List<String>> mapArgs = new HashMap<>();
-//                        mapArgs.put("numberOfAgents", numOfAgents);
-//                        mapArgs.put("callsPerDay", callsPerDay);
-//                        mapArgs.put("numberOfDays", numOfDays);
-//                        mapArgs.put("stringDateFrom", dateFrom);
-//                        mapArgs.put("stringDateTo", dateTo);
-//                        mapArgs.put("hasNumOfAgentsAndCallsPerDayArgs", Arrays.asList(String.valueOf(hasNumOfAgentsAndCallsPerDayArgs)));
-//                        mapArgs.put("hasNumberOfDaysArg", Arrays.asList(String.valueOf(hasNumberOfDaysArg)));
-//                        mapArgs.put("hasDateFromDateToArgs", Arrays.asList(String.valueOf(hasDateFromDateToArgs)));
-//                        if (hasNumOfAgentsAndCallsPerDayArgs && (hasNumberOfDaysArg || hasDateFromDateToArgs)) {
-//                            //Constructor: BacklogPolicy(UpdateOutputHandlers, Map<String, List<String>>, boolean)
-//                            policyList.add(new BacklogPolicy(updateOutputHandlers, mapArgs, true));
-//                        }
-//                    }
                 }
                 break;
                 case "spike": {
@@ -161,7 +156,6 @@ public class MainCli implements ApplicationRunner {
             }
         }
         for (Policy p : policyList) {
-            p.setApplicationArguments(args);
             p.run();
         }
     }
