@@ -1,11 +1,12 @@
 package com.nice.mcr.injector.policies;
 
+import com.nice.mcr.injector.model.Agent;
 import org.mapdb.DB;
+import org.mapdb.HTreeMap;
 import org.springframework.boot.ApplicationArguments;
 
 import java.time.LocalTime;
 import java.util.List;
-import java.util.Map;
 
 public interface Policy {
     public void run();
@@ -13,17 +14,28 @@ public interface Policy {
     default void setApplicationArguments(ApplicationArguments args) {}
 
     /**
-     * Use this method to generate the list of agents according to specifications/requirements.
+     * <p>
+     * <div>Use this method to generate the list of agents according to specifications/requirements.</div>
      * @param numberOfAgents Number of agents names in the final list.
      * @param uniqueNamePercent Percentage of unique agents names, e.g.
      *                          value=66.5 = 66.5% means 33.5% (335 of 1000) of the names are repeating.
      *                          value=100.0 = 100% means all unique names, no duplicates.
      * @param db {@code MapDB} database ({@link DB}), {@code null} if not in use.
-     * @return {@link Map} containing the list of agent names as the {@code key} and the value is the
-     * number of times this name repeats. For example: key="John Doe", value=3 means that the agent
-     * name "John Doe" appears 3 times in the agents list.
+     * @return {@link HTreeMap}<{@link String}, {@link Agent}> containing the list of agent names as the
+     * {@code key} and the value is the agent data in {@link Agent} class.
+     * </p>
+     * <p>
+     * <div>
+     *     <i><b>Note:</b></i> We might need to add the number of times each name repeats in the
+     *     list of agents names.
+     * </div>
+     * <div>
+     *     <i><b>For example:</b></i> key="John Doe", value=3 means that the agent name "John Doe"
+     *     appears 3 times in the agents list.
+     * </div>
+     * </p>
      */
-    default Map<String, Integer> generateListOfAgents(int numberOfAgents, double uniqueNamePercent, DB db) {
+    default HTreeMap<String, Agent> generateListOfAgents(int numberOfAgents, double uniqueNamePercent, DB db) {
         return null;
     }
 
