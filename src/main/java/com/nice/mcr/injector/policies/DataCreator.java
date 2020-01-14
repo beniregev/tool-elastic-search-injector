@@ -27,21 +27,17 @@ public class DataCreator implements Runnable {
 
     public synchronized void run() {
         DataGeneratorImpl dataGenerator = new DataGeneratorImpl();
-        if (this.agentName != null && this.listOfCalls != null && this.listOfCalls.size() > 0) {
-
-        } else {
-            while (numGeneratedSegments < overallBulks * numOfSegmentsInBulk) {
-                    while (segmentsList.size() > (cps * 60)) {
-                        try {
-                            wait();
-                        }
-                        catch (InterruptedException e) {
-                        }
-                        log.info("Segments generated so far = " + numGeneratedSegments);
-                    }
-                    segmentsList.add(dataGenerator.createData(numOfSegmentsInBulk));
-                    numGeneratedSegments += numOfSegmentsInBulk;
+        while (numGeneratedSegments < overallBulks * numOfSegmentsInBulk) {
+            while (segmentsList.size() > (cps * 60)) {
+                try {
+                    wait();
+                }
+                catch (InterruptedException e) {
+                }
+                log.info("Segments generated so far = " + numGeneratedSegments);
             }
+            segmentsList.add(dataGenerator.createData(numOfSegmentsInBulk));
+            numGeneratedSegments += numOfSegmentsInBulk;
         }
         log.info("Completed creating segments - " + numGeneratedSegments);
     };
