@@ -49,10 +49,6 @@ public class UserAdminRestClientMock {
         }
     }
 
-    public UserAdminRestClientMock(ApplicationArguments applicationArguments) {
-
-    }
-
     public UserAdminRestClientMock(Map<String, String> appArgs) {
         System.out.println("UserAdminRestClientMock .constructor(Map<String, String>): " + appArgs);
     }
