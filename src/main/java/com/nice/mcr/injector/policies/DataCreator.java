@@ -9,6 +9,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * @author Ariel Levi
+ */
+//  TODO Binyamin Regev -- abstract class or interface {@code DataCreator} and this class extends it
 public class DataCreator implements Runnable {
     private long overallBulks;
     private List<String> segmentsList;
