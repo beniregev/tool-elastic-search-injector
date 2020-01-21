@@ -5,14 +5,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Ariel Levi
  */
-//  TODO Binyamin Regev -- abstract class or interface {@code DataCreator} and this class extends it
+//  TODO Binyamin Regev -- re-engineering required. Separate to an abstract class or interface {@code DataCreator} and this class extends it
 public class DataCreator implements Runnable {
     private long overallBulks;
     private List<String> segmentsList;
@@ -22,10 +20,6 @@ public class DataCreator implements Runnable {
     private int availableSegments = 0;
     private long numGeneratedSegments = 0;
     private Object segmentLock = new Object();
-
-    private Map<String, String> appArgs = new HashMap<>();
-    private String agentName;
-    private List listOfCalls;
 
     private static final Logger log = LoggerFactory.getLogger(DataCreator.class);
 
@@ -91,15 +85,4 @@ public class DataCreator implements Runnable {
         }
     }
 
-    public void setAppArgs(Map<String, String> appArgs) {
-        this.appArgs = appArgs;
-    }
-
-    public void setAgentName(String agentName) {
-        this.agentName = agentName;
-    }
-
-    public void setListOfCalls(List listOfCalls) {
-        this.listOfCalls = listOfCalls;
-    }
 }
