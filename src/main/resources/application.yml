@@ -12,8 +12,12 @@ socket:
   hostname: "localhost"
   port: 9600
 
-rabbitmq.host: 10.128.57.121
-rabbitmq.exchange: ic-call-data
-rabbitmq.username: test
-rabbitmq.password: test
-rabbitmq.routing.key: segment.stop
+#rabbitmq.host: 10.128.57.121
+#rabbitmq.username: "nice-rw"
+#rabbitmq.password: "nicecti1!"
+rabbitmq.host: "localhost"
+rabbitmq.username: "nice"
+rabbitmq.password: "nice."
+rabbitmq.queue-name: "ic-event-indexer"
+rabbitmq.exchange: "ic-call-data"
+rabbitmq.routing.key: "segment.stop"
