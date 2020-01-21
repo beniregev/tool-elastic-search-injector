@@ -20,12 +20,8 @@ public class UpdateOutputHandlers extends TimerTask {
     private long callsPerSec = 0;
     private long overallSegments = 0;
     private DataCreator dataCreator;
-
-    private int callsPerDay;
-    private int numberOfAgents;
-    private int numberOfDays;
-    private String stringDateFrom;
-    private String stringDateTo;
+    //  TODO Binyamin Regev -- Remove after refactoring, when this class complies with SOLID Single Responsibility Principle
+    private DataCreatorAgentCallsDays dataCreatorAgentCallsDays;
 
     public UpdateOutputHandlers(List<OutputHandler> outputHandlers) {
         this.outputHandlers = outputHandlers;
@@ -44,28 +40,13 @@ public class UpdateOutputHandlers extends TimerTask {
         this.overallSegments = this.dataCreator.getOverallBulks();
     }
 
+    //  TODO Binyamin Regev -- Remove after refactoring, when this class complies with SOLID Single Responsibility Principle
+    public void setDataCreatorAgentCallsDays(DataCreatorAgentCallsDays dataCreatorAgentCallsDays) {
+        this.dataCreatorAgentCallsDays = dataCreatorAgentCallsDays;
+    }
+
     public void setCallsPerSec(int callsPerSec) {
         this.callsPerSec = callsPerSec;
-    }
-
-    public void setCallsPerDay(int callsPerDay) {
-        this.callsPerDay = callsPerDay;
-    }
-
-    public void setNumberOfAgents(int numberOfAgents) {
-        this.numberOfAgents = numberOfAgents;
-    }
-
-    public void setNumberOfDays(int numberOfDays) {
-        this.numberOfDays = numberOfDays;
-    }
-
-    public void setStringDateFrom(String stringDateFrom) {
-        this.stringDateFrom = stringDateFrom;
-    }
-
-    public void setStringDateTo(String stringDateTo) {
-        this.stringDateTo = stringDateTo;
     }
 
     /**
@@ -79,7 +60,19 @@ public class UpdateOutputHandlers extends TimerTask {
             this.callsPerSec = this.overallSegments - this.counter;
         }
         for (int i = 0; i < this.callsPerSec; i++) {
-            String segment = dataCreator.getSegment();
+            String segment;
+            String resultMessage = this.dataCreator != null ?
+                    "dataCreator is NOT null" :
+                    (this.dataCreatorAgentCallsDays != null ?
+                            "dataCreatorAgentCallsDays is NOT null" :
+                            "dataCreator AND dataCreatorAgentCallsDays are NULL" );
+            System.out.println(">>>>> UpdateOutputHandlers.run() " + resultMessage);
+            if (this.dataCreator != null) {
+                segment = dataCreator.getSegment();
+            } else {
+                segment = dataCreatorAgentCallsDays.getSegment();
+            }
+            System.out.println(">>>>> UpdateOutputHandlers.run() dataCreator*.getSegment() = " + segment);
             for (OutputHandler oh : this.outputHandlers) {
                 if (SteadyPolicy.isRun) {
                     if (segment != null) {
