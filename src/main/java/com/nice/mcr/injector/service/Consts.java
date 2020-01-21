@@ -17,6 +17,7 @@ public class Consts {
     static final String SEGMENT_END_TIME= "segmentEndTime";
     static final String SEGMENT_GMT_START_TIME= "dtSegmentGMTStartTime";
     static final String SEGMENT_GMT_END_TIME= "dtSegmentGMTStopTime";
+    static final String BI_SEGMENT_DURATION = "biSegmentDuration";
     static final String USER_ID = "UserId";
     static final String CTI_USER_IDENTIFIER = "ctiUserIdentifier";
     static final String IS_INITIATOR = "isInitiator";
@@ -101,9 +102,9 @@ public class Consts {
     static final String DEVICE_TYPE_DESC = "vcDeviceTypeDesc";
     static final String RECORDING_SIDE_TYPE_ID = "tiRecordingSideTypeID";
     static final String RECORDING_SIDE_DESC = "vcRecordingSideDesc";
-    static final String MEDIA_DESC = "vcMediaDesc";
+    static final String VC_MEDIA_DESC = "vcMediaDesc";
     static final String DIRECTION_TYPE_ID = "tiDirectionTypeID";
-    static final String DIRECTION_TYPE_DESC = "vcDirectionTypeDesc";
+    static final String VC_DIRECTION_TYPE_DESC = "vcDirectionTypeDesc";
     static final String I_RECORDING_ID = "iRecordingID";
     static final String LOGGER = "iLogger";
     static final String CHANNEL = "iChannel";
