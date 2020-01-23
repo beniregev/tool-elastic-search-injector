@@ -51,14 +51,14 @@ public class MainCli implements ApplicationRunner {
      * <div>------------------------------------------------------------------------------------</div>
      * <div>V10-5885 -- Additions</div>
      * <div>------------------------------------------------------------------------------------</div>
-     * <div></div><b><i>noa =</i></b> Number Of Agents (backlogWithArgs policy)</div>
-     * <div><b><i>unp =</i></b> Unique Name Percentage, e.g. value of 100 means that all agents names in the list are unique - there are no duplicates, value of 70 means that 7-of-10 names in the list are unique.</div>
-     * <div><b><i>cpd =</i></b> Calls Per Day (backlogWithArgs policy)</div>
-     * <div><b><i>doc =</i></b> Duration of call in minutes (backlogWithArgs policy)</div>
-     * <div><b><i>nod =</i></b> Number Of Days (backlogWithArgs policy)</div>
-     * <div><b><i>df =</i></b> Date-From (backlogWithArgs policy)</div>
-     * <div><b><i>dt =</i></b> Date-To (backlogWithArgs policy)</div>
-     * <div><b>IMPORTANT:</b> <i>nos</i> cannot be defined with <i>cpd</i> + <i>nod</i> or with <i>cpd</i> + <i>date-from</i> + <i>date-to</i> cannot.</div>
+     * <div></div><b><i>noa =</i></b> Number Of Agents (BacklogPolicy, Agents -> Calls-Per-Day -> Number-of-Days)</div>
+     * <div><b><i>unp =</i></b> Unique Name Percentage (BacklogPolicy, Agents -> Calls-Per-Day -> Number-of-Days), e.g. value of 100 means that all agents names in the list are unique - there are no duplicates, value of 70 means that 7-of-10 names in the list are unique</div>
+     * <div><b><i>cpd =</i></b> Calls Per Day (BacklogPolicy, Agents -> Calls-Per-Day -> Number-of-Days)</div>
+     * <div><b><i>doc =</i></b> Duration of call in minutes (BacklogPolicy, Agents -> Calls-Per-Day -> Number-of-Days)</div>
+     * <div><b><i>nod =</i></b> Number Of Days (BacklogPolicy, Agents -> Calls-Per-Day -> Number-of-Days)</div>
+     * <div><b><i>df =</i></b> Date-From (BacklogPolicy, Agents -> Calls-Per-Day -> Number-of-Days)</div>
+     * <div><b><i>dt =</i></b> Date-To (BacklogPolicy, Agents -> Calls-Per-Day -> Number-of-Days)</div>
+     * <div><b>IMPORTANT:</b> <i>nos</i> cannot be defined with <i>cpd</i> + <i>nod</i> or with <i>cpd</i> + <i>date-from</i> + <i>date-to</i>.</div>
      * </p>
      */
     public void run(ApplicationArguments args) throws IllegalArgumentException {
