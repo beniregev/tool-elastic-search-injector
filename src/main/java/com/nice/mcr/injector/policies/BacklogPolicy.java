@@ -1,26 +1,37 @@
 package com.nice.mcr.injector.policies;
 
 import com.nice.mcr.injector.MainCli;
+import com.nice.mcr.injector.config.ApplicationContextProvider;
+import com.nice.mcr.injector.mock.UserAdminRestClientMock;
+import com.nice.mcr.injector.model.Agent;
 import com.nice.mcr.injector.service.Consts;
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
 import org.mapdb.HTreeMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
+import org.springframework.context.ApplicationContext;
 
+import javax.annotation.PreDestroy;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
-
-import static java.time.temporal.ChronoUnit.DAYS;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class BacklogPolicy implements Policy {
-    private static final Logger log = LoggerFactory.getLogger(com.nice.mcr.injector.policies.BacklogPolicy.class);
+    private static final Logger log = LoggerFactory.getLogger(BacklogPolicy.class);
+
     //  region class properties
     private final static int CPS_CONST = 1000;
     private UpdateOutputHandlers updateOutputHandlers;
@@ -29,17 +40,131 @@ public class BacklogPolicy implements Policy {
     private Runnable r;
 
     private int callsPerDay;
-    private int numberOfAgents;
-    private int numberOfDays;
-    private String stringDateFrom;
-    private String stringDateTo;
-    boolean hasNumOfAgentsAndCallsPerDayArgs = false;
-    boolean hasNumberOfDaysArg = false;
-    boolean hasDateFromDateToArgs = false;
+    private boolean hasNumOfAgentsAndCallsPerDayArgs = false;
+    private boolean hasNumberOfDaysArg = false;
+    private boolean hasDateFromDateToArgs = false;
+    private DB dbAgentsNames;
+    private HTreeMap mapAgentsNames;
+    private List<LocalDateTime> listOfCallsPerAgent;
 
     //  ApplicationArguments --> received from MainCli class and converted into Map<String, List<String>>
+    @Autowired
+    private ApplicationContext applicationContext;
+    @Autowired
+    private UserAdminRestClientMock userAdminRestClientMock;
+
+    private ApplicationArguments applicationArguments;
     private Map<String, String> appArgs = new HashMap<>();
     //  endregion
+
+    /**
+     * <p>
+     * <ul>Parameters to be used in the constructor:
+     * <li><i>Number of Agents</i>: appArgs.get("noa") or appArgs.get("numberOfAgents")</li>
+     * <li><i>Calls Per Day (Per-Agent)</i>: appArgs.get("cpd") or appArgs.get("callsPerDay")</li>
+     * <li>
+     *     <div><i>Number of Days</i>: appArgs.get("nod") or appArgs.get("numberOfDays")</div>
+     *     <div>OR</div>
+     *     <div>Number of days between Date-From and Date-To:</div>
+     *     <div><i>Date-From</i>: appArgs.get("df") or appArgs.get("dateFrom")</div>
+     *     <div><i>Date-To</i>: appArgs.get("dt") or appArgs.get("dateTo")</div>
+     *     <div><code>int numberOfDays = (int) ChronoUnit.DAYS.between(dateFrom, dateTo) + 1;</code></div>
+     * </li>
+     * </ul>
+     * </p>
+     * @param updateOutputHandlers {@link UpdateOutputHandlers} to be used to output the segments to the target.
+     * @param applicationArguments {@link ApplicationArguments} received from {@link MainCli}.
+     * @param runInSeparateThread Whether to run task in separate thread or on main thread.
+     */
+    public BacklogPolicy(UpdateOutputHandlers updateOutputHandlers, ApplicationArguments applicationArguments, boolean runInSeparateThread) {
+        this.applicationArguments = applicationArguments;
+        this.updateOutputHandlers = updateOutputHandlers;
+        this.runInSeparateThread = runInSeparateThread;
+
+        this.setApplicationArguments(applicationArguments);
+        int numberOfAgents = Integer.parseInt(appArgs.get("noa"));
+        int uniqueNamePercentage = Integer.parseInt(appArgs.get("unp"));
+        this.callsPerDay = Integer.parseInt(appArgs.get("cpd"));
+        int durationOfCall = Integer.parseInt(appArgs.get("doc"));
+        int numberOfDays = Integer.parseInt(appArgs.get("nod"));
+        LocalDate dateFrom = (appArgs.get("df") != null) ? LocalDate.parse(appArgs.get("df")) : null;
+        LocalDate dateTo = (appArgs.get("dt") != null) ? LocalDate.parse(appArgs.get("dt")) : null;
+        //  Having Date-From and Date-To overrides number-of-days value
+        if (dateFrom != null && dateTo != null) {
+            numberOfDays = (int) ChronoUnit.DAYS.between(dateFrom, dateTo) + 1;
+        }
+        this.overallSegments = numberOfAgents * this.callsPerDay * numberOfDays;
+        log.debug("entering backlog policy, number of segments to create: " + this.overallSegments);
+        MainCli.shouldCreated += this.overallSegments;
+
+        dbAgentsNames = DBMaker.fileDB("MapAgentsNames.db")
+                .cleanerHackEnable()
+                .closeOnJvmShutdown()
+                .make();
+        mapAgentsNames = dbAgentsNames
+                .hashMap("MapAgentsNames")
+                .createOrOpen();
+        HTreeMap agentsNames = ApplicationContextProvider
+                .getApplicationContext()
+                .getBean(UserAdminRestClientMock.class)
+                .getMapAgentsNames();
+        mapAgentsNames = generateListOfAgents(numberOfAgents, uniqueNamePercentage, dbAgentsNames);
+        //this.mapAgentsNames = (HTreeMap) agentsNames.values().stream().collect(Collectors.toMap(x -> x.getFirstName() + " " + x.getFirstName(), x -> x));
+        for (Object object : agentsNames.values()) {
+            Agent agent = (Agent) object;
+            this.mapAgentsNames.put(agent.getFirstName() + " " + agent.getLastName(), agent);
+        }
+
+        List<LocalDate> listOfDates = generateListOfDates(dateFrom,dateTo);
+        listOfDates.forEach(System.out::println);
+
+        List<LocalTime> listOfCallsTimes = generateListOfCallsPerDay(callsPerDay, durationOfCall);
+        listOfCallsTimes.forEach(System.out::println);
+
+        this.listOfCallsPerAgent = new ArrayList<>();
+        for (LocalDate date : listOfDates) {
+            for (LocalTime time : listOfCallsTimes) {
+                this.listOfCallsPerAgent.add(LocalDateTime.of(date, time));
+            }
+        }
+        this.listOfCallsPerAgent.forEach(System.out::println);
+
+        this.r = () -> {
+            double startTime = System.currentTimeMillis();
+            int index = 1;
+
+            for (Object object : mapAgentsNames.getKeys()) {
+                String agentName = (String) object;
+                Agent agent = (Agent)mapAgentsNames.get(agentName);
+                DataCreatorAgentCallsDays dataCreatorAgentCallsDays = new DataCreatorAgentCallsDays(
+                        Thread.currentThread(), agent, this.listOfCallsPerAgent,
+                        1, this.overallSegments, index,
+                        this.updateOutputHandlers.getOutputHandlers());
+                Thread thread = new Thread(dataCreatorAgentCallsDays);
+                thread.start();
+                index++;
+
+                // Make sure the data creation thread gets a 5 sec head start
+                try {
+                    Thread.currentThread().sleep(5000);
+                } catch (InterruptedException ie) {
+                    ie.printStackTrace();
+                }
+                this.updateOutputHandlers.setDataCreatorAgentCallsDays(dataCreatorAgentCallsDays);
+                this.updateOutputHandlers.setCallsPerSec(CPS_CONST);
+                this.updateOutputHandlers.setOverallSegments(this.overallSegments);
+
+                //// Define interval time Set timer schedule
+                //Timer timer = new Timer();
+                //timer.scheduleAtFixedRate(this.updateOutputHandlers, 0, 1000);
+
+            }
+            System.out.println("Total run time of this backlog: " + (System.currentTimeMillis() - startTime));
+            System.out.println("number of segments should be created: " + MainCli.shouldCreated);
+            System.out.println("number of segments been created: " + MainCli.beenCreated);
+
+        };
+    }
 
     public BacklogPolicy(UpdateOutputHandlers updateOutputHandlers, int overallSegments, boolean runInSeparateThread) {
         this.updateOutputHandlers = updateOutputHandlers;
@@ -189,7 +314,7 @@ public class BacklogPolicy implements Policy {
     }
 
     @Override
-    public HTreeMap<String, Integer> generateListOfAgents(int numberOfAgents, double uniqueNamePercent, DB db) {
+    public HTreeMap<String, Agent> generateListOfAgents(int numberOfAgents, double uniqueNamePercent, DB db) {
         List<String> firstNames = generateNames("..\\tool-elastic-search-injector\\input\\first-names.txt");
         List<String> lastNames = generateNames("..\\tool-elastic-search-injector\\input\\last-names.txt");
         List<String> middleNames = generateNames("..\\tool-elastic-search-injector\\input\\middle-names.txt");
@@ -198,13 +323,22 @@ public class BacklogPolicy implements Policy {
         int numberOfFirstNames = (int)Math.sqrt((double)numberOfAgents) + 1;
         log.trace("Number of First Names = " + numberOfFirstNames);
 
-        HTreeMap mapAgentsNames = db.hashMap("mapAgentsNames").createOrOpen();
+        HTreeMap htreeMap = db.hashMap("mapAgentsNames").createOrOpen();
         long start = System.currentTimeMillis();
         int i=1;
+        int agentId = 1;
         for(String firstName : firstNames) {
             int j=1;
             for (String lastName : lastNames) {
-                mapAgentsNames.put(firstName + " " + lastName, 1);
+                String agentName = firstName + " " + lastName;
+                Agent agent = (Agent)htreeMap.get(agentName);
+                if (agent != null) {
+                    agent.incrementAmountInList();
+                } else {
+                    agent = new Agent(agentId, firstName, lastName);
+                }
+                htreeMap.put(agentName, agent);
+
                 log.trace("firstName=" + firstName + " ; lastName=" + lastName);
                 j++;
                 if (j > numberOfFirstNames) break;
@@ -216,7 +350,15 @@ public class BacklogPolicy implements Policy {
         log.debug("Generating a list of " + numberOfAgents +
                 " agents names took " + (end - start) + " milliseconds");
 
-        return mapAgentsNames;
+        return htreeMap;
+    }
+
+    private List<LocalDate> generateListOfDates(LocalDate dateFrom, LocalDate dateTo) {
+        int numberOfDays = (int) ChronoUnit.DAYS.between(dateFrom, dateTo) + 1;
+        return IntStream.iterate(0, i -> i + 1)
+                .limit(numberOfDays)
+                .mapToObj(i -> dateFrom.plusDays(i))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -229,11 +371,11 @@ public class BacklogPolicy implements Policy {
         List<LocalTime> listOfCalls = new ArrayList<>();
         for (int i=1; i<=callsPerDay; i++) {
             listOfCalls.add(timeCallStarted);
-            System.out.println("Call #" + i + ": \n\tStarted at " + timeCallStarted +
-                    "\n\tEnded at " + timeCallStarted.plusMinutes(durationOfCallInMinutes) +
-                    "\n\tContact Start Time: " + timeCallStarted +
-                    "\n\tContact End Time: " + timeCallStarted.plusSeconds(150)
-            );
+//            System.out.println("Call #" + i + ": \n\tStarted at " + timeCallStarted +
+//                    "\n\tEnded at " + timeCallStarted.plusMinutes(durationOfCallInMinutes) +
+//                    "\n\tContact Start Time: " + timeCallStarted +
+//                    "\n\tContact End Time: " + timeCallStarted.plusSeconds(150)
+//            );
             timeCallStarted = timeCallStarted.plusMinutes(durationOfCallInMinutes).plusMinutes(timeIntervalBetweenCallInMinutes);
         }
         return listOfCalls;
@@ -266,38 +408,6 @@ public class BacklogPolicy implements Policy {
         return names;
     }
 
-    public Map<String, String> getAppArgs() {
-        return appArgs;
-    }
-
-    public void setAppArgs(Map<String, String> appArgs) {
-        this.appArgs = appArgs;
-    }
-
-    public boolean isHasNumOfAgentsAndCallsPerDayArgs() {
-        return hasNumOfAgentsAndCallsPerDayArgs;
-    }
-
-    public void setHasNumOfAgentsAndCallsPerDayArgs(boolean hasNumOfAgentsAndCallsPerDayArgs) {
-        this.hasNumOfAgentsAndCallsPerDayArgs = hasNumOfAgentsAndCallsPerDayArgs;
-    }
-
-    public boolean isHasNumberOfDaysArg() {
-        return hasNumberOfDaysArg;
-    }
-
-    public void setHasNumberOfDaysArg(boolean hasNumberOfDaysArg) {
-        this.hasNumberOfDaysArg = hasNumberOfDaysArg;
-    }
-
-    public boolean isHasDateFromDateToArgs() {
-        return hasDateFromDateToArgs;
-    }
-
-    public void setHasDateFromDateToArgs(boolean hasDateFromDateToArgs) {
-        this.hasDateFromDateToArgs = hasDateFromDateToArgs;
-    }
-
     /**
      * Set ApplicationArguments into a {@link Map}<String, String> to pass it to
      * the next objects.
@@ -313,5 +423,20 @@ public class BacklogPolicy implements Policy {
         );
         this.appArgs.forEach((k, v) -> System.out.println("key=" + k + ", value=" + v));
     }
-}
 
+    /**
+     * Close the database and delete the database
+     * file when class is destroyed
+     */
+    @PreDestroy
+    public void customDestroy() {
+        //  region close DB and cleanup
+        dbAgentsNames.close();
+        try {
+            Files.delete(Paths.get("MapAgentsNames.db"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        //  endregion
+    }
+}
