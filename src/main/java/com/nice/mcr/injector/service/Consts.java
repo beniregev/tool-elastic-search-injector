@@ -18,7 +18,7 @@ public class Consts {
     static final String SEGMENT_GMT_START_TIME= "dtSegmentGMTStartTime";
     static final String SEGMENT_GMT_END_TIME= "dtSegmentGMTStopTime";
     static final String BI_SEGMENT_DURATION = "biSegmentDuration";
-    static final String USER_ID = "UserId";
+    static final String USER_ID = "userId";
     static final String CTI_USER_IDENTIFIER = "ctiUserIdentifier";
     static final String IS_INITIATOR = "isInitiator";
     static final String MEDIA_TYPE = "mediaType";
@@ -179,6 +179,8 @@ public class Consts {
     static final String USER_SITE_ID = "iUserSiteID";
     static final String AGENT_ID = "agentId";
     static final String I_AGENT_ID = "iAgentId";
+    static final String FIRST_NAME = "firstName";
+    static final String LAST_NAME = "lastName";
     static final String NVC_FIRST_NAME = "nvcFirstName";
     static final String NVC_LAST_NAME = "nvcLastName";
     static final String NVC_MIDDLE_NAME = "nvcMiddleName";
