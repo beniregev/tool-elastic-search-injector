@@ -72,7 +72,7 @@ public class UpdateOutputHandlers extends TimerTask {
             } else {
                 segment = dataCreatorAgentCallsDays.getSegment();
             }
-            System.out.println(">>>>> UpdateOutputHandlers.run() dataCreator*.getSegment() = " + segment);
+            //System.out.println(">>>>> UpdateOutputHandlers.run() dataCreator*.getSegment() = " + segment);
             for (OutputHandler oh : this.outputHandlers) {
                 if (SteadyPolicy.isRun) {
                     if (segment != null) {
