@@ -71,13 +71,8 @@ public class UserAdminRestClientMock {
         List<String> firstNames = generateNames("..\\tool-elastic-search-injector\\input\\first-names.txt");
         List<String> lastNames = generateNames("..\\tool-elastic-search-injector\\input\\last-names.txt");
         //List<String> middleNames = generateNames("..\\tool-elastic-search-injector\\input\\middle-names.txt");
-
-        //  numberOfFirstNames and numberOfLastNames is the same, since using Square Root to find them
-        double sqrt = Math.sqrt(numberOfAgents);
-        if (Math.floor(Math.sqrt(numberOfAgents)) != sqrt) sqrt++;
-        int numberOfFirstNames = (int)sqrt;
-        System.out.println("Number of First Names = " + numberOfFirstNames);
-        log.trace("Number of First Names = " + numberOfFirstNames);
+        int numberOfFirstNames = getNumberOfAgentsSquareRoot(numberOfAgents);
+        log.debug("Number of First Names = " + numberOfFirstNames);
 
         HTreeMap mapAgentsNames = db.hashMap("mapAgentsNames").createOrOpen();
         long start = System.currentTimeMillis();
@@ -101,6 +96,17 @@ public class UserAdminRestClientMock {
                 " agents names took " + (end - start) + " milliseconds");
 
         return mapAgentsNames;
+    }
+
+    /**
+     * numberOfFirstNames and numberOfLastNames is the same, since using Square Root to find them
+     * @param value {@link Integer} to compute its Square-Root.
+     * @return {@link Integer} value of Square-Root
+     */
+    private int getNumberOfAgentsSquareRoot(int value) {
+        double sqrt = Math.sqrt(numberOfAgents);
+        if (Math.floor(Math.sqrt(numberOfAgents)) != sqrt) sqrt++;
+        return (int)sqrt;
     }
 
     private List<String> generateNames(String path) {
