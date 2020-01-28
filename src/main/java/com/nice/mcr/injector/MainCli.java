@@ -47,19 +47,16 @@ public class MainCli implements ApplicationRunner {
      * ms = max segments in backlog (spike policy)
      * nb = number of bulks to create (elastic policy)
      * sib = number of segments in a single bulk (elastic policy)
-     * <p>
-     * <div>------------------------------------------------------------------------------------</div>
-     * <div>V10-5885 -- Additions</div>
-     * <div>------------------------------------------------------------------------------------</div>
-     * <div></div><b><i>noa =</i></b> Number Of Agents (BacklogPolicy, Agents -> Calls-Per-Day -> Number-of-Days)</div>
-     * <div><b><i>unp =</i></b> Unique Name Percentage (BacklogPolicy, Agents -> Calls-Per-Day -> Number-of-Days), e.g. value of 100 means that all agents names in the list are unique - there are no duplicates, value of 70 means that 7-of-10 names in the list are unique</div>
-     * <div><b><i>cpd =</i></b> Calls Per Day (BacklogPolicy, Agents -> Calls-Per-Day -> Number-of-Days)</div>
-     * <div><b><i>doc =</i></b> Duration of call in minutes (BacklogPolicy, Agents -> Calls-Per-Day -> Number-of-Days)</div>
-     * <div><b><i>nod =</i></b> Number Of Days (BacklogPolicy, Agents -> Calls-Per-Day -> Number-of-Days)</div>
-     * <div><b><i>df =</i></b> Date-From (BacklogPolicy, Agents -> Calls-Per-Day -> Number-of-Days)</div>
-     * <div><b><i>dt =</i></b> Date-To (BacklogPolicy, Agents -> Calls-Per-Day -> Number-of-Days)</div>
-     * <div><b>IMPORTANT:</b> <i>nos</i> cannot be defined with <i>cpd</i> + <i>nod</i> or with <i>cpd</i> + <i>date-from</i> + <i>date-to</i>.</div>
-     * </p>
+     * ------------------------------------------------------------------------------------
+     * noa = Number Of Agents (BacklogPolicy, Agents -> Calls-Per-Day -> Number-of-Days)
+     * unp = Unique Name Percentage (BacklogPolicy, Agents -> Calls-Per-Day -> Number-of-Days), e.g. value of 100 means that all agents names in the list are unique - there are no duplicates, value of 70 means that 7-of-10 names in the list are unique
+     * cpd = Calls Per Day (BacklogPolicy, Agents -> Calls-Per-Day -> Number-of-Days)
+     * doc = Duration of call in minutes (BacklogPolicy, Agents -> Calls-Per-Day -> Number-of-Days)
+     * nod = Number Of Days (BacklogPolicy, Agents -> Calls-Per-Day -> Number-of-Days)
+     * df = Date-From (BacklogPolicy, Agents -> Calls-Per-Day -> Number-of-Days)
+     * dt = Date-To (BacklogPolicy, Agents -> Calls-Per-Day -> Number-of-Days)
+     * IMPORTANT: nos cannot be defined with "cpd"+"nod" or with "cpd"+"date-from"+"date-to".
+     * ------------------------------------------------------------------------------------
      */
     public void run(ApplicationArguments args) throws IllegalArgumentException {
         if (ObjectUtils.isEmpty(args.getSourceArgs())) {
