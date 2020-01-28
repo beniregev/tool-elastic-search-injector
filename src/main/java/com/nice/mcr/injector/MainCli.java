@@ -106,23 +106,15 @@ public class MainCli implements ApplicationRunner {
                 break;
                 case "backlog": {
                     List<String> numOfSegments = args.getOptionValues("nos");
-
-                    List<String> numOfAgents = args.getOptionValues("noa");
-                    List<String> callsPerDay = args.getOptionValues("cpd");
-                    List<String> numOfDays = args.getOptionValues("nod");
-                    List<String> dateFrom = args.getOptionValues("df");
-                    List<String> dateTo = args.getOptionValues("dt");
-                    boolean hasNumOfAgentsAndCallsPerDayArgs = numOfAgents != null && callsPerDay != null;
-                    boolean hasNumberOfDaysArg = numOfDays != null;
-                    boolean hasDateFromDateToArgs = dateFrom != null && dateTo != null;
-                    if (numOfSegments != null && (hasNumOfAgentsAndCallsPerDayArgs && (hasNumberOfDaysArg || hasDateFromDateToArgs))) {
+                    boolean isAgentsCallsAndDays = isNumberOfAgentsCallsPerDayAndNumberOfDays(args);
+                    if (numOfSegments != null && isAgentsCallsAndDays) {
                         throw new IllegalArgumentException("Arguments provided resulted with a conflict, define either number-of-segments or calls-per-day with number-of-days or with date-from and date-to.");
                     }
 
                     if (numOfSegments != null) {
                         policyList.add(new BacklogPolicy(updateOutputHandlers, Integer.valueOf(numOfSegments.get(i)), true));
                     } else {
-                        if (hasNumOfAgentsAndCallsPerDayArgs && (hasNumberOfDaysArg || hasDateFromDateToArgs)) {
+                        if (isAgentsCallsAndDays) {
                             //Constructor: BacklogPolicy(UpdateOutputHandlers, Map<String, List<String>>, boolean)
                             policyList.add(new BacklogPolicy(updateOutputHandlers, applicationArguments, true));
                         }
@@ -155,5 +147,18 @@ public class MainCli implements ApplicationRunner {
         for (Policy p : policyList) {
             p.run();
         }
+    }
+
+    private boolean isNumberOfAgentsCallsPerDayAndNumberOfDays(ApplicationArguments args) {
+        List<String> numOfAgents = args.getOptionValues("noa");
+        List<String> callsPerDay = args.getOptionValues("cpd");
+        List<String> numOfDays = args.getOptionValues("nod");
+        List<String> dateFrom = args.getOptionValues("df");
+        List<String> dateTo = args.getOptionValues("dt");
+        boolean hasNumOfAgentsAndCallsPerDayArgs = numOfAgents != null && callsPerDay != null;
+        boolean hasNumberOfDaysArg = numOfDays != null;
+        boolean hasDateFromDateToArgs = dateFrom != null && dateTo != null;
+
+        return hasNumOfAgentsAndCallsPerDayArgs && (hasNumberOfDaysArg || hasDateFromDateToArgs);
     }
 }
