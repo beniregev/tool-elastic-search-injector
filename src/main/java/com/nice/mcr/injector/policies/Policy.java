@@ -14,8 +14,7 @@ public interface Policy {
     default void setApplicationArguments(ApplicationArguments args) {}
 
     /**
-     * <p>
-     * <div>Use this method to generate the list of agents according to specifications/requirements.</div>
+     * Use this method to generate the list of agents according to specifications/requirements.
      * @param numberOfAgents Number of agents names in the final list.
      * @param uniqueNamePercent Percentage of unique agents names, e.g.
      *                          value=66.5 = 66.5% means 33.5% (335 of 1000) of the names are repeating.
@@ -23,17 +22,12 @@ public interface Policy {
      * @param db {@code MapDB} database ({@link DB}), {@code null} if not in use.
      * @return {@link HTreeMap}<{@link String}, {@link Agent}> containing the list of agent names as the
      * {@code key} and the value is the agent data in {@link Agent} class.
-     * </p>
-     * <p>
-     * <div>
-     *     <i><b>Note:</b></i> We might need to add the number of times each name repeats in the
-     *     list of agents names.
-     * </div>
-     * <div>
-     *     <i><b>For example:</b></i> key="John Doe", value=3 means that the agent name "John Doe"
-     *     appears 3 times in the agents list.
-     * </div>
-     * </p>
+     * Note:
+     *      We might need to add the number of times each name repeats
+     *      in the list of agents names.
+     * For Example:
+     *      key="John Doe", value=3 means that the agent name "John Doe"
+     *      appears 3 times in the agents list.
      */
     default HTreeMap<String, Agent> generateListOfAgents(int numberOfAgents, double uniqueNamePercent, DB db) {
         return null;
