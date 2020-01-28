@@ -8,23 +8,18 @@ import org.mapdb.DBMaker;
 import org.mapdb.HTreeMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.ApplicationArguments;
 
-import javax.annotation.PreDestroy;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 /**
- * <p>
- *     Mocking UserAdminRestClient class to get {@link Agent} by {@code agentId}.
- * </p>
+ *  Mocking UserAdminRestClient class to get {@link Agent}
+ *  by {@code agentId}.
  */
 public class UserAdminRestClientMock {
     private static final Logger log = LoggerFactory.getLogger(UserAdminRestClientMock.class);
@@ -62,21 +57,11 @@ public class UserAdminRestClientMock {
         return mapAgentsNames;
     }
 
-//    public HTreeMap<Integer, Agent> generateListOfAgents(HTreeMap<String, Agent> agentsNames) {
-//        HTreeMap mapAgentsNames = (HTreeMap) agentsNames.values().stream().collect(Collectors.toMap(x -> x.getAgentId(), x -> x));
-//        return mapAgentsNames;
-//    }
-
     /**
-     * <p>
-     * <div>
-     *     Using square-root of {@code numberOfAgents} to have
-     *     larger diversity of first and last names.
-     * </div>
-     * <div>
-     *     Note: middle-name in agent-name is not supported yet.
-     * </div>
-     * </p>
+     * Using square-root of {@code numberOfAgents} to
+     * have larger diversity of first and last names.
+     * Note: middle-name in agent-name is not supported yet.
+     *
      * @param numberOfAgents The size of the list of agents names.
      * @param uniqueNamePercent Percentage of unique names in the list of agents.
      * @param db {@link DB}
