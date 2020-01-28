@@ -58,20 +58,17 @@ public class BacklogPolicy implements Policy {
     //  endregion
 
     /**
-     * <p>
-     * <ul>Parameters to be used in the constructor:
-     * <li><i>Number of Agents</i>: appArgs.get("noa") or appArgs.get("numberOfAgents")</li>
-     * <li><i>Calls Per Day (Per-Agent)</i>: appArgs.get("cpd") or appArgs.get("callsPerDay")</li>
-     * <li>
-     *     <div><i>Number of Days</i>: appArgs.get("nod") or appArgs.get("numberOfDays")</div>
-     *     <div>OR</div>
-     *     <div>Number of days between Date-From and Date-To:</div>
-     *     <div><i>Date-From</i>: appArgs.get("df") or appArgs.get("dateFrom")</div>
-     *     <div><i>Date-To</i>: appArgs.get("dt") or appArgs.get("dateTo")</div>
-     *     <div><code>int numberOfDays = (int) ChronoUnit.DAYS.between(dateFrom, dateTo) + 1;</code></div>
-     * </li>
-     * </ul>
-     * </p>
+     * Parameters to be used in the constructor:
+     * * Number of Agents
+     * * Calls Per Day (Per-Agent)
+     * * Number of Days
+     *   OR
+     *   Number of days between Date-From and Date-To:
+     *   + Date-From
+     *   + Date-To
+     *     <code>
+     *         int numberOfDays = (int) ChronoUnit.DAYS.between(dateFrom, dateTo) + 1;
+     *     </code>
      * @param updateOutputHandlers {@link UpdateOutputHandlers} to be used to output the segments to the target.
      * @param applicationArguments {@link ApplicationArguments} received from {@link MainCli}.
      * @param runInSeparateThread Whether to run task in separate thread or on main thread.
@@ -109,7 +106,6 @@ public class BacklogPolicy implements Policy {
                 .getBean(UserAdminRestClientMock.class)
                 .getMapAgentsNames();
         mapAgentsNames = generateListOfAgents(numberOfAgents, uniqueNamePercentage, dbAgentsNames);
-        //this.mapAgentsNames = (HTreeMap) agentsNames.values().stream().collect(Collectors.toMap(x -> x.getFirstName() + " " + x.getFirstName(), x -> x));
         for (Object object : agentsNames.values()) {
             Agent agent = (Agent) object;
             this.mapAgentsNames.put(agent.getFirstName() + " " + agent.getLastName(), agent);
@@ -199,111 +195,6 @@ public class BacklogPolicy implements Policy {
         };
     }
 
-//    /**
-//     * <div>
-//     *     This constructor was created to handle <i>number-of-agents</i>, <i>number-of-calls</i> per agent per day,
-//     *     and <i>number-of-days</i> OR <i>date-from</i> and <i>date-to</i>.
-//     * </div>
-//     * <div>
-//     *     In this case the value of Overall-Segments is the result of multiplying <i>number-of-agents</i>
-//     *     by <i>number-of-calls</i> (per agent per day) by <i>number-of-days</i> or number of days between
-//     *     <i>date-from</i> and <i>date-to</i>
-//     * </div>
-//     * <div>
-//     *     {@link Map}<String, Integer> containing a list of agents names, containing either completely or partially
-//     *     unique names in the {@link String} key and the {@link Integer} value will hold the number of repetitions
-//     *     the specific agent-name returns in the list of agencts-names.
-//     * </div>
-//     * <div>
-//     *     <b>NOTE:</b> Giving date-from and date-to arguments will override the value of number-of-days arguments.
-//     * </div>
-//     *
-//     */
-//    public BacklogPolicy(UpdateOutputHandlers updateOutputHandlers, Map<String, List<String>> mapArgs, boolean runInSeparateThread) {
-//        final int DURATION_OF_CALL_IN_MINUTES = 5;
-//
-//        this.updateOutputHandlers = updateOutputHandlers;
-//        mapArgs.forEach((k,v) -> appArgs.put(k,v.get(0)));
-//
-//        this.callsPerDay = Integer.parseInt(appArgs.get("callsPerDay"));
-//        this.numberOfAgents = Integer.parseInt(appArgs.get("numberOfAgents"));
-//        this.numberOfDays = Integer.parseInt(appArgs.get("numberOfDays"));
-//        this.stringDateFrom = appArgs.get("stringDateFrom");
-//        this.stringDateTo = appArgs.get("stringDateTo");
-//
-//        this.hasNumOfAgentsAndCallsPerDayArgs = Boolean.parseBoolean(appArgs.get("hasNumOfAgentsAndCallsPerDayArgs"));
-//        this.hasNumberOfDaysArg = Boolean.parseBoolean(appArgs.get("hasNumberOfDaysArg"));
-//        this.hasDateFromDateToArgs = Boolean.parseBoolean(appArgs.get("hasDateFromDateToArgs"));
-//
-//        if (this.hasDateFromDateToArgs) {
-//            //  We need that from 2019-11-01 to 2019-11-05 will be 5 days (November 1st, 2nd, 3rd, 4th and 5th in 2019)
-//            this.numberOfDays = (int) LocalDate.parse(stringDateFrom)
-//                    .until(LocalDate.parse(stringDateTo), DAYS) + 1 ;
-//        }
-//
-//        //  overallSegments = [number of agents] x [calls per day per agent] x [number of days]
-//        //  But, we need to create [callsPerDay] segments per day for every agent, so:
-//        this.overallSegments = this.callsPerDay;
-//
-//        this.runInSeparateThread = runInSeparateThread;
-//        log.debug("entering backlog policy, number of segments to create: " + this.numberOfAgents * this.callsPerDay * this.numberOfDays);
-//
-//        MainCli.shouldCreated += this.overallSegments;
-//
-//        DB dbAgentsNames = DBMaker.fileDB("uniqueAgentsNames-map.db")
-//                .cleanerHackEnable()
-//                .closeOnJvmShutdown()
-//                .make();
-//        HTreeMap<String, Integer> mapAgentsNames = generateListOfAgents(numberOfAgents, 100, dbAgentsNames);
-//        System.out.println("mapAgentsNames.sizeLong() = " + mapAgentsNames.sizeLong());
-//
-//        List<LocalTime> listOfCalls = generateListOfCallsPerDay(this.callsPerDay,
-//                DURATION_OF_CALL_IN_MINUTES);
-//
-//
-//        this.r = () -> {
-//            double startTime = System.currentTimeMillis();
-//
-//            DataCreator dataCreator = new DataCreator(this.overallSegments,
-//                    Thread.currentThread(),
-//                    CPS_CONST);
-//            dataCreator.setAppArgs(this.appArgs);   //  Pass application arguments
-//            dataCreator.setAgentName("agentName");
-//            dataCreator.setListOfCalls(listOfCalls);
-//            dataCreator.create(true);
-//
-//            this.updateOutputHandlers.setDataCreator(dataCreator);
-//            this.updateOutputHandlers.setCallsPerSec(CPS_CONST);
-//            this.updateOutputHandlers.setCallsPerDay(this.callsPerDay);
-//            this.updateOutputHandlers.setNumberOfAgents (this.numberOfAgents);
-//            this.updateOutputHandlers.setNumberOfDays(this.numberOfDays);
-//            this.updateOutputHandlers.setStringDateFrom(this.stringDateFrom);
-//            this.updateOutputHandlers.setStringDateTo(this.stringDateTo);
-//            this.updateOutputHandlers.setOverallSegments(this.overallSegments);
-//
-//            // Make sure the data creation thread gets a 5 sec head start
-//            try {
-//                Thread.currentThread().sleep(5000);
-//            } catch (InterruptedException ie) {
-//                ie.printStackTrace();
-//            }
-//            Timer timer = new Timer();
-//
-//            // Define interval time and Set timer schedule
-//            timer.scheduleAtFixedRate(this.updateOutputHandlers, 0, 1000);
-//
-//            //this.updateOutputHandlers.run();
-//            log.debug("Total run time of this backlog: " + (System.currentTimeMillis() - startTime));
-//            log.debug("Number of Agents: " + this.numberOfAgents);
-//            log.debug("Calls per Agent per Day: " + this.callsPerDay);
-//            log.debug("Date From: " + this.stringDateFrom);
-//            log.debug("Date To: " + this.stringDateTo);
-//            log.debug("Number of Days: " + this.numberOfDays);
-//            log.debug("number of segments should be created: " + MainCli.shouldCreated);
-//            log.debug("number of segments been created: " + MainCli.beenCreated);
-//        };
-//    }
-
     @Override
     public void run() {
         if (this.runInSeparateThread) {
@@ -371,11 +262,6 @@ public class BacklogPolicy implements Policy {
         List<LocalTime> listOfCalls = new ArrayList<>();
         for (int i=1; i<=callsPerDay; i++) {
             listOfCalls.add(timeCallStarted);
-//            System.out.println("Call #" + i + ": \n\tStarted at " + timeCallStarted +
-//                    "\n\tEnded at " + timeCallStarted.plusMinutes(durationOfCallInMinutes) +
-//                    "\n\tContact Start Time: " + timeCallStarted +
-//                    "\n\tContact End Time: " + timeCallStarted.plusSeconds(150)
-//            );
             timeCallStarted = timeCallStarted.plusMinutes(durationOfCallInMinutes).plusMinutes(timeIntervalBetweenCallInMinutes);
         }
         return listOfCalls;
@@ -409,8 +295,7 @@ public class BacklogPolicy implements Policy {
     }
 
     /**
-     * Set ApplicationArguments into a {@link Map}<String, String> to pass it to
-     * the next objects.
+     * Set ApplicationArguments into a {@link Map}<{@link String}, {@link String}>
      * @param args {@link ApplicationArguments} from {@link MainCli} class.
      */
     @Override
