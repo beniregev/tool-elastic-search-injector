@@ -7,6 +7,7 @@ import com.nice.mcr.injector.output.FileOutput;
 import com.nice.mcr.injector.output.OutputHandler;
 import com.nice.mcr.injector.output.RabbitMQOutput;
 import com.nice.mcr.injector.output.SocketOutput;
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -87,7 +88,6 @@ public class DataGeneratorImpl implements DataGenerator {
         return tempBulk;
     }
 
-    //private String generateSegmentDataAgentCallInDay(Agent agent, LocalDateTime callStartDateTime, int numOfInteractions) throws IOException {
     private String generateSegmentDataAgentCallInDay(Agent agent, LocalDateTime callStartDateTime, int numOfInteractions) throws JSONException {
 
         StringBuffer stringBuffer = new StringBuffer(5500 * numOfInteractions);
@@ -98,119 +98,18 @@ public class DataGeneratorImpl implements DataGenerator {
                 .get("doc");
         int durationOfCall = Integer.parseInt(strValue);
 
-        ParticipantType participantType = ParticipantType.getRandomParticipantType();
         DirectionType randomDirectionType = DirectionType.getRandomDirectionType();
 
         final int contactId = getRandomInt();
-        final long sessionId = getRandomLong();
 
-        JSONArray participants = new JSONArray();
-        JSONArray recordings = new JSONArray();
+        JSONArray participants = generateParticipantsJsonArray(agent);
+        JSONArray recordings = generateRecordingsJsonArray(callStartDateTime, durationOfCall);
         JSONArray recordingStatus = new JSONArray();
-
-        //  region populate Participants
-        JSONObject jo = new JSONObject();
-        jo.put(Consts.USER_ID, getRandomWithRange(1, Integer.MAX_VALUE));
-        jo.put(Consts.CTI_USER_IDENTIFIER, null);
-        jo.put(Consts.AGENT_ID, String.valueOf(getRandomWithRange(1, 101)));
-        jo.put(Consts.PHONE_NUMBER, String.valueOf(getRandomWithRange(972500000, 972540000)));
-        jo.put(Consts.UNIQUE_DEVICE_ID, "");
-        jo.put(Consts.USER_GROUP_IDS, new JSONArray());
-        jo.put(Consts.PARTICIPANT_TYPE, "External");
-        jo.put(Consts.IS_INITIATOR, false);
-        jo.put(Consts.RECORDINGS, Arrays.asList(1, 3));
-        jo.put(Consts.FIRST_NAME, agent.getFirstName());
-        jo.put(Consts.LAST_NAME, agent.getLastName());
-        participants.put(jo);
-
-        jo = new JSONObject();
-        StringBuffer firstName = new StringBuffer(firstNames.get(random.nextInt(firstNames.size())));
-        StringBuffer lastName = new StringBuffer(lastNames.get(random.nextInt(lastNames.size())));
-        jo.put(Consts.USER_ID, getRandomWithRange(1, Integer.MAX_VALUE));
-        jo.put(Consts.CTI_USER_IDENTIFIER, null);
-        jo.put(Consts.AGENT_ID, "null");
-        jo.put(Consts.PHONE_NUMBER, String.valueOf(getRandomWithRange(972500000, 972540000)));
-        jo.put(Consts.UNIQUE_DEVICE_ID, "SEP000000008068");
-        jo.put(Consts.USER_GROUP_IDS, new JSONArray());
-        jo.put(Consts.PARTICIPANT_TYPE, "Internal");
-        jo.put(Consts.IS_INITIATOR, false);
-        jo.put(Consts.RECORDINGS, Arrays.asList(2, 4));
-        jo.put(Consts.FIRST_NAME, firstName.toString());
-        jo.put(Consts.LAST_NAME, lastName.toString());
-        participants.put(jo);
-
-        jo = new JSONObject();
-        firstName = new StringBuffer(firstNames.get(random.nextInt(firstNames.size())));
-        lastName = new StringBuffer(lastNames.get(random.nextInt(lastNames.size())));
-        jo.put(Consts.USER_ID, getRandomWithRange(1, Integer.MAX_VALUE));
-        jo.put(Consts.CTI_USER_IDENTIFIER, null);
-        jo.put(Consts.AGENT_ID, "null");
-        jo.put(Consts.PHONE_NUMBER, String.valueOf(getRandomWithRange(972500000, 972540000)));
-        jo.put(Consts.UNIQUE_DEVICE_ID, "SEP000000008068");
-        jo.put(Consts.USER_GROUP_IDS, new JSONArray());
-        jo.put(Consts.PARTICIPANT_TYPE, "Internal");
-        jo.put(Consts.IS_INITIATOR, true);
-        jo.put(Consts.RECORDINGS, Arrays.asList(2, 4));
-        jo.put(Consts.FIRST_NAME, firstName.toString());
-        jo.put(Consts.LAST_NAME, lastName.toString());
-        participants.put(jo);
-        //  endregion
-
-        //  region Populate Recordings
-        jo = new JSONObject();
-        jo.put(Consts.RECORDING_ID, 1);
-        jo.put(Consts.MEDIA_TYPE, MediaTypes.getRandomMediaType().toString());
-        jo.put(Consts.DIRECTION, DIRECTION_RX);
-        jo.put(Consts.SESSION_ID, sessionId);
-        jo.put(Consts.RECORDER_ID, 63);
-        jo.put(Consts.RECORDING_START_TIME, callStartDateTime.format(DATE_FORMAT));
-        jo.put(Consts.RECORDING_END_TIME, callStartDateTime.plusMinutes(durationOfCall).format(DATE_FORMAT));
-        jo.put(Consts.RECORDING_STATUS, "Successful");
-        jo.put(Consts.RECORDING_POLICY_ID, 0);
-        recordings.put(jo);
-
-        jo = new JSONObject();
-        jo.put(Consts.RECORDING_ID, 2);
-        jo.put(Consts.MEDIA_TYPE, MediaTypes.getRandomMediaType().toString());
-        jo.put(Consts.DIRECTION, DIRECTION_TX);
-        jo.put(Consts.SESSION_ID, sessionId);
-        jo.put(Consts.RECORDER_ID, 63);
-        jo.put(Consts.RECORDING_START_TIME, callStartDateTime.format(DATE_FORMAT));
-        jo.put(Consts.RECORDING_END_TIME, callStartDateTime.plusMinutes(durationOfCall).format(DATE_FORMAT));
-        jo.put(Consts.RECORDING_STATUS, "Successful");
-        jo.put(Consts.RECORDING_POLICY_ID, 0);
-        recordings.put(jo);
-
-        jo = new JSONObject();
-        jo.put(Consts.RECORDING_ID, 3);
-        jo.put(Consts.MEDIA_TYPE, MediaTypes.getRandomMediaType().toString());
-        jo.put(Consts.DIRECTION, DIRECTION_RX);
-        jo.put(Consts.SESSION_ID, sessionId);
-        jo.put(Consts.RECORDER_ID, 63);
-        jo.put(Consts.RECORDING_START_TIME, callStartDateTime.format(DATE_FORMAT));
-        jo.put(Consts.RECORDING_END_TIME, callStartDateTime.plusMinutes(durationOfCall).format(DATE_FORMAT));
-        jo.put(Consts.RECORDING_STATUS, "Successful");
-        jo.put(Consts.RECORDING_POLICY_ID, 0);
-        recordings.put(jo);
-
-        jo = new JSONObject();
-        jo.put(Consts.RECORDING_ID, 4);
-        jo.put(Consts.MEDIA_TYPE, MediaTypes.getRandomMediaType().toString());
-        jo.put(Consts.DIRECTION, DIRECTION_TX);
-        jo.put(Consts.SESSION_ID, sessionId);
-        jo.put(Consts.RECORDER_ID, 63);
-        jo.put(Consts.RECORDING_START_TIME, callStartDateTime.format(DATE_FORMAT));
-        jo.put(Consts.RECORDING_END_TIME, callStartDateTime.plusMinutes(durationOfCall).format(DATE_FORMAT));
-        jo.put(Consts.RECORDING_STATUS, "Successful");
-        jo.put(Consts.RECORDING_POLICY_ID, 0);
-        recordings.put(jo);
-        //  endregion
 
         //  region Populate Recording-Status
         Map<String, String> mapRecordingStatus = new HashMap<>();
         mapRecordingStatus.put("Voice", "Successful");
         JSONObject joRecordingStatus = new JSONObject(mapRecordingStatus);
-        jo = new JSONObject(mapRecordingStatus);
         //  endregion
 
         //  region packing it all together into one JSONObject
@@ -241,10 +140,98 @@ public class DataGeneratorImpl implements DataGenerator {
         return stringBuffer.toString();
     }
 
-    public String generateBulkData(int numOfInteractions) throws JSONException {
+    /**
+     * Generate participants and populate {@link JSONArray}
+     *
+     * @param agent
+     * @return {@link JSONArray}
+     * @throws JSONException
+     */
+    @NotNull
+    private JSONArray generateParticipantsJsonArray(Agent agent) throws JSONException {
+        JSONArray participants = new JSONArray();
 
-        StringBuffer strEndOfYear = new StringBuffer("-12-31 23:59:00.123")
-                .insert(0, LocalDate.now().getYear());
+        //  Participant is an Agent, use agentId, agent first & last name
+        JSONObject jo = generateParticipantsJsonObject("Internal", false, Arrays.asList(1, 3));
+        jo.put(Consts.AGENT_ID, String.valueOf(getRandomWithRange(1, 101)));
+        jo.put(Consts.NVC_FIRST_NAME, agent.getFirstName());
+        jo.put(Consts.NVC_LAST_NAME, agent.getLastName());
+        participants.put(jo);
+
+        //  Participant is NOT an agent
+        jo = generateParticipantsJsonObject("External", false, Arrays.asList(2, 4));
+        participants.put(jo);
+
+        //  Participant is NOT an agent
+        jo = generateParticipantsJsonObject("External", true, Arrays.asList(2, 3));
+        participants.put(jo);
+
+        return participants;
+    }
+
+    private JSONObject generateParticipantsJsonObject(String participantType, boolean isInitiator, List recordings) throws JSONException {
+        JSONObject jsonObj = new JSONObject();
+
+        jsonObj.put(Consts.USER_ID, getRandomWithRange(1, Integer.MAX_VALUE));
+        jsonObj.put(Consts.CTI_USER_IDENTIFIER, null);
+        jsonObj.put(Consts.AGENT_ID, "null");
+        jsonObj.put(Consts.PHONE_NUMBER, String.valueOf(getRandomWithRange(972500000, 972540000)));
+        jsonObj.put(Consts.UNIQUE_DEVICE_ID, "SEP000000008068");
+        jsonObj.put(Consts.USER_GROUP_IDS, new JSONArray());
+        jsonObj.put(Consts.PARTICIPANT_TYPE, participantType);
+        jsonObj.put(Consts.IS_INITIATOR, isInitiator);
+        jsonObj.put(Consts.RECORDINGS, recordings);
+        jsonObj.put(Consts.NVC_FIRST_NAME, firstNames.get(random.nextInt(firstNames.size())));
+        jsonObj.put(Consts.NVC_LAST_NAME, lastNames.get(random.nextInt(lastNames.size())));
+        return jsonObj;
+    }
+
+    /**
+     * Generate recordings and populate {@link JSONArray}
+     *
+     * @param callStartDateTime
+     * @return {@link JSONArray}
+     * @throws JSONException
+     */
+    @NotNull
+    private JSONArray generateRecordingsJsonArray(LocalDateTime callStartDateTime, int durationOfCall) throws JSONException {
+
+        JSONArray recordings = new JSONArray();
+        JSONObject jo = generateRecordingsJsonObject(callStartDateTime, durationOfCall, DIRECTION_RX);
+        recordings.put(jo);
+
+        jo = generateRecordingsJsonObject(callStartDateTime, durationOfCall, DIRECTION_RX);
+        recordings.put(jo);
+
+        jo = generateRecordingsJsonObject(callStartDateTime, durationOfCall, DIRECTION_TX);
+        recordings.put(jo);
+
+        jo = generateRecordingsJsonObject(callStartDateTime, durationOfCall, DIRECTION_RX);
+        recordings.put(jo);
+
+        jo = generateRecordingsJsonObject(callStartDateTime, durationOfCall, DIRECTION_TX);
+        recordings.put(jo);
+
+        return recordings;
+    }
+
+    @NotNull
+    private JSONObject generateRecordingsJsonObject(LocalDateTime callStartDateTime, int durationOfCall, String direction) throws JSONException {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put(Consts.RECORDING_ID, 1);
+        jsonObject.put(Consts.MEDIA_TYPE, MediaTypes.getRandomMediaType().toString());
+        jsonObject.put(Consts.DIRECTION, direction);
+        jsonObject.put(Consts.SESSION_ID, getRandomLong());
+        jsonObject.put(Consts.RECORDER_ID, 63);
+        jsonObject.put(Consts.RECORDING_START_TIME, callStartDateTime.format(DATE_FORMAT));
+        jsonObject.put(Consts.RECORDING_END_TIME, callStartDateTime.plusMinutes(durationOfCall).format(DATE_FORMAT));
+        jsonObject.put(Consts.RECORDING_STATUS, "Successful");
+        jsonObject.put(Consts.RECORDING_POLICY_ID, 0);
+
+        return jsonObject;
+    }
+
+    public String generateBulkData(int numOfInteractions) throws JSONException {
 
         StringBuilder stringBuilder = new StringBuilder(5500 * numOfInteractions);
         for (int i = 0; i < numOfInteractions; i++) {
