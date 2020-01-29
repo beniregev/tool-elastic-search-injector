@@ -11,10 +11,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * <p>
- * Class to create data for Agent number of calls-per-day. Separated from {@link DataCreator} to
- * avoid damaging/changing existing and working functionality, plus, adding functionality required.
- * </p>
+ * Class to create data for Agent number of calls-per-day. Separated
+ * from {@link DataCreator} to avoid damaging/changing existing and
+ * working functionality, plus, adding functionality required.
  * @author Binyamin Regev
  */
 //  TODO Binyamin Regev -- abstract class or interface {@code DataCreator} and this class extends it
