@@ -53,7 +53,6 @@ public class UpdateOutputHandlers extends TimerTask {
      * The function creates a new json using the DataGenerator class and updates it's listeners.
      */
     public void run() {
-//        List<String> readySegmentsList = this.dataCreator.getSegmentsList();
         // when it should be the last iteration of the task
         // TODO: This condition should be reviewed if still necessary
         if ((this.counter + this.callsPerSec) >= this.overallSegments) {
@@ -72,7 +71,6 @@ public class UpdateOutputHandlers extends TimerTask {
             } else {
                 segment = dataCreatorAgentCallsDays.getSegment();
             }
-            //System.out.println(">>>>> UpdateOutputHandlers.run() dataCreator*.getSegment() = " + segment);
             for (OutputHandler oh : this.outputHandlers) {
                 if (SteadyPolicy.isRun) {
                     if (segment != null) {
