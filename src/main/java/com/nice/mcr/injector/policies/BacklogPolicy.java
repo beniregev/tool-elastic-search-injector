@@ -112,9 +112,7 @@ public class BacklogPolicy implements Policy {
         }
 
         List<LocalDate> listOfDates = generateListOfDates(dateFrom,dateTo);
-
         List<LocalTime> listOfCallsTimes = generateListOfCallsPerDay(callsPerDay, durationOfCall);
-        listOfCallsTimes.forEach(System.out::println);
 
         this.listOfCallsPerAgent = new ArrayList<>();
         for (LocalDate date : listOfDates) {
