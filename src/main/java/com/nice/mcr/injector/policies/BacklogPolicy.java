@@ -187,40 +187,6 @@ public class BacklogPolicy implements Policy {
      */
     @Override
     public HTreeMap<String, Agent> generateListOfAgents(int numberOfAgents, double uniqueNamePercent, DB db) {
-        //List<String> firstNames = generateNames("..\\tool-elastic-search-injector\\input\\first-names.txt");
-        //List<String> lastNames = generateNames("..\\tool-elastic-search-injector\\input\\last-names.txt");
-        ////  numberOfFirstNames and numberOfLastNames is the same, since using Square Root to find them
-        //int numberOfFirstNames = (int)Math.sqrt((double)numberOfAgents) + 1;
-        //log.trace("Number of First Names = " + numberOfFirstNames);
-        //HTreeMap htreeMap = db.hashMap("mapAgentsNames").createOrOpen();
-        //long start = System.currentTimeMillis();
-        //int i=1;
-        //int agentId = 1;
-        //for(String firstName : firstNames) {
-        //    int j=1;
-        //    for (String lastName : lastNames) {
-        //        String agentName = firstName + " " + lastName;
-        //        Agent agent = (Agent)htreeMap.get(agentName);
-        //        if (agent != null) {
-        //            agent.incrementAmountInList();
-        //        } else {
-        //            agent = new Agent(agentId, firstName, lastName);
-        //        }
-        //        htreeMap.put(agentName, agent);
-        //
-        //        log.trace("firstName=" + firstName + " ; lastName=" + lastName);
-        //        j++;
-        //        if (j > numberOfFirstNames) break;
-        //    }
-        //    i++;
-        //    if (i > numberOfFirstNames) break;
-        //}
-        //long end = System.currentTimeMillis();
-        //log.debug("Generating a list of " + numberOfAgents +
-        //        " agents names took " + (end - start) + " milliseconds");
-        //
-        //return htreeMap;
-
         //  Get Agents-Names list from ApplicationContext
         HTreeMap agentsNames = ApplicationContextProvider
                 .getApplicationContext()
