@@ -95,17 +95,9 @@ public class BacklogPolicy implements Policy {
         log.debug("entering backlog policy, number of segments to create: " + this.overallSegments);
         MainCli.shouldCreated += this.overallSegments;
 
-        HTreeMap agentsNames = ApplicationContextProvider
-                .getApplicationContext()
-                .getBean(UserAdminRestClientMock.class)
-                .getMapAgentsNames();
         dbAgentsNames = makeDBFileForMapDB(AGENTS_NAMES_DATABASE_FILE);
         mapAgentsNames = generateListOfAgents(numberOfAgents, uniqueNamePercentage, dbAgentsNames);
-        for (Object object : agentsNames.values()) {
-            Agent agent = (Agent) object;
-            this.mapAgentsNames.put(agent.getFirstName() + " " + agent.getLastName(), agent);
-        }
-        this.listOfCallsPerAgent = generateListOfCallsPerAgent(dateFrom, dateTo);
+        listOfCallsPerAgent = generateListOfCallsPerAgent(dateFrom, dateTo);
 
         this.r = () -> {
             double startTime = System.currentTimeMillis();
@@ -181,47 +173,75 @@ public class BacklogPolicy implements Policy {
         }
     }
 
+    /**
+     * Use {@link UserAdminRestClientMock#generateListOfAgents(int, double, DB)}
+     * to create the agents-list. This method only take that list and convert it
+     * from {@link HTreeMap}<{@link Integer}, {@link Agent}> to
+     * {@link HTreeMap}<{@link String}, {@link Agent}>.
+     * @param numberOfAgents Number of agents names in the final list.
+     * @param uniqueNamePercent Percentage of unique agents names, e.g.
+     *                          value=66.5 = 66.5% means 33.5% (335 of 1000) of the names are repeating.
+     *                          value=100.0 = 100% means all unique names, no duplicates.
+     * @param db {@code MapDB} database ({@link DB}), {@code null} if not in use.
+     * @return
+     */
     @Override
     public HTreeMap<String, Agent> generateListOfAgents(int numberOfAgents, double uniqueNamePercent, DB db) {
-        List<String> firstNames = generateNames("..\\tool-elastic-search-injector\\input\\first-names.txt");
-        List<String> lastNames = generateNames("..\\tool-elastic-search-injector\\input\\last-names.txt");
-        List<String> middleNames = generateNames("..\\tool-elastic-search-injector\\input\\middle-names.txt");
+        //List<String> firstNames = generateNames("..\\tool-elastic-search-injector\\input\\first-names.txt");
+        //List<String> lastNames = generateNames("..\\tool-elastic-search-injector\\input\\last-names.txt");
+        ////  numberOfFirstNames and numberOfLastNames is the same, since using Square Root to find them
+        //int numberOfFirstNames = (int)Math.sqrt((double)numberOfAgents) + 1;
+        //log.trace("Number of First Names = " + numberOfFirstNames);
+        //HTreeMap htreeMap = db.hashMap("mapAgentsNames").createOrOpen();
+        //long start = System.currentTimeMillis();
+        //int i=1;
+        //int agentId = 1;
+        //for(String firstName : firstNames) {
+        //    int j=1;
+        //    for (String lastName : lastNames) {
+        //        String agentName = firstName + " " + lastName;
+        //        Agent agent = (Agent)htreeMap.get(agentName);
+        //        if (agent != null) {
+        //            agent.incrementAmountInList();
+        //        } else {
+        //            agent = new Agent(agentId, firstName, lastName);
+        //        }
+        //        htreeMap.put(agentName, agent);
+        //
+        //        log.trace("firstName=" + firstName + " ; lastName=" + lastName);
+        //        j++;
+        //        if (j > numberOfFirstNames) break;
+        //    }
+        //    i++;
+        //    if (i > numberOfFirstNames) break;
+        //}
+        //long end = System.currentTimeMillis();
+        //log.debug("Generating a list of " + numberOfAgents +
+        //        " agents names took " + (end - start) + " milliseconds");
+        //
+        //return htreeMap;
 
-        //  numberOfFirstNames and numberOfLastNames is the same, since using Square Root to find them
-        int numberOfFirstNames = (int)Math.sqrt((double)numberOfAgents) + 1;
-        log.trace("Number of First Names = " + numberOfFirstNames);
+        //  Get Agents-Names list from ApplicationContext
+        HTreeMap agentsNames = ApplicationContextProvider
+                .getApplicationContext()
+                .getBean(UserAdminRestClientMock.class)
+                .getMapAgentsNames();
+        HTreeMap mapNames = db.hashMap("mapAgentsNames").createOrOpen();
 
-        HTreeMap htreeMap = db.hashMap("mapAgentsNames").createOrOpen();
+        //  Convert HTreeMap<Integer, Agent> to HTreeMap<String, Agent>
         long start = System.currentTimeMillis();
-        int i=1;
-        int agentId = 1;
-        for(String firstName : firstNames) {
-            int j=1;
-            for (String lastName : lastNames) {
-                String agentName = firstName + " " + lastName;
-                Agent agent = (Agent)htreeMap.get(agentName);
-                if (agent != null) {
-                    agent.incrementAmountInList();
-                } else {
-                    agent = new Agent(agentId, firstName, lastName);
-                }
-                htreeMap.put(agentName, agent);
-
-                log.trace("firstName=" + firstName + " ; lastName=" + lastName);
-                j++;
-                if (j > numberOfFirstNames) break;
-            }
-            i++;
-            if (i > numberOfFirstNames) break;
+        for (Object object : agentsNames.values()) {
+            Agent agent = (Agent) object;
+            mapNames.put(agent.getFirstName() + " " + agent.getLastName(), agent);
         }
         long end = System.currentTimeMillis();
-        log.debug("Generating a list of " + numberOfAgents +
+        log.debug("Converting the list of " + numberOfAgents +
                 " agents names took " + (end - start) + " milliseconds");
 
-        return htreeMap;
+        return mapNames;
     }
 
-    private List generateListOfCallsPerAgent(LocalDate dateFrom, LocalDate dateTo) {
+    private List<LocalDateTime> generateListOfCallsPerAgent(LocalDate dateFrom, LocalDate dateTo) {
         int durationOfCall = Integer.parseInt(appArgs.get("doc"));
 
         List<LocalDate> listOfDates = generateListOfDates(dateFrom,dateTo);
