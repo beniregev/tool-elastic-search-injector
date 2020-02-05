@@ -32,6 +32,8 @@ import java.util.stream.IntStream;
 public class BacklogPolicy implements Policy {
     private static final Logger log = LoggerFactory.getLogger(BacklogPolicy.class);
 
+    private static final String AGENTS_NAMES_DATABASE_FILE = "MapAgentsNames.db";
+
     //  region class properties
     private final static int CPS_CONST = 1000;
     private UpdateOutputHandlers updateOutputHandlers;
@@ -93,17 +95,11 @@ public class BacklogPolicy implements Policy {
         log.debug("entering backlog policy, number of segments to create: " + this.overallSegments);
         MainCli.shouldCreated += this.overallSegments;
 
-        dbAgentsNames = DBMaker.fileDB("MapAgentsNames.db")
-                .cleanerHackEnable()
-                .closeOnJvmShutdown()
-                .make();
-        mapAgentsNames = dbAgentsNames
-                .hashMap("MapAgentsNames")
-                .createOrOpen();
         HTreeMap agentsNames = ApplicationContextProvider
                 .getApplicationContext()
                 .getBean(UserAdminRestClientMock.class)
                 .getMapAgentsNames();
+        dbAgentsNames = makeDBFileForMapDB(AGENTS_NAMES_DATABASE_FILE);
         mapAgentsNames = generateListOfAgents(numberOfAgents, uniqueNamePercentage, dbAgentsNames);
         for (Object object : agentsNames.values()) {
             Agent agent = (Agent) object;
@@ -273,7 +269,6 @@ public class BacklogPolicy implements Policy {
             while ((line = bufferReader.readLine()) != null) {
                 names.add(line);
             }
-
         } catch (FileNotFoundException fnfe) {
             log.error("", fnfe);
         } catch (IOException ioe) {
@@ -289,6 +284,13 @@ public class BacklogPolicy implements Policy {
         }
         log.debug("names \"" + path + "\": " + names.size());
         return names;
+    }
+
+    private DB makeDBFileForMapDB(String databaseFileName) {
+        return DBMaker.fileDB(databaseFileName)
+                .cleanerHackEnable()
+                .closeOnJvmShutdown()
+                .make();
     }
 
     /**
