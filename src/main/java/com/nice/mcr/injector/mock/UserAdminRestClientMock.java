@@ -31,7 +31,6 @@ public class UserAdminRestClientMock {
     private double uniqueNamePercent;
 
     public UserAdminRestClientMock() {
-        //ArgsComponent argsComponent = applicationContext.getBean(ArgsComponent.class);
         this.dbAgentsNames = DBMaker.fileDB("MockAgentsNames.db")
                 .cleanerHackEnable()
                 .closeOnJvmShutdown()
@@ -70,7 +69,6 @@ public class UserAdminRestClientMock {
     public HTreeMap<Integer, Agent> generateListOfAgents(int numberOfAgents, double uniqueNamePercent, DB db) {
         List<String> firstNames = generateNames("..\\tool-elastic-search-injector\\input\\first-names.txt");
         List<String> lastNames = generateNames("..\\tool-elastic-search-injector\\input\\last-names.txt");
-        //List<String> middleNames = generateNames("..\\tool-elastic-search-injector\\input\\middle-names.txt");
         int numberOfFirstNames = getNumberOfAgentsSquareRoot(numberOfAgents);
         log.debug("Number of First Names = " + numberOfFirstNames);
 
@@ -92,8 +90,6 @@ public class UserAdminRestClientMock {
             if (i > numberOfFirstNames) break;
         }
         long end = System.currentTimeMillis();
-        log.debug("Generating a list of " + numberOfAgents +
-                " agents names took " + (end - start) + " milliseconds");
 
         return mapAgentsNames;
     }
@@ -120,7 +116,7 @@ public class UserAdminRestClientMock {
             }
 
         } catch (FileNotFoundException fnfe) {
-            log.error("", fnfe);
+            log.error("File \"" + path + "\" not found were expected. ", fnfe);
         } catch (IOException ioe) {
             log.error("Error while reading name file", ioe);
         } finally {
