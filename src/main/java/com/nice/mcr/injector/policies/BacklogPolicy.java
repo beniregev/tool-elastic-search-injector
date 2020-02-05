@@ -82,7 +82,6 @@ public class BacklogPolicy implements Policy {
         int numberOfAgents = Integer.parseInt(appArgs.get("noa"));
         int uniqueNamePercentage = Integer.parseInt(appArgs.get("unp"));
         this.callsPerDay = Integer.parseInt(appArgs.get("cpd"));
-        int durationOfCall = Integer.parseInt(appArgs.get("doc"));
         int numberOfDays = Integer.parseInt(appArgs.get("nod"));
         LocalDate dateFrom = (appArgs.get("df") != null) ? LocalDate.parse(appArgs.get("df")) : null;
         LocalDate dateTo = (appArgs.get("dt") != null) ? LocalDate.parse(appArgs.get("dt")) : null;
@@ -111,15 +110,7 @@ public class BacklogPolicy implements Policy {
             this.mapAgentsNames.put(agent.getFirstName() + " " + agent.getLastName(), agent);
         }
 
-        List<LocalDate> listOfDates = generateListOfDates(dateFrom,dateTo);
-        List<LocalTime> listOfCallsTimes = generateListOfCallsPerDay(callsPerDay, durationOfCall);
-
-        this.listOfCallsPerAgent = new ArrayList<>();
-        for (LocalDate date : listOfDates) {
-            for (LocalTime time : listOfCallsTimes) {
-                this.listOfCallsPerAgent.add(LocalDateTime.of(date, time));
-            }
-        }
+        this.listOfCallsPerAgent = generateListOfCallsPerAgent(dateFrom, dateTo);
         this.listOfCallsPerAgent.forEach(System.out::println);
 
         this.r = () -> {
@@ -234,6 +225,22 @@ public class BacklogPolicy implements Policy {
                 " agents names took " + (end - start) + " milliseconds");
 
         return htreeMap;
+    }
+
+    private List generateListOfCallsPerAgent(LocalDate dateFrom, LocalDate dateTo) {
+        int durationOfCall = Integer.parseInt(appArgs.get("doc"));
+
+        List<LocalDate> listOfDates = generateListOfDates(dateFrom,dateTo);
+        List<LocalTime> listOfCallsTimes = generateListOfCallsPerDay(this.callsPerDay, durationOfCall);
+
+        List<LocalDateTime> callsPerAgent = new ArrayList<>();
+        for (LocalDate date : listOfDates) {
+            for (LocalTime time : listOfCallsTimes) {
+                callsPerAgent.add(LocalDateTime.of(date, time));
+            }
+        }
+
+        return callsPerAgent;
     }
 
     private List<LocalDate> generateListOfDates(LocalDate dateFrom, LocalDate dateTo) {
