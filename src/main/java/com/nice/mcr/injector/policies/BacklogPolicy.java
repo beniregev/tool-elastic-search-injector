@@ -109,9 +109,7 @@ public class BacklogPolicy implements Policy {
             Agent agent = (Agent) object;
             this.mapAgentsNames.put(agent.getFirstName() + " " + agent.getLastName(), agent);
         }
-
         this.listOfCallsPerAgent = generateListOfCallsPerAgent(dateFrom, dateTo);
-        this.listOfCallsPerAgent.forEach(System.out::println);
 
         this.r = () -> {
             double startTime = System.currentTimeMillis();
