@@ -146,11 +146,6 @@ public class BacklogPolicy implements Policy {
                 this.updateOutputHandlers.setDataCreatorAgentCallsDays(dataCreatorAgentCallsDays);
                 this.updateOutputHandlers.setCallsPerSec(CPS_CONST);
                 this.updateOutputHandlers.setOverallSegments(this.overallSegments);
-
-                //// Define interval time Set timer schedule
-                //Timer timer = new Timer();
-                //timer.scheduleAtFixedRate(this.updateOutputHandlers, 0, 1000);
-
             }
             System.out.println("Total run time of this backlog: " + (System.currentTimeMillis() - startTime));
             System.out.println("number of segments should be created: " + MainCli.shouldCreated);
