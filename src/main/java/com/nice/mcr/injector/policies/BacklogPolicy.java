@@ -39,7 +39,7 @@ public class BacklogPolicy implements Policy {
     private UpdateOutputHandlers updateOutputHandlers;
     private int overallSegments;
     private boolean runInSeparateThread;
-    private Runnable r;
+    private Runnable runnable;
 
     private int callsPerDay;
     private boolean hasNumOfAgentsAndCallsPerDayArgs = false;
@@ -99,7 +99,7 @@ public class BacklogPolicy implements Policy {
         mapAgentsNames = generateListOfAgents(numberOfAgents, uniqueNamePercentage, dbAgentsNames);
         listOfCallsPerAgent = generateListOfCallsPerAgent(dateFrom, dateTo);
 
-        this.r = () -> {
+        this.runnable = () -> {
             double startTime = System.currentTimeMillis();
             int index = 1;
 
@@ -137,7 +137,7 @@ public class BacklogPolicy implements Policy {
         this.runInSeparateThread = runInSeparateThread;
         log.debug("entering backlog policy, number of segments to create: " + this.overallSegments);
         MainCli.shouldCreated += overallSegments;
-        this.r = () -> {
+        this.runnable = () -> {
             double startTime = System.currentTimeMillis();
             DataCreator dataCreator = new DataCreator(this.overallSegments,
                     Thread.currentThread(),
@@ -167,9 +167,9 @@ public class BacklogPolicy implements Policy {
     @Override
     public void run() {
         if (this.runInSeparateThread) {
-            new Thread(this.r, "BacklogPolicyThread").start();
+            new Thread(this.runnable, "BacklogPolicyThread").start();
         } else {
-            this.r.run();
+            this.runnable.run();
         }
     }
 
