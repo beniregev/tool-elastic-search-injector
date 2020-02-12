@@ -187,7 +187,6 @@ public class BacklogPolicy implements Policy {
      */
     @Override
     public HTreeMap<String, Agent> generateListOfAgents(int numberOfAgents, double uniqueNamePercent, DB db) {
-        //  Get Agents-Names list from ApplicationContext
         HTreeMap agentsNames = ApplicationContextProvider
                 .getApplicationContext()
                 .getBean(UserAdminRestClientMock.class)
@@ -195,14 +194,10 @@ public class BacklogPolicy implements Policy {
         HTreeMap mapNames = db.hashMap("mapAgentsNames").createOrOpen();
 
         //  Convert HTreeMap<Integer, Agent> to HTreeMap<String, Agent>
-        long start = System.currentTimeMillis();
         for (Object object : agentsNames.values()) {
             Agent agent = (Agent) object;
             mapNames.put(agent.getFirstName() + " " + agent.getLastName(), agent);
         }
-        long end = System.currentTimeMillis();
-        log.debug("Converting the list of " + numberOfAgents +
-                " agents names took " + (end - start) + " milliseconds");
 
         return mapNames;
     }
