@@ -100,9 +100,8 @@ public class UserAdminRestClientMock {
      * @return {@link Integer} value of Square-Root
      */
     private int getNumberOfAgentsSquareRoot(int value) {
-        double sqrt = Math.sqrt(numberOfAgents);
-        if (Math.floor(Math.sqrt(numberOfAgents)) != sqrt) sqrt++;
-        return (int)sqrt;
+        double returnValue = Math.ceil(Math.sqrt(value));
+        return (int)returnValue;
     }
 
     private List<String> generateNames(String path) {
