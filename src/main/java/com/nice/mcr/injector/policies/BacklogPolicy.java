@@ -60,17 +60,8 @@ public class BacklogPolicy implements Policy {
     //  endregion
 
     /**
-     * Parameters to be used in the constructor:
-     * * Number of Agents
-     * * Calls Per Day (Per-Agent)
-     * * Number of Days
-     *   OR
-     *   Number of days between Date-From and Date-To:
-     *   + Date-From
-     *   + Date-To
-     *     <code>
-     *         int numberOfDays = (int) ChronoUnit.DAYS.between(dateFrom, dateTo) + 1;
-     *     </code>
+     *  The {@link LocalDate} format for both {@code Date-From}
+     *  and {@code Date-To} is <i>yyyy-MM-dd</i>
      * @param updateOutputHandlers {@link UpdateOutputHandlers} to be used to output the segments to the target.
      * @param applicationArguments {@link ApplicationArguments} received from {@link MainCli}.
      * @param runInSeparateThread Whether to run task in separate thread or on main thread.
