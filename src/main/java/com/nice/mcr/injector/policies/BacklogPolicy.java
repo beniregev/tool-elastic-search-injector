@@ -39,7 +39,88 @@ public class BacklogPolicy implements Policy {
     private UpdateOutputHandlers updateOutputHandlers;
     private int overallSegments;
     private boolean runInSeparateThread;
-    private Runnable r;
+    private Runnable runnable;
+
+    private int callsPerDay;
+    private boolean hasNumOfAgentsAndCallsPerDayArgs = false;
+    private boolean hasNumberOfDaysArg = false;
+    private boolean hasDateFromDateToArgs = false;
+    private DB dbAgentsNames;
+    private HTreeMap mapAgentsNames;
+    private List<LocalDateTime> listOfCallsPerAgent;
+
+    //  ApplicationArguments --> received from MainCli class and converted into Map<String, List<String>>
+    @Autowired
+    private ApplicationContext applicationContext;
+    @Autowired
+    private UserAdminRestClientMock userAdminRestClientMock;
+
+    private ApplicationArguments applicationArguments;
+    private Map<String, String> appArgs = new HashMap<>();
+    //  endregion
+
+    /**
+     *  The {@link LocalDate} format for both {@code Date-From}
+     *  and {@code Date-To} is <i>yyyy-MM-dd</i>
+     * @param updateOutputHandlers {@link UpdateOutputHandlers} to be used to output the segments to the target.
+     * @param applicationArguments {@link ApplicationArguments} received from {@link MainCli}.
+     * @param runInSeparateThread Whether to run task in separate thread or on main thread.
+     */
+    public BacklogPolicy(UpdateOutputHandlers updateOutputHandlers, ApplicationArguments applicationArguments, boolean runInSeparateThread) {
+        this.applicationArguments = applicationArguments;
+        this.updateOutputHandlers = updateOutputHandlers;
+        this.runInSeparateThread = runInSeparateThread;
+
+        this.setApplicationArguments(applicationArguments);
+        int numberOfAgents = Integer.parseInt(appArgs.get("noa"));
+        int uniqueNamePercentage = Integer.parseInt(appArgs.get("unp"));
+        this.callsPerDay = Integer.parseInt(appArgs.get("cpd"));
+        int numberOfDays = Integer.parseInt(appArgs.get("nod"));
+        LocalDate dateFrom = (appArgs.get("df") != null) ? LocalDate.parse(appArgs.get("df")) : null;
+        LocalDate dateTo = (appArgs.get("dt") != null) ? LocalDate.parse(appArgs.get("dt")) : null;
+        //  Having Date-From and Date-To overrides number-of-days value
+        if (dateFrom != null && dateTo != null) {
+            numberOfDays = (int) ChronoUnit.DAYS.between(dateFrom, dateTo) + 1;
+        }
+        this.overallSegments = numberOfAgents * this.callsPerDay * numberOfDays;
+        log.debug("entering backlog policy, number of segments to create: " + this.overallSegments);
+        MainCli.shouldCreated += this.overallSegments;
+
+        dbAgentsNames = makeDBFileForMapDB(AGENTS_NAMES_DATABASE_FILE);
+        mapAgentsNames = generateListOfAgents(numberOfAgents, uniqueNamePercentage, dbAgentsNames);
+        listOfCallsPerAgent = generateListOfCallsPerAgent(dateFrom, dateTo);
+
+        this.runnable = () -> {
+            double startTime = System.currentTimeMillis();
+            int index = 1;
+
+            for (Object object : mapAgentsNames.getKeys()) {
+                String agentName = (String) object;
+                Agent agent = (Agent)mapAgentsNames.get(agentName);
+                DataCreatorAgentCallsDays dataCreatorAgentCallsDays = new DataCreatorAgentCallsDays(
+                        Thread.currentThread(), agent, this.listOfCallsPerAgent,
+                        1, this.overallSegments, index,
+                        this.updateOutputHandlers.getOutputHandlers());
+                Thread thread = new Thread(dataCreatorAgentCallsDays);
+                thread.start();
+                index++;
+
+                // Make sure the data creation thread gets a 5 sec head start
+                try {
+                    Thread.currentThread().sleep(5000);
+                } catch (InterruptedException ie) {
+                    ie.printStackTrace();
+                }
+                this.updateOutputHandlers.setDataCreatorAgentCallsDays(dataCreatorAgentCallsDays);
+                this.updateOutputHandlers.setCallsPerSec(CPS_CONST);
+                this.updateOutputHandlers.setOverallSegments(this.overallSegments);
+            }
+            System.out.println("Total run time of this backlog: " + (System.currentTimeMillis() - startTime));
+            System.out.println("number of segments should be created: " + MainCli.shouldCreated);
+            System.out.println("number of segments been created: " + MainCli.beenCreated);
+
+        };
+    }
 
     public BacklogPolicy(UpdateOutputHandlers updateOutputHandlers, int overallSegments, boolean runInSeparateThread) {
         this.updateOutputHandlers = updateOutputHandlers;
